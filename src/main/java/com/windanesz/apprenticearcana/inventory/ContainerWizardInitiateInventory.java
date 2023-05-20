@@ -1,5 +1,6 @@
 package com.windanesz.apprenticearcana.inventory;
 
+import com.windanesz.apprenticearcana.ApprenticeArcana;
 import com.windanesz.apprenticearcana.entity.living.EntityWizardInitiate;
 import electroblob.wizardry.item.ItemWand;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -9,6 +10,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemArmor;
@@ -21,7 +23,10 @@ import javax.annotation.Nullable;
 public class ContainerWizardInitiateInventory extends Container {
 	private final IInventory wizardInventory;
 	private final EntityWizardInitiate wizard;
-	private static final EntityEquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EntityEquipmentSlot[] {EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
+	private static final EntityEquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EntityEquipmentSlot[] {EntityEquipmentSlot.HEAD,
+			EntityEquipmentSlot.CHEST,
+			EntityEquipmentSlot.LEGS,
+			EntityEquipmentSlot.FEET};
 
 	public ContainerWizardInitiateInventory(IInventory playerInventory, IInventory inventory, final EntityWizardInitiate wizard, EntityPlayer player) {
 		this.wizardInventory = inventory;
@@ -30,11 +35,12 @@ public class ContainerWizardInitiateInventory extends Container {
 		inventory.openInventory(player);
 		int j = -18;
 
-
+		//main hand
 		this.addSlotToContainer(new Slot(inventory, 0, 62, 64) {
-			public boolean isItemValid(ItemStack stack) {
-				return stack.getItem() instanceof ItemWand && !this.getHasStack() && wizard.canBeSaddled();
-			}
+//			public boolean isItemValid(ItemStack stack) {
+//				return !this.getHasStack();
+//			}
+
 			//
 			@SideOnly(Side.CLIENT)
 			public boolean isEnabled() {
@@ -42,77 +48,79 @@ public class ContainerWizardInitiateInventory extends Container {
 			}
 		});
 
+
+		//		//offhand
+		//		this.addSlotToContainer(new Slot(inventory, 0, 46, 64) {
+		//			//
+		//			@SideOnly(Side.CLIENT)
+		//			public boolean isEnabled() {
+		//				return true;
+		//			}
+		//		});
+
+		// offhand bauble slot
 		this.addSlotToContainer(new Slot(inventory, 1, 44, 64) {
-			public boolean isItemValid(ItemStack stack) {
-				return stack.getItem() instanceof ItemWand && !this.getHasStack() && wizard.canBeSaddled();
-			}
-			//
+//			public boolean isItemValid(ItemStack stack) {
+//				return !this.getHasStack();
+//			}
+
 			@SideOnly(Side.CLIENT)
 			public boolean isEnabled() {
 				return true;
 			}
+
+			@Nullable
+			@SideOnly(Side.CLIENT)
+			public String getSlotTexture() {
+				return ApprenticeArcana.MODID + ":textures/items/empty_shield_slot";
+			}
 		});
 
-		for (int k = 0; k < 4; ++k)
-		{
+		// artefact bauble slot
+		this.addSlotToContainer(new Slot(inventory, 22, 26, 64) {
+			public boolean isItemValid(ItemStack stack) {
+				return !this.getHasStack();
+			}
+
+			@SideOnly(Side.CLIENT)
+			public boolean isEnabled() {
+				return true;
+			}
+
+			@Nullable
+			@SideOnly(Side.CLIENT)
+			public String getSlotTexture() {
+				return ApprenticeArcana.MODID + ":textures/items/empty_shield_slot";
+			}
+		});
+
+		for (int k = 0; k < 4; ++k) {
 			final EntityEquipmentSlot entityequipmentslot = VALID_EQUIPMENT_SLOTS[k];
-			this.addSlotToContainer(new Slot(inventory, k + 2, 8, 10 + k * 18)
-			{
-				public int getSlotStackLimit()
-				{
+			this.addSlotToContainer(new Slot(inventory, k + 2, 8, 10 + k * 18) {
+				public int getSlotStackLimit() {
 					return 1;
 				}
 
-				public boolean isItemValid(ItemStack stack)
-				{
+				public boolean isItemValid(ItemStack stack) {
 					return stack.getItem().isValidArmor(stack, entityequipmentslot, player);
 				}
 
 				@Nullable
 				@SideOnly(Side.CLIENT)
-				public String getSlotTexture()
-				{
+				public String getSlotTexture() {
 					return ItemArmor.EMPTY_SLOT_NAMES[entityequipmentslot.getIndex()];
 				}
 			});
 		}
 
-//
-//		this.addSlotToContainer(new Slot(inventory, 1, 8, 28) {
-//			public boolean isItemValid(ItemStack stack) {
-//				return wizard.isArmor(stack);
-//			}
-//
-//			public int getSlotStackLimit() {
-//				return 1;
-//			}
-//		});
-//
-//		this.addSlotToContainer(new Slot(inventory, 2, 8, 46) {
-//			public boolean isItemValid(ItemStack stack) {
-//				return wizard.isArmor(stack);
-//			}
-//
-//			public int getSlotStackLimit() {
-//				return 1;
-//			}
-//		});
-//
-//		this.addSlotToContainer(new Slot(inventory, 3, 8, 64) {
-//			public boolean isItemValid(ItemStack stack) {
-//				return wizard.isArmor(stack);
-//			}
-//
-//			public int getSlotStackLimit() {
-//				return 1;
-//			}
-//		});
-
 		// main inventory
 		if (wizard instanceof EntityWizardInitiate) {
 			for (int k = 0; k < 3; ++k) {
 				for (int l = 0; l < ((EntityWizardInitiate) wizard).getInventoryColumns(); ++l) {
-					this.addSlotToContainer(new Slot(inventory, 2 + l + k * ((EntityWizardInitiate) wizard).getInventoryColumns(), 80 + l * 18, 28 + k * 18));
+
+
+
+					this.addSlotToContainer(new Slot(inventory, 7 + l + k * ((EntityWizardInitiate) wizard).getInventoryColumns(), 80 + l * 18, 28 + k * 18));
 				}
 			}
 		}
@@ -163,6 +171,7 @@ public class ContainerWizardInitiateInventory extends Container {
 			} else {
 				slot.onSlotChanged();
 			}
+
 		}
 
 		return itemstack;

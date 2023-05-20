@@ -5,6 +5,8 @@ import com.windanesz.apprenticearcana.ApprenticeArcana;
 import com.windanesz.apprenticearcana.Utils;
 import com.windanesz.apprenticearcana.client.gui.AAGuiHandler;
 import com.windanesz.apprenticearcana.entity.ai.EntityAIPanicAtLowHP;
+import com.windanesz.apprenticearcana.entity.ai.EntityAIStudy;
+import com.windanesz.apprenticearcana.entity.ai.EntityAIWatchClosestLectern;
 import com.windanesz.apprenticearcana.inventory.ContainerWizardInventory;
 import electroblob.wizardry.Wizardry;
 import electroblob.wizardry.constants.Element;
@@ -12,6 +14,7 @@ import electroblob.wizardry.entity.living.EntityAIAttackSpell;
 import electroblob.wizardry.entity.living.EntityWizard;
 import electroblob.wizardry.entity.living.ISpellCaster;
 import electroblob.wizardry.entity.living.ISummonedCreature;
+import electroblob.wizardry.item.ItemSpellBook;
 import electroblob.wizardry.misc.WildcardTradeList;
 import electroblob.wizardry.registry.Spells;
 import electroblob.wizardry.registry.WizardryAdvancementTriggers;
@@ -85,6 +88,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	public int textureIndex = 0;
 	protected Predicate<Entity> targetSelector;
 	private MerchantRecipeList trades;
+	private BlockPos lectern;
 
 	private UUID ownerUUID;
 
@@ -99,6 +103,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	private static final DataParameter<Integer> LEVEL = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.VARINT);
 	private static final DataParameter<Float> XP = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.FLOAT);
 	private static final DataParameter<Float> HUNGER = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.FLOAT);
+	private static final DataParameter<Float> STUDY_PROGRESS = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.FLOAT);
 	private static final DataParameter<Boolean> IS_CHILD = EntityDataManager.<Boolean>createKey(EntityWizardInitiate.class, DataSerializers.BOOLEAN);
 	public ContainerWizardInventory inventory;
 
@@ -124,6 +129,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		this.dataManager.register(XP, 0f);
 		this.dataManager.register(HUNGER, 0f);
 		this.dataManager.register(IS_CHILD, false);
+		this.dataManager.register(STUDY_PROGRESS, 0f);
 	}
 
 	protected final void setSize(float width, float height) {
@@ -151,6 +157,25 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	public void setChild(boolean isChild) {
 		this.getDataManager().set(IS_CHILD, Boolean.valueOf(isChild));
 		this.setChildSize(isChild);
+	}
+
+	public float getStudyProgress() {
+		System.out.println("progress: " + this.getDataManager().get(STUDY_PROGRESS).floatValue());
+		return this.getDataManager().get(STUDY_PROGRESS).floatValue();
+	}
+
+	public void addStudyProgress(float amount) {
+		float oldAmount = getStudyProgress();
+		float newAmount = Math.min(1.0f, oldAmount + amount);
+		this.getDataManager().set(STUDY_PROGRESS, newAmount);
+	}
+
+	public void resetStudyProgress() {
+		this.getDataManager().set(STUDY_PROGRESS, 0f);
+	}
+
+	public boolean isStudyComplete() {
+		return getStudyProgress() == 1.0f;
 	}
 
 	public float getEyeHeight() {
@@ -183,6 +208,8 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		this.tasks.addTask(4, new EntityAIRestrictOpenDoor(this));
 		this.tasks.addTask(5, new EntityAIOpenDoor(this, true));
 		this.tasks.addTask(6, new EntityAIMoveTowardsRestriction(this, 0.6));
+		this.tasks.addTask(6, new EntityAIStudy(this, 10, 1));
+//		this.tasks.addTask(6, new EntityAIWatchClosestLectern(this,  3));
 		this.tasks.addTask(7, new EntityAIWatchClosest2(this, EntityPlayer.class, 3.0F, 1.0F));
 		this.tasks.addTask(7, new EntityAIWatchClosest2(this, EntityWizard.class, 5.0F, 0.02F));
 		this.tasks.addTask(7, new EntityAIWander(this, 0.6));
@@ -217,6 +244,11 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	}
 
 	public List<Spell> getSpells() {
+	//	if (inventory.getStackInSlot(7).getItem() instanceof ItemSpellBook) {
+			List<Spell> spells = new ArrayList(4);
+		//	spells.add(Spell.byMetadata(inventory.getStackInSlot(7).getItem().getDamage(inventory.getStackInSlot(7))));
+	//		return spells;
+	//	}
 		return this.spells;
 	}
 
@@ -336,6 +368,8 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		if (player.isSneaking()) {
 			player.openGui(ApprenticeArcana.MODID, AAGuiHandler.WIZARD_GUI, this.world, this.getEntityId(), 0, 0);
 			//setChild(true);
+		} else {
+			this.setOwner(player);
 		}
 		//else {
 		//	this.setChild(false);
@@ -424,7 +458,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	}
 
 	protected int getInventorySize() {
-		return 17;
+		return 23;
 	}
 
 	protected void initInventory() {
@@ -510,6 +544,12 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	public void onInventoryChanged(IInventory inventory) {
 		//boolean flag = this.isHorseSaddled();
 		//	this.updateHorseSlots();
+		ItemStack oldItem = this.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND);
+		ItemStack newItem = this.inventory.getStackInSlot(0);
+		if (ItemStack.areItemStacksEqual(oldItem, newItem)) {
+			this.resetStudyProgress();
+		}
+
 		this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, inventory.getStackInSlot(0));
 		this.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, inventory.getStackInSlot(1));
 		this.setItemStackToSlot(EntityEquipmentSlot.HEAD, inventory.getStackInSlot(2));
@@ -586,5 +626,34 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		}
 
 		return entity;
+	}
+
+	public boolean isStudying() {
+		if (getHeldItemOffhand().getItem() instanceof ItemSpellBook && !isSpellKnown(Spell.byMetadata(getHeldItemOffhand().getItemDamage()))) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isSpellKnown(Spell spell) {
+		return this.spells.contains(spell);
+	}
+
+	public void learnSpell(Spell spell) {
+		this.spells.add(spell);
+		this.resetStudyProgress();
+	}
+
+	public BlockPos getLectern() {
+		return lectern;
+	}
+
+	public void setLectern(BlockPos lectern) {
+		this.lectern = lectern;
+	}
+
+	public float getStudyProgressForSpell(Spell spell) {
+		double modifier = Math.pow(((double) spell.getTier().ordinal() / 2f) + 3f, 2f);
+		return (float) (0.05f / modifier);
 	}
 }
