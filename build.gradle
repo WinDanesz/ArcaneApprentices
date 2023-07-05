@@ -185,7 +185,7 @@ task downloadSources {
     doLast {
         mkdir "libs"
         def wizardry = new File("libs/WizardrySrc-${wizardry_version}.zip")
-        new URL("https://github.com/Electroblob77/Wizardry/archive/${wizardry_version}.zip").withInputStream{ i -> wizardry.withOutputStream{ it << i }}
+        new URL("https://github.com/Electroblob77/Wizardry/archive/v${wizardry_version}.zip").withInputStream{ i -> wizardry.withOutputStream{ it << i }}
 
         def baubles = new File("libs/BaublesSrc-${baubles_version}.zip")
         new URL("https://github.com/WinDanesz/Baubles/archive/${baubles_version}.zip").withInputStream{ i -> baubles.withOutputStream{ it << i }}

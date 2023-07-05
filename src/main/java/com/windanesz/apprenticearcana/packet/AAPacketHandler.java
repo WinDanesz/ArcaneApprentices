@@ -7,19 +7,19 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
-public class MSPacketHandler {
+public class AAPacketHandler {
 
 	public static SimpleNetworkWrapper net;
 
-	public static void initPackets(){
+	public static void initPackets() {
 		net = NetworkRegistry.INSTANCE.newSimpleChannel(ApprenticeArcana.MODID.toUpperCase());
-//		registerMessage(PacketToggleAbility.class, PacketToggleAbility.Message.class);
+		registerMessage(PacketControlInput.class, PacketControlInput.Message.class);
 	}
 
 	private static int nextPacketId = 0;
 
 	private static <REQ extends IMessage, REPLY extends IMessage> void registerMessage(
-			Class<? extends IMessageHandler<REQ, REPLY>> packet, Class<REQ> message){
+			Class<? extends IMessageHandler<REQ, REPLY>> packet, Class<REQ> message) {
 		net.registerMessage(packet, message, nextPacketId, Side.CLIENT);
 		net.registerMessage(packet, message, nextPacketId, Side.SERVER);
 		nextPacketId++;

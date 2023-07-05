@@ -2,15 +2,12 @@ package com.windanesz.apprenticearcana.inventory;
 
 import com.windanesz.apprenticearcana.ApprenticeArcana;
 import com.windanesz.apprenticearcana.entity.living.EntityWizardInitiate;
-import electroblob.wizardry.item.ItemWand;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.passive.AbstractChestHorse;
-import net.minecraft.entity.passive.AbstractHorse;
+import com.windanesz.apprenticearcana.handler.XpProgression;
+import com.windanesz.wizardryutils.item.ItemNewArtefact;
+import electroblob.wizardry.item.ItemArtefact;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemArmor;
@@ -22,11 +19,15 @@ import javax.annotation.Nullable;
 
 public class ContainerWizardInitiateInventory extends Container {
 	private final IInventory wizardInventory;
-	private final EntityWizardInitiate wizard;
+	public final EntityWizardInitiate wizard;
 	private static final EntityEquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EntityEquipmentSlot[] {EntityEquipmentSlot.HEAD,
 			EntityEquipmentSlot.CHEST,
 			EntityEquipmentSlot.LEGS,
 			EntityEquipmentSlot.FEET};
+
+	public static final String EMPTY_MAIN_HAND_SLOT_BACKGROUND = ApprenticeArcana.MODID + ":gui/empty_main_hand_slot";
+	public static final String EMPTY_ARTEFACT_SLOT_BACKGROUND = ApprenticeArcana.MODID + ":gui/empty_artefact_slot";
+	public static final String LOCKED_SLOT = ApprenticeArcana.MODID + ":gui/locked_slot";
 
 	public ContainerWizardInitiateInventory(IInventory playerInventory, IInventory inventory, final EntityWizardInitiate wizard, EntityPlayer player) {
 		this.wizardInventory = inventory;
@@ -37,32 +38,24 @@ public class ContainerWizardInitiateInventory extends Container {
 
 		//main hand
 		this.addSlotToContainer(new Slot(inventory, 0, 62, 64) {
-//			public boolean isItemValid(ItemStack stack) {
-//				return !this.getHasStack();
-//			}
 
-			//
 			@SideOnly(Side.CLIENT)
 			public boolean isEnabled() {
 				return true;
 			}
+
+			@Nullable
+			@SideOnly(Side.CLIENT)
+			public String getSlotTexture() {
+				return EMPTY_MAIN_HAND_SLOT_BACKGROUND;
+			}
 		});
 
-
-		//		//offhand
-		//		this.addSlotToContainer(new Slot(inventory, 0, 46, 64) {
-		//			//
-		//			@SideOnly(Side.CLIENT)
-		//			public boolean isEnabled() {
-		//				return true;
-		//			}
-		//		});
-
-		// offhand bauble slot
+		// offhand
 		this.addSlotToContainer(new Slot(inventory, 1, 44, 64) {
-//			public boolean isItemValid(ItemStack stack) {
-//				return !this.getHasStack();
-//			}
+			//			public boolean isItemValid(ItemStack stack) {
+			//				return !this.getHasStack();
+			//			}
 
 			@SideOnly(Side.CLIENT)
 			public boolean isEnabled() {
@@ -72,14 +65,15 @@ public class ContainerWizardInitiateInventory extends Container {
 			@Nullable
 			@SideOnly(Side.CLIENT)
 			public String getSlotTexture() {
-				return ApprenticeArcana.MODID + ":textures/items/empty_shield_slot";
+				return "minecraft:items/empty_armor_slot_shield";
 			}
 		});
 
-		// artefact bauble slot
+		// artefact
 		this.addSlotToContainer(new Slot(inventory, 22, 26, 64) {
+
 			public boolean isItemValid(ItemStack stack) {
-				return !this.getHasStack();
+				return !this.getHasStack() && (stack.getItem() instanceof ItemArtefact || stack.getItem() instanceof ItemNewArtefact);
 			}
 
 			@SideOnly(Side.CLIENT)
@@ -90,10 +84,11 @@ public class ContainerWizardInitiateInventory extends Container {
 			@Nullable
 			@SideOnly(Side.CLIENT)
 			public String getSlotTexture() {
-				return ApprenticeArcana.MODID + ":textures/items/empty_shield_slot";
+				return EMPTY_ARTEFACT_SLOT_BACKGROUND;
 			}
 		});
 
+		// wizard's equipment slots
 		for (int k = 0; k < 4; ++k) {
 			final EntityEquipmentSlot entityequipmentslot = VALID_EQUIPMENT_SLOTS[k];
 			this.addSlotToContainer(new Slot(inventory, k + 2, 8, 10 + k * 18) {
@@ -110,29 +105,56 @@ public class ContainerWizardInitiateInventory extends Container {
 				public String getSlotTexture() {
 					return ItemArmor.EMPTY_SLOT_NAMES[entityequipmentslot.getIndex()];
 				}
+
 			});
 		}
 
-		// main inventory
-		if (wizard instanceof EntityWizardInitiate) {
-			for (int k = 0; k < 3; ++k) {
-				for (int l = 0; l < ((EntityWizardInitiate) wizard).getInventoryColumns(); ++l) {
+		// wizard's main inventory
+		// 3 rows
+		for (int k = 0; k < 3; ++k) {
+			// 5 columns
+			for (int l = 0; l < wizard.getInventoryColumns(); ++l) {
+				int index = 7 + l + k * wizard.getInventoryColumns();
 
+				this.addSlotToContainer(new Slot(inventory, index, 80 + l * 18, 28 + k * 18) {
 
+					@Override
+					public boolean isItemValid(ItemStack stack) {
+						if ((((float) this.slotNumber - (float) 6) / (float) 15) <= (((float) wizard.getLevel() + 1) / XpProgression.getMaxLevel() + 0.1f)) {
+							return super.isItemValid(stack);
+						}
+						return false;
+					}
 
-					this.addSlotToContainer(new Slot(inventory, 7 + l + k * ((EntityWizardInitiate) wizard).getInventoryColumns(), 80 + l * 18, 28 + k * 18));
-				}
+					@Nullable
+					@SideOnly(Side.CLIENT)
+					public String getSlotTexture() {
+						if ((((float) this.slotNumber - (float) 6) / (float) 15) <= (((float) wizard.getLevel() + 1) / XpProgression.getMaxLevel() + 0.1f)) {
+							return super.getSlotTexture();
+						}
+						return LOCKED_SLOT;
+					}
+
+					//					@Nullable
+					//					@SideOnly(Side.CLIENT)
+					//					public String getSlotTexture() {
+					//						if (!this.isEnabled()) {
+					//							System.out.println("stop");
+					//						}
+					//						return this.isEnabled() ? super.getSlotTexture() : EMPTY_ARTEFACT_SLOT_BACKGROUND;
+					//					}
+				});
 			}
 		}
 
-		// player inventory
+		// player's inventory
 		for (int i1 = 0; i1 < 3; ++i1) {
 			for (int k1 = 0; k1 < 9; ++k1) {
 				this.addSlotToContainer(new Slot(playerInventory, k1 + i1 * 9 + 9, 8 + k1 * 18, 132 + i1 * 18 + -18));
 			}
 		}
 
-		// player inventory hotbar
+		// player's inventory hotbar
 		for (int j1 = 0; j1 < 9; ++j1) {
 			this.addSlotToContainer(new Slot(playerInventory, j1, 8 + j1 * 18, 172));
 		}
