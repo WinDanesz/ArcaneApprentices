@@ -1,23 +1,16 @@
 package com.windanesz.apprenticearcana.entity.ai;
 
-import com.google.common.base.Predicates;
 import com.windanesz.apprenticearcana.Utils;
 import com.windanesz.apprenticearcana.entity.living.EntityWizardInitiate;
 import electroblob.wizardry.util.BlockUtils;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.EntityAIBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EntitySelectors;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
 
-public class WizardEntityAILookAround extends EntityAIBase {
+public class WizardAILookAround extends EntityAIBase {
 
 	protected EntityLiving wizard;
 	protected float maxDistance;
@@ -27,14 +20,14 @@ public class WizardEntityAILookAround extends EntityAIBase {
 	BlockPos lookPos = null ;
 	protected Class<? extends Entity> watchedClass;
 
-	public WizardEntityAILookAround(EntityWizardInitiate wizard, float maxDistance, float chance) {
+	public WizardAILookAround(EntityWizardInitiate wizard, float maxDistance, float chance) {
 		this.wizard = wizard;
 		this.maxDistance = maxDistance;
 		this.chance = 0.02F;
 		this.setMutexBits(2);
 	}
 
-	public WizardEntityAILookAround(EntityLiving wizard, Class<? extends Entity> watchTargetClass, float maxDistance, float chanceIn) {
+	public WizardAILookAround(EntityLiving wizard, Class<? extends Entity> watchTargetClass, float maxDistance, float chanceIn) {
 		this.wizard = wizard;
 		this.watchedClass = watchTargetClass;
 		this.maxDistance = maxDistance;
@@ -43,7 +36,7 @@ public class WizardEntityAILookAround extends EntityAIBase {
 	}
 
 	public boolean shouldExecute() {
-		return !(this.wizard.getRNG().nextFloat() >= this.chance);
+		return ((EntityWizardInitiate) wizard).getTask() != EntityWizardInitiate.Task.TRY_TO_SLEEP && !(this.wizard.getRNG().nextFloat() >= this.chance);
 	}
 
 	public boolean shouldContinueExecuting() {

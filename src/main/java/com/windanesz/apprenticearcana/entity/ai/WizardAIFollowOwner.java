@@ -2,7 +2,6 @@ package com.windanesz.apprenticearcana.entity.ai;
 
 import com.windanesz.apprenticearcana.Utils;
 import com.windanesz.apprenticearcana.data.Speech;
-import com.windanesz.apprenticearcana.entity.MessageEntry;
 import com.windanesz.apprenticearcana.entity.living.EntityWizardInitiate;
 import electroblob.wizardry.util.BlockUtils;
 import net.minecraft.block.state.BlockFaceShape;
@@ -29,7 +28,7 @@ import java.util.Arrays;
 /**
  * AI class based on {@link net.minecraft.entity.ai.EntityAIBase}, which makes summons follow their owners
  */
-public class EntityAIFollowEntityOwner extends EntityAIBase {
+public class WizardAIFollowOwner extends EntityAIBase {
 	private final EntityWizardInitiate wizard;
 	private EntityLivingBase owner;
 	World world;
@@ -40,7 +39,7 @@ public class EntityAIFollowEntityOwner extends EntityAIBase {
 	float minDist;
 	private float oldWaterCost;
 
-	public EntityAIFollowEntityOwner(EntityWizardInitiate summonedCreature, double followSpeedIn, float minDistIn, float maxDistIn) {
+	public WizardAIFollowOwner(EntityWizardInitiate summonedCreature, double followSpeedIn, float minDistIn, float maxDistIn) {
 		this.wizard = summonedCreature;
 		this.world = summonedCreature.world;
 		this.followSpeed = followSpeedIn;

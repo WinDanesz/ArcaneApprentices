@@ -12,14 +12,14 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 
-public class EntityAIPanicAtLowHP extends EntityAIBase {
+public class WizardAIPanicAtLowHP extends EntityAIBase {
 	protected final EntityCreature creature;
 	protected double speed;
 	protected double randPosX;
 	protected double randPosY;
 	protected double randPosZ;
 
-	public EntityAIPanicAtLowHP(EntityCreature creature, double speedIn) {
+	public WizardAIPanicAtLowHP(EntityCreature creature, double speedIn) {
 		this.creature = creature;
 		this.speed = speedIn;
 		this.setMutexBits(1);

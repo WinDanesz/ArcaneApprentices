@@ -2,20 +2,24 @@ package com.windanesz.apprenticearcana.entity.living;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.windanesz.apprenticearcana.ApprenticeArcana;
 import com.windanesz.apprenticearcana.Settings;
 import com.windanesz.apprenticearcana.Utils;
 import com.windanesz.apprenticearcana.client.gui.AAGuiHandler;
+import com.windanesz.apprenticearcana.data.JourneyType;
 import com.windanesz.apprenticearcana.data.PlayerData;
 import com.windanesz.apprenticearcana.data.Speech;
 import com.windanesz.apprenticearcana.entity.MessageEntry;
-import com.windanesz.apprenticearcana.entity.ai.EntityAIAttackSpellWithCost;
-import com.windanesz.apprenticearcana.entity.ai.EntityAIFollowEntityOwner;
-import com.windanesz.apprenticearcana.entity.ai.EntityAIPanicAtLowHP;
-import com.windanesz.apprenticearcana.entity.ai.EntityAIStudy;
-import com.windanesz.apprenticearcana.entity.ai.WizardEntityAIWander;
-import com.windanesz.apprenticearcana.entity.ai.WizardEntityAILookAround;
+import com.windanesz.apprenticearcana.entity.ai.WizardAIAttackSpellWithCost;
+import com.windanesz.apprenticearcana.entity.ai.WizardAIFollowOwner;
+import com.windanesz.apprenticearcana.entity.ai.WizardAIGoHome;
+import com.windanesz.apprenticearcana.entity.ai.WizardAIIdentify;
+import com.windanesz.apprenticearcana.entity.ai.WizardAIPanicAtLowHP;
+import com.windanesz.apprenticearcana.entity.ai.WizardAIStudy;
+import com.windanesz.apprenticearcana.entity.ai.WizardAIWander;
+import com.windanesz.apprenticearcana.entity.ai.WizardAILookAround;
+import com.windanesz.apprenticearcana.entity.ai.WizardAIWatchClosest;
+import com.windanesz.apprenticearcana.entity.ai.WizardAIWatchClosest2;
 import com.windanesz.apprenticearcana.handler.EventHandler;
 import com.windanesz.apprenticearcana.handler.XpProgression;
 import com.windanesz.apprenticearcana.inventory.ContainerWizardInventory;
@@ -23,25 +27,27 @@ import com.windanesz.wizardryutils.tools.WizardryUtilsTools;
 import electroblob.wizardry.Wizardry;
 import electroblob.wizardry.constants.Element;
 import electroblob.wizardry.constants.Tier;
-import electroblob.wizardry.data.WizardData;
 import electroblob.wizardry.entity.living.ISpellCaster;
 import electroblob.wizardry.entity.living.ISummonedCreature;
 import electroblob.wizardry.item.ItemSpellBook;
 import electroblob.wizardry.item.ItemWand;
 import electroblob.wizardry.misc.WildcardTradeList;
-import electroblob.wizardry.registry.Spells;
 import electroblob.wizardry.registry.WizardryItems;
 import electroblob.wizardry.registry.WizardrySounds;
 import electroblob.wizardry.spell.Spell;
 import electroblob.wizardry.util.AllyDesignationSystem;
+import electroblob.wizardry.util.BlockUtils;
 import electroblob.wizardry.util.EntityUtils;
 import electroblob.wizardry.util.InventoryUtils;
+import electroblob.wizardry.util.Location;
 import electroblob.wizardry.util.NBTExtras;
 import electroblob.wizardry.util.SpellModifiers;
 import electroblob.wizardry.util.WandHelper;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.PlayerAdvancements;
+import net.minecraft.block.BlockBed;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityList;
@@ -57,15 +63,12 @@ import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 import net.minecraft.entity.ai.EntityAIOpenDoor;
 import net.minecraft.entity.ai.EntityAIRestrictOpenDoor;
 import net.minecraft.entity.ai.EntityAISwimming;
-import net.minecraft.entity.ai.EntityAIWatchClosest;
-import net.minecraft.entity.ai.EntityAIWatchClosest2;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityPotion;
 import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
-import net.minecraft.init.PotionTypes;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.IInventory;
@@ -83,9 +86,9 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.potion.PotionHelper;
 import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
@@ -100,12 +103,13 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -132,31 +136,47 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	private static final DataParameter<Integer> SPELL_COUNTER = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.VARINT);
 	private static final DataParameter<Integer> LEVEL = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.VARINT);
 	private static final DataParameter<Integer> CURRENT_TASK = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.VARINT);
+	private static final DataParameter<Integer> PREVIOUS_TASK_BEFORE_SLEEPING = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.VARINT);
 	private static final DataParameter<Integer> XP = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.VARINT);
 	private static final DataParameter<Integer> TIME_TILL_NEXT_SCHEDULED_MESSAGE = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.VARINT);
 	private static final DataParameter<Float> FOOD_LEVEL = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.FLOAT);
 	private static final DataParameter<Float> FOOD_SATURATION = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.FLOAT);
 	private static final DataParameter<Float> STUDY_PROGRESS = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.FLOAT);
-	private static final DataParameter<Boolean> IS_CHILD = EntityDataManager.<Boolean>createKey(EntityWizardInitiate.class, DataSerializers.BOOLEAN);
-	private static final DataParameter<NBTTagCompound> KNOWN_SPELLS = EntityDataManager.<NBTTagCompound>createKey(EntityWizardInitiate.class, DataSerializers.COMPOUND_TAG);
-	private static final DataParameter<NBTTagCompound> DISABLED_SPELLS = EntityDataManager.<NBTTagCompound>createKey(EntityWizardInitiate.class, DataSerializers.COMPOUND_TAG);
-	private static final DataParameter<Optional<UUID>> OWNER_UNIQUE_ID = EntityDataManager.<Optional<UUID>>createKey(EntityWizardInitiate.class, DataSerializers.OPTIONAL_UNIQUE_ID);
-	private static final DataParameter<NBTTagCompound> SCHEDULED_MESSAGES = EntityDataManager.<NBTTagCompound>createKey(EntityWizardInitiate.class, DataSerializers.COMPOUND_TAG);
+	private static final DataParameter<Boolean> IS_CHILD = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.BOOLEAN);
+	private static final DataParameter<Boolean> IS_SLEEPING = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.BOOLEAN);
+	private static final DataParameter<NBTTagCompound> KNOWN_SPELLS = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.COMPOUND_TAG);
+	private static final DataParameter<NBTTagCompound> DISABLED_SPELLS = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.COMPOUND_TAG);
+	private static final DataParameter<Optional<UUID>> OWNER_UNIQUE_ID = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.OPTIONAL_UNIQUE_ID);
+	private static final DataParameter<NBTTagCompound> SCHEDULED_MESSAGES = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.COMPOUND_TAG);
+	private static final DataParameter<BlockPos> BED_POSITION = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.BLOCK_POS);
+
 	private static final int MAINHAND = 0;
 	private static final int OFF_HAND = 1;
 	private static final int ARTEFACT_SLOT = 22;
 	public int textureIndex = 0;
+	public int adventureRemainingDuration = -1;
+	public JourneyType journeyType = JourneyType.NOT_ADVENTURING;
 	public ContainerWizardInventory inventory;
 	public BlockPos currentStayPos = new BlockPos(0, 0, 0);
 	protected Predicate<Entity> targetSelector;
 	List<MessageEntry> scheduledMessages = new ArrayList<>();
 	//	private EntityAIAttackSpell<EntityWizardInitiate> spellCastingAI = new EntityAIAttackSpell(this, 0.5, 14.0F, 30, 50);
-	private EntityAIAttackSpellWithCost spellCastingAI = new EntityAIAttackSpellWithCost(this, 0.5, 14.0F, 30, 50, false);
+	private WizardAIAttackSpellWithCost spellCastingAI = new WizardAIAttackSpellWithCost(this, 0.5, 14.0F, 30, 50, false);
 	private MerchantRecipeList trades;
 	private BlockPos lectern;
 	private boolean isEating = false;
 	// This variable is used when foodLevel either exceeds 17 or is at zero. Increases in each tick up to 80, then it either heals or deals a half heart damage (starving) then resets to 0
 	private int foodTickTimer = 0;
+
+	public Location getHome() {
+		return home;
+	}
+
+	public void setHome(Location home) {
+		this.home = home;
+	}
+
+	private Location home = new Location(BlockPos.ORIGIN, 0);
 	/**
 	 * The fraction of progression lost when all recently-cast spells are the same as the one being cast.
 	 */
@@ -350,11 +370,14 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		this.dataManager.register(SPELL_COUNTER, 0);
 		this.dataManager.register(LEVEL, 1);
 		this.dataManager.register(CURRENT_TASK, 0);
+		this.dataManager.register(PREVIOUS_TASK_BEFORE_SLEEPING, 0);
 		this.dataManager.register(XP, 0);
 		this.dataManager.register(TIME_TILL_NEXT_SCHEDULED_MESSAGE, 0);
 		this.dataManager.register(FOOD_LEVEL, 20f);
 		this.dataManager.register(FOOD_SATURATION, 5f);
 		this.dataManager.register(IS_CHILD, false);
+		this.dataManager.register(BED_POSITION, BlockPos.ORIGIN);
+		this.dataManager.register(IS_SLEEPING, false);
 		this.dataManager.register(STUDY_PROGRESS, 0f);
 		this.dataManager.register(KNOWN_SPELLS, new NBTTagCompound());
 		this.dataManager.register(DISABLED_SPELLS, new NBTTagCompound());
@@ -385,13 +408,20 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		//return this.getDataManager().get(IS_CHILD).booleanValue();
 	}
 
+	public boolean isLyingInBed() {
+		return this.getDataManager().get(IS_SLEEPING);
+	}
+
+	public void setLyingInBed(boolean sleep) {
+		this.getDataManager().set(IS_SLEEPING, sleep);
+	}
+
 	public void setChild(boolean isChild) {
 		this.getDataManager().set(IS_CHILD, Boolean.valueOf(isChild));
 		this.setChildSize(isChild);
 	}
 
 	public float getStudyProgress() {
-		System.out.println("progress: " + this.getDataManager().get(STUDY_PROGRESS).floatValue());
 		return this.getDataManager().get(STUDY_PROGRESS).floatValue();
 	}
 
@@ -421,6 +451,14 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	public void modifySaturation(float amount) {
 		float newAmount = getSaturation() + amount;
 		this.setSaturation(newAmount);
+	}
+
+	public BlockPos getBedPos() {
+		return this.getDataManager().get(BED_POSITION);
+	}
+
+	public void setBedPos(BlockPos pos) {
+		this.getDataManager().set(BED_POSITION, pos);
 	}
 
 	public void addStudyProgress(float amount) {
@@ -489,17 +527,19 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 
 	protected void initEntityAI() {
 		this.tasks.addTask(0, new EntityAISwimming(this));
-		this.tasks.addTask(1, new EntityAIPanicAtLowHP(this, 1.15D));
+		this.tasks.addTask(1, new WizardAIPanicAtLowHP(this, 1.15D));
 		this.tasks.addTask(4, new EntityAIRestrictOpenDoor(this));
-		this.tasks.addTask(5, new EntityAIFollowEntityOwner(this, 0.70D, 10.0F, 2.0F));
+		this.tasks.addTask(5, new WizardAIFollowOwner(this, 0.70D, 10.0F, 2.0F));
+		this.tasks.addTask(5, new WizardAIGoHome(this, 0.70D, 20));
 		this.tasks.addTask(5, new EntityAIOpenDoor(this, true));
 		this.tasks.addTask(6, new EntityAIMoveTowardsRestriction(this, 0.6));
-		this.tasks.addTask(6, new EntityAIStudy(this, 10, 1));
+		this.tasks.addTask(6, new WizardAIStudy(this, 10, 1));
+		this.tasks.addTask(6, new WizardAIIdentify(this, 10, 1));
 		//		this.tasks.addTask(6, new EntityAIWatchClosestLectern(this,  3));
-		this.tasks.addTask(7, new EntityAIWatchClosest2(this, EntityPlayer.class, 3.0F, 1.0F));
-		this.tasks.addTask(7, new WizardEntityAIWander(this, 0.4, 10));
-		this.tasks.addTask(8, new EntityAIWatchClosest(this, EntityLiving.class, 8.0F));
-		this.tasks.addTask(8, new WizardEntityAILookAround(this, 8.0F, 0.1f));
+		this.tasks.addTask(7, new WizardAIWatchClosest2(this, EntityPlayer.class, 3.0F, 1.0F));
+		this.tasks.addTask(7, new WizardAIWander(this, 0.4, 10));
+		this.tasks.addTask(8, new WizardAIWatchClosest(this, EntityLiving.class, 8.0F));
+		this.tasks.addTask(8, new WizardAILookAround(this, 8.0F, 0.1f));
 		this.targetSelector = (entity) -> {
 			return entity != null && !entity.isInvisible() && entity != getOwner() && AllyDesignationSystem.isValidTarget(this, entity) && (entity instanceof IMob || entity instanceof ISummonedCreature || Arrays.asList(Wizardry.settings.summonedCreatureTargetsWhitelist).contains(EntityList.getKey(entity.getClass()))) && !Arrays.asList(Wizardry.settings.summonedCreatureTargetsBlacklist).contains(EntityList.getKey(entity.getClass()));
 		};
@@ -651,7 +691,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 				modifyFoodLevel(-0.1f);
 			}
 
-			if (this.getAttackTarget() == null && getFoodLevel() / 20 < 0.7f) {
+			if (this.getAttackTarget() == null && getFoodLevel() / 20 < 0.8f) {
 				// starting from inventory index 1 to skip mainhand
 				for (int i = 1; i < this.inventory.getSizeInventory(); i++) {
 					ItemStack stack = this.inventory.getStackInSlot(i).copy();
@@ -724,6 +764,54 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 			}
 		}
 
+		// sleeping
+		if ((this.getTask() == Task.STAY || this.getTask() == Task.STUDY) && !this.world.isDaytime()) {
+			BlockPos bedPos = findBed();
+			if (bedPos != null) {
+				this.getNavigator().tryMoveToXYZ(bedPos.getX() + 0.5f, bedPos.getY(), bedPos.getZ() + 0.5, 0.5f);
+				this.setPreviousTaskBeforeSleeping(this.getTask());
+				this.setTask(Task.TRY_TO_SLEEP);
+				setBedPos(bedPos);
+			}
+		} else if (this.getTask() == Task.TRY_TO_SLEEP && this.ticksExisted % 23 == 0) {
+			if (this.world.isDaytime()) {
+				this.setTask(getPreviousTaskBeforeSleeping());
+				setLyingInBed(false);
+			} else {
+
+				if (!(world.getBlockState(getBedPos()).getBlock() instanceof BlockBed)) {
+					BlockPos bedPos = findBed();
+					if (bedPos != null) {setBedPos(bedPos);}
+				}
+
+				if (!this.getPos().equals(getBedPos())) {
+					this.getNavigator().tryMoveToXYZ(getBedPos().getX() + 0.5f, getBedPos().getY(), getBedPos().getZ() + 0.5, 0.5f);
+					setLyingInBed(false);
+				} else {
+					setLyingInBed(this.getPos().equals(getBedPos()));
+				}
+			}
+		}
+
+		if (!world.isRemote && isLyingInBed() && this.ticksExisted % 100 == 0 && getMaxHealth() > getHealth()) {
+			this.heal(0.5f);
+		}
+	}
+
+	public BlockPos findBed() {
+		for (BlockPos pos : BlockUtils.getBlockSphere(this.getPosition(), 15)) {
+			IBlockState state = world.getBlockState(pos);
+			if (state.getBlock() instanceof BlockBed) {
+				if (state.getValue(BlockBed.PART) != BlockBed.EnumPartType.FOOT) {
+					continue;
+				}
+				if (!state.getValue(BlockBed.OCCUPIED)) { // occupied check
+					return pos;
+				}
+			}
+		}
+
+		return null;
 	}
 
 	@Override
@@ -750,13 +838,14 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	}
 
 	public boolean hasOwner() {
-		return !Objects.equals(getOwnerId(), new UUID(0L, 0L));
+		return getOwnerId() != null;
 	}
 
 	public boolean processInteract(EntityPlayer player, EnumHand hand) {
 
-		if (player.isSneaking() && !player.world.isRemote && hand == EnumHand.MAIN_HAND && player.getHeldItemMainhand().getItem() == Items.NETHER_STAR) {
+		if (player.isCreative() && player.isSneaking() && !player.world.isRemote && hand == EnumHand.MAIN_HAND && player.getHeldItemMainhand().getItem() == Items.NETHER_STAR) {
 			this.addExperience(80);
+			this.setOwner(player);
 			return false;
 		}
 
@@ -769,6 +858,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 			} else if (PlayerData.addApprenticeForPlayer(player, this)) {
 				sayImmediately(player, new TextComponentTranslation(Speech.PLAYER_GIVES_HANDBOOK.getRandom(), player.getDisplayName()));
 				this.setOwner(player);
+				this.setHome(new Location(this.getPos(), this.dimension));
 				setTask(Task.FOLLOW);
 				return true;
 			} else {
@@ -810,7 +900,10 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 			NBTExtras.storeTagSafely(nbt, "trades", this.trades.getRecipiesAsTags());
 		}
 
-		nbt.setUniqueId("OwnerUUID", getOwnerId());
+		if (getOwnerId() != null) {
+			//noinspection DataFlowIssue
+			nbt.setUniqueId("OwnerUUID", getOwnerId());
+		}
 		Element element = this.getElement();
 		nbt.setInteger("element", element == null ? 0 : element.ordinal());
 		nbt.setInteger("skin", this.textureIndex);
@@ -821,6 +914,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 
 		nbt.setBoolean("IsChild", isChild());
 		nbt.setInteger("Task", getTask().ordinal());
+		nbt.setInteger("PreviousTaskBeforeSleeping", getPreviousTaskBeforeSleeping().ordinal());
 		NBTTagList nbttaglist = new NBTTagList();
 
 		for (int i = 0; i < this.inventory.getSizeInventory(); ++i) {
@@ -841,8 +935,11 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		nbt.setFloat("FoodLevel", getFoodLevel());
 		nbt.setFloat("FoodSaturation", getSaturation());
 		nbt.setTag("CurrentStayPos", NBTUtil.createPosTag(currentStayPos));
-
+		nbt.setTag("HomePos", getHome().toNBT());
 		nbt.setInteger("RareEventCooldown", getRareEventCooldown());
+		nbt.setLong("BedPos", getBedPos().toLong());
+		nbt.setInteger("AdventureRemainingDuration", adventureRemainingDuration);
+		nbt.setString("JourneyType", journeyType.toString());
 	}
 
 	public void readEntityFromNBT(NBTTagCompound nbt) {
@@ -851,12 +948,17 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 			NBTTagCompound nbttagcompound1 = nbt.getCompoundTag("trades");
 			this.trades = new WildcardTradeList(nbttagcompound1);
 		}
-		this.setOwnerId(nbt.getUniqueId("OwnerUUID"));
+		if (nbt.hasUniqueId("OwnerUUID")) {
+			this.setOwnerId(nbt.getUniqueId("OwnerUUID"));
+		}
 		this.setElement(Element.values()[nbt.getInteger("element")]);
 		this.currentStayPos = NBTUtil.getPosFromTag(nbt.getCompoundTag("CurrentStayPos"));
 		this.textureIndex = nbt.getInteger("skin");
 		if (nbt.hasKey("Task")) {
 			this.setTask(Task.values()[nbt.getInteger("Task")]);
+		}
+		if (nbt.hasKey("PreviousTaskBeforeSleeping")) {
+			this.setTask(Task.values()[nbt.getInteger("PreviousTaskBeforeSleeping")]);
 		}
 		this.setSpellCompound(nbt.getCompoundTag("Spells"));
 		this.setDisabledSpellCompound(nbt.getCompoundTag("DisabledSpells"));
@@ -876,9 +978,20 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		this.setXp(nbt.getInteger("Xp"));
 		this.setFoodLevel(nbt.getInteger("FoodLevel"));
 		this.setSaturation(nbt.getFloat("FoodSaturation"));
-		this.setRareEventCooldown(nbt.getInteger("RareEventCooldown"));
-		nbt.setTag("CurrentStayPos", NBTUtil.createPosTag(currentStayPos));
+		this.adventureRemainingDuration = nbt.getInteger("AdventureRemainingDuration");
 
+		if (nbt.hasKey("JourneyType")) {
+			this.journeyType = JourneyType.valueOf(nbt.getString("JourneyType"));
+		}
+
+		this.setRareEventCooldown(nbt.getInteger("RareEventCooldown"));
+		if (nbt.hasKey("HomePos")) {
+			this.setHome(Location.fromNBT((NBTTagCompound) nbt.getTag("HomePos")));
+		}
+		nbt.setTag("CurrentStayPos", NBTUtil.createPosTag(currentStayPos));
+		if (nbt.hasKey("BedPos")) {
+			setBedPos(BlockPos.fromLong(nbt.getLong("BedPos")));
+		}
 	}
 
 	protected int getInventorySize() {
@@ -960,6 +1073,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		//		WandHelper.setSpells(wand, (Spell[])list.toArray(new Spell[5]));
 		//		this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, wand);
 		this.setHealCooldown(50);
+		this.setHome(new Location(this.getPos(), this.dimension));
 		return livingdata;
 	}
 
@@ -1012,6 +1126,26 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		this.setItemStackToSlot(EntityEquipmentSlot.CHEST, inventory.getStackInSlot(3));
 		this.setItemStackToSlot(EntityEquipmentSlot.LEGS, inventory.getStackInSlot(4));
 		this.setItemStackToSlot(EntityEquipmentSlot.FEET, inventory.getStackInSlot(5));
+	}
+
+	@SideOnly(Side.CLIENT)
+	public float getBedRotation() {
+		BlockPos bedLocation = getBedPos();
+		IBlockState state = bedLocation == null ? null : world.getBlockState(bedLocation);
+		if (state != null && state.getBlock().isBed(state, world, bedLocation, null)) {
+			EnumFacing direction = state.getBlock().getBedDirection(state, world, bedLocation);
+			switch (direction) {
+				case EAST:
+					return 180;
+				case WEST:
+					return 0;
+				case NORTH:
+					return 270;
+				default:
+					return 90;
+			}
+		}
+		return -1F;
 	}
 
 	@Override
@@ -1178,6 +1312,14 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		this.dataManager.set(CURRENT_TASK, task.ordinal());
 	}
 
+	public void setPreviousTaskBeforeSleeping(Task task) {
+		this.dataManager.set(PREVIOUS_TASK_BEFORE_SLEEPING, task.ordinal());
+	}
+
+	public Task getPreviousTaskBeforeSleeping() {
+		return Task.values()[this.dataManager.get(PREVIOUS_TASK_BEFORE_SLEEPING)];
+	}
+
 	public int getLevel() {
 		return this.dataManager.get(LEVEL);
 	}
@@ -1272,8 +1414,14 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		FOLLOW,
 		STAY,
 		ADVENTURE,
-		STUDY
+		GO_HOME,
+		STUDY,
+		TRY_TO_SLEEP,
+		IDENTIFY
 	}
+
+
+
 }
 
 

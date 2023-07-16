@@ -6,17 +6,21 @@ import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.ai.EntityAIWander;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextComponentTranslation;
 
 import javax.annotation.Nullable;
 
-public class WizardEntityAIWander extends EntityAIWander {
-	public WizardEntityAIWander(EntityCreature creatureIn, double speedIn) {
+public class WizardAIWander extends EntityAIWander {
+	public WizardAIWander(EntityCreature creatureIn, double speedIn) {
 		super(creatureIn, speedIn);
 	}
 
-	public WizardEntityAIWander(EntityCreature creatureIn, double speedIn, int chance) {
+	public WizardAIWander(EntityCreature creatureIn, double speedIn, int chance) {
 		super(creatureIn, speedIn, chance);
+	}
+
+	@Override
+	public boolean shouldExecute() {
+		return super.shouldExecute() && ((EntityWizardInitiate) entity).getTask() != EntityWizardInitiate.Task.TRY_TO_SLEEP;
 	}
 
 	@Override

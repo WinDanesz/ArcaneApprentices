@@ -6,7 +6,6 @@ import com.windanesz.apprenticearcana.entity.living.EntityWizardInitiate;
 import com.windanesz.apprenticearcana.handler.XpProgression;
 import electroblob.wizardry.Wizardry;
 import electroblob.wizardry.constants.Tier;
-import electroblob.wizardry.data.WizardData;
 import electroblob.wizardry.event.SpellCastEvent;
 import electroblob.wizardry.event.SpellCastEvent.Source;
 import electroblob.wizardry.item.ItemScroll;
@@ -14,7 +13,6 @@ import electroblob.wizardry.item.ItemWand;
 import electroblob.wizardry.packet.PacketNPCCastSpell;
 import electroblob.wizardry.packet.WizardryPacketHandler;
 import electroblob.wizardry.registry.Spells;
-import electroblob.wizardry.registry.WizardryAdvancementTriggers;
 import electroblob.wizardry.registry.WizardrySounds;
 import electroblob.wizardry.spell.Spell;
 import electroblob.wizardry.util.SpellModifiers;
@@ -35,7 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class EntityAIAttackSpellWithCost extends EntityAIBase {
+public class WizardAIAttackSpellWithCost extends EntityAIBase {
 
 	/**
 	 * The entity the AI instance has been applied to. Thanks to type parameters, methods from both EntityLiving and
@@ -55,7 +53,7 @@ public class EntityAIAttackSpellWithCost extends EntityAIBase {
 	private final int baseCooldown;
 	/**
 	 * Decremented each tick while greater than 0. When a continuous spell is first cast, this is set to the value of
-	 * {@link EntityAIAttackSpellWithCost#continuousSpellDuration}.
+	 * {@link WizardAIAttackSpellWithCost#continuousSpellDuration}.
 	 */
 	// I think that in this case this is only necessary on the server side. If any inconsistent behaviour
 	// occurs, look into syncing this as well.
@@ -91,7 +89,7 @@ public class EntityAIAttackSpellWithCost extends EntityAIBase {
 	 *                                attacking, and also the amount that is added to the cooldown of the spell that has just been cast.
 	 * @param continuousSpellDuration The number of ticks that continuous spells will be cast for before cooling down.
 	 */
-	public EntityAIAttackSpellWithCost(EntityWizardInitiate attacker, double speed, float maxDistance, int baseCooldown, int continuousSpellDuration, boolean proxyBuffs) {
+	public WizardAIAttackSpellWithCost(EntityWizardInitiate attacker, double speed, float maxDistance, int baseCooldown, int continuousSpellDuration, boolean proxyBuffs) {
 		this.cooldown = -1;
 		this.npc = attacker;
 		this.baseCooldown = baseCooldown;

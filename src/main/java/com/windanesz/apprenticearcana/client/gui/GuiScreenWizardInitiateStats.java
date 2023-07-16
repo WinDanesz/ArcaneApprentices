@@ -12,10 +12,10 @@ import electroblob.wizardry.spell.Spell;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreenBook;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.relauncher.Side;
@@ -26,10 +26,10 @@ import java.util.List;
 
 @SideOnly(Side.CLIENT)
 public class GuiScreenWizardInitiateStats extends GuiContainer {
-	private static final ResourceLocation WIZARD_INFO_GUI = new ResourceLocation(ApprenticeArcana.MODID, "textures/gui/wizard_stats.png");
+	private static final ResourceLocation GUI_BACKGROUND = new ResourceLocation(ApprenticeArcana.MODID, "textures/gui/wizard_stats.png");
 	private final EntityWizardInitiate wizard;
 
-	public GuiScreenWizardInitiateStats(IInventory playerInv, IInventory horseInv, EntityWizardInitiate wizard) {
+	public GuiScreenWizardInitiateStats(EntityWizardInitiate wizard) {
 		super(new ContainerWizardInfo(wizard, Minecraft.getMinecraft().player));
 		this.wizard = wizard;
 		this.allowUserInput = false;
@@ -38,12 +38,11 @@ public class GuiScreenWizardInitiateStats extends GuiContainer {
 	}
 
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-		//        this.fontRenderer.drawString(this.horseInventory.getDisplayName().getUnformattedText(), 8, 6, 4210752);
 		this.fontRenderer.drawString(this.wizard.getDisplayNameWithoutOwner().getUnformattedText(), 5, 13, 4210752);
-//		this.fontRenderer.drawString(I18n.format("gui.apprenticearcana:wizard_level", this.wizard.getLevel(), this.wizard.getTotalXp(),
-//				(int) XpProgression.calculateTotalXpRequired(this.wizard.getLevel() + 1)), 5, 13 + 12, 4210752);
+		//		this.fontRenderer.drawString(I18n.format("gui.apprenticearcana:wizard_level", this.wizard.getLevel(), this.wizard.getTotalXp(),
+		//				(int) XpProgression.calculateTotalXpRequired(this.wizard.getLevel() + 1)), 5, 13 + 12, 4210752);
 		this.fontRenderer.drawString(I18n.format("gui.apprenticearcana:wizard_level", this.wizard.getLevel(), this.wizard.getTotalXp(),
-				(int)	XpProgression.calculateTotalXpRequired(this.wizard.getLevel() + 1)), 5, 13 + 12, 4210752);
+				(int) XpProgression.calculateTotalXpRequired(this.wizard.getLevel() + 1)), 5, 13 + 12, 4210752);
 		this.fontRenderer.drawString(I18n.format("gui.apprenticearcana:spell_slots"), 5, 13 + 24, 4210752);
 		List<Spell> spells = this.wizard.getSpells();
 		int i = 0;
@@ -74,6 +73,7 @@ public class GuiScreenWizardInitiateStats extends GuiContainer {
 			ij++;
 		}
 
+		buttonList.add(new NextPageButton(buttonList.size(), left + 140, top + 170));
 	}
 
 	@Override
@@ -81,8 +81,13 @@ public class GuiScreenWizardInitiateStats extends GuiContainer {
 		//if (button.enabled) {
 		//if (button == this.applyBtn) {
 		List<Spell> spells = this.wizard.getSpells();
-		if (button.id <= spells.size() -1) {
-			IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.SPELL_TOGGLE, spells.get(button.id));
+		if (button.id <= spells.size() - 1) {
+			IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.SPELL_TOGGLE_BUTTON, spells.get(button.id));
+			AAPacketHandler.net.sendToServer(msg);
+		}
+
+		if (button instanceof NextPageButton) {
+			IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.OPEN_WIZARD_INVENTORY_BUTTON);
 			AAPacketHandler.net.sendToServer(msg);
 		}
 		//if (button instanceof GuiButtonSpellSort) {
@@ -119,7 +124,7 @@ public class GuiScreenWizardInitiateStats extends GuiContainer {
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
 		// draw background
-		this.mc.getTextureManager().bindTexture(WIZARD_INFO_GUI);
+		this.mc.getTextureManager().bindTexture(GUI_BACKGROUND);
 		int i = (this.width - this.xSize) / 2;
 		int j = (this.height - this.ySize) / 2;
 		this.drawTexturedModalRect(i, j, 0, 0, this.xSize, this.ySize);
@@ -140,8 +145,6 @@ public class GuiScreenWizardInitiateStats extends GuiContainer {
 
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		this.drawDefaultBackground();
-		float mousePosx = (float) mouseX;
-		float mousePosY = (float) mouseY;
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		this.renderHoveredToolTip(mouseX, mouseY);
 	}
@@ -231,6 +234,37 @@ public class GuiScreenWizardInitiateStats extends GuiContainer {
 
 			ij++;
 			k++;
+		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	static class NextPageButton extends GuiButton
+	{
+
+		public NextPageButton(int buttonId, int x, int y)
+		{
+			super(buttonId, x, y, 23, 13, "");
+		}
+
+		public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
+		{
+			if (this.visible)
+			{
+				boolean flag = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+				mc.getTextureManager().bindTexture(new ResourceLocation("textures/gui/book.png"));
+				int i = 0;
+				int j = 192;
+
+				if (flag)
+				{
+					i += 23;
+				}
+
+				j += 13;
+
+				this.drawTexturedModalRect(this.x, this.y, i, j, 23, 13);
+			}
 		}
 	}
 }

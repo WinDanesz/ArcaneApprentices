@@ -33,6 +33,12 @@ public class PlayerData {
 	public static final IStoredVariable<List<StoredEntity>> DEAD_APPRENTICES = new IStoredVariable.StoredVariable<List<StoredEntity>, NBTTagList>("deadApprentices",
 			s -> NBTExtras.listToNBT(s, StoredEntity::toNBT), t -> new ArrayList<>(NBTExtras.NBTToList(t, StoredEntity::fromNBT)), Persistence.ALWAYS);
 
+	public static final IStoredVariable<List<StoredEntity>> ADVENTURING_APPRENTICES = new IStoredVariable.StoredVariable<List<StoredEntity>, NBTTagList>("adventuringApprentices",
+			s -> NBTExtras.listToNBT(s, StoredEntity::toNBT), t -> new ArrayList<>(NBTExtras.NBTToList(t, StoredEntity::fromNBT)), Persistence.ALWAYS);
+
+	public static final IStoredVariable<List<StoredEntity>> PENDING_HOME_APPRENTICES = new IStoredVariable.StoredVariable<List<StoredEntity>, NBTTagList>("pendingHomeApprentices",
+			s -> NBTExtras.listToNBT(s, StoredEntity::toNBT), t -> new ArrayList<>(NBTExtras.NBTToList(t, StoredEntity::fromNBT)), Persistence.ALWAYS);
+
 	// no instances!
 	private PlayerData() {}
 
@@ -40,6 +46,8 @@ public class PlayerData {
 		WizardData.registerStoredVariables(WIZARD_APPRENTICES);
 		WizardData.registerStoredVariables(CURRENT_PARTY);
 		WizardData.registerStoredVariables(DEAD_APPRENTICES);
+		WizardData.registerStoredVariables(PENDING_HOME_APPRENTICES);
+		WizardData.registerStoredVariables(ADVENTURING_APPRENTICES);
 	}
 
 	private static List<UUID> getUUIDList(EntityPlayer player, IStoredVariable<List<UUID>> variable) {
@@ -122,6 +130,26 @@ public class PlayerData {
 		}
 	}
 
+	public static List<StoredEntity> getAdventuringApprentices(EntityPlayer player) {
+		WizardData data = WizardData.get(player);
+		List<StoredEntity> list = data.getVariable(ADVENTURING_APPRENTICES);
+		if (list == null) {
+			return new ArrayList<>();
+		} else {
+			return list;
+		}
+	}
+
+	public static List<StoredEntity> getPendingHomeApprentices(EntityPlayer player) {
+		WizardData data = WizardData.get(player);
+		List<StoredEntity> list = data.getVariable(PENDING_HOME_APPRENTICES);
+		if (list == null) {
+			return new ArrayList<>();
+		} else {
+			return list;
+		}
+	}
+
 	public static boolean storeDeadApprentice(EntityPlayer player, EntityLivingBase entity) {
 		WizardData data = WizardData.get(player);
 		List<StoredEntity> list = getDeadApprentices(player);
@@ -136,13 +164,88 @@ public class PlayerData {
 		return false;
 	}
 
-	public static boolean removeDeadApprentice(EntityPlayer player, StoredEntity entity) {
+	public static boolean storeAdventuringApprentice(EntityPlayer player, EntityLivingBase entity) {
+		WizardData data = WizardData.get(player);
+		List<StoredEntity> list = getDeadApprentices(player);
+		StoredEntity entityToStore = new StoredEntity(entity);
+
+		if (!list.contains(entityToStore)) {
+			list.add(entityToStore);
+			data.setVariable(ADVENTURING_APPRENTICES, list);
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean storePendingHomeApprentice(EntityPlayer player, EntityLivingBase entity) {
+		WizardData data = WizardData.get(player);
+		List<StoredEntity> list = getDeadApprentices(player);
+		StoredEntity entityToStore = new StoredEntity(entity);
+
+		if (!list.contains(entityToStore)) {
+			list.add(entityToStore);
+			data.setVariable(PENDING_HOME_APPRENTICES, list);
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean removeDeadApprentice(EntityPlayer player, UUID uuid) {
 		WizardData data = WizardData.get(player);
 		List<StoredEntity> list = getDeadApprentices(player);
 
-		if (list.contains(entity)) {
-			list.remove(entity);
+		int index = -1;
+		for (int i = 0; i < list.size(); i++) {
+			StoredEntity entity = list.get(i);
+			if (entity.getNbtTagCompound().getUniqueId("UUID").equals(uuid)) {
+				index = i;
+			}
+		}
+		if (index != -1) {
+			list.remove(index);
 			data.setVariable(DEAD_APPRENTICES, list);
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean removeAdventuringApprentice(EntityPlayer player, UUID uuid) {
+		WizardData data = WizardData.get(player);
+		List<StoredEntity> list = getDeadApprentices(player);
+
+		int index = -1;
+		for (int i = 0; i < list.size(); i++) {
+			StoredEntity entity = list.get(i);
+			if (entity.getNbtTagCompound().getUniqueId("UUID").equals(uuid)) {
+				index = i;
+			}
+		}
+		if (index != -1) {
+			list.remove(index);
+			data.setVariable(ADVENTURING_APPRENTICES, list);
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean removePendingHomeApprentice(EntityPlayer player, UUID uuid) {
+		WizardData data = WizardData.get(player);
+		List<StoredEntity> list = getDeadApprentices(player);
+
+		int index = -1;
+		for (int i = 0; i < list.size(); i++) {
+			StoredEntity entity = list.get(i);
+			if (entity.getNbtTagCompound().getUniqueId("UUID").equals(uuid)) {
+				index = i;
+			}
+		}
+		if (index != -1) {
+			list.remove(index);
+			data.setVariable(PENDING_HOME_APPRENTICES, list);
 			return true;
 		}
 
@@ -154,4 +257,6 @@ public class PlayerData {
 		data.setVariable(DEAD_APPRENTICES, new ArrayList<>());
 		return false;
 	}
+
+
 }

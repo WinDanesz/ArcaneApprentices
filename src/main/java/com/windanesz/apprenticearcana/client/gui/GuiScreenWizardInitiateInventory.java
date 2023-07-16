@@ -11,7 +11,6 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -28,10 +27,15 @@ public class GuiScreenWizardInitiateInventory extends GuiContainer {
 	private final EntityWizardInitiate wizard;
 	private float mousePosx;
 	private float mousePosY;
-	private GuiButton button1;
-	private GuiButton button2;
-	private GuiButton button3;
-	private GuiButton button4;
+	private GuiButton followBtn;
+	private GuiButton HoldPositionBtn;
+	private GuiButton studyBtn;
+	private GuiButton statsBtn;
+	private GuiButton dismissBtn;
+	private GuiButton setHomeBtn;
+	private GuiButton goHomeBtn;
+	private GuiButton identifyBtn;
+	private GuiButton adventuringBtn;
 
 	public GuiScreenWizardInitiateInventory(IInventory playerInv, IInventory horseInv, EntityWizardInitiate wizard) {
 		super(new ContainerWizardInitiateInventory(playerInv, horseInv, wizard, Minecraft.getMinecraft().player));
@@ -57,30 +61,57 @@ public class GuiScreenWizardInitiateInventory extends GuiContainer {
 
 		if ((Minecraft.getMinecraft().player != null && this.wizard.getOwner() != null) &&
 				(this.wizard.getOwner() == Minecraft.getMinecraft().player || Minecraft.getMinecraft().player.isCreative())) {
-			this.button1 = this.addButton(new GuiButton(3, this.width / 2 - 190, 50 + 0, 98, 20, I18n.format("Follow Me")) {
+			this.followBtn = this.addButton(new GuiButton(0, this.width / 2 - 190, 50, 98, 20, I18n.format("gui.apprenticearcana:follow_me_button")) {
 
 			});
-			this.button2 = this.addButton(new GuiButton(3, this.width / 2 - 190, 50 + 25, 98, 20, I18n.format("Hold This Position")));
+			this.HoldPositionBtn = this.addButton(new GuiButton(1, this.width / 2 - 190, 50 + 25, 98, 20, I18n.format("gui.apprenticearcana:hold_this_position_button")));
 		}
-		this.button3 = this.addButton(new GuiButton(3, this.width / 2 - 190, 50 + 50, 98, 20, I18n.format("Study")));
-		this.button4 = this.addButton(new GuiButton(3, this.width / 2 - 190, 50 + 75, 98, 20, I18n.format("Stats")));
+		this.studyBtn = this.addButton(new GuiButton(2, this.width / 2 - 190, 50 + 50, 98, 20, I18n.format("gui.apprenticearcana:study_button")));
+		this.statsBtn = this.addButton(new GuiButton(3, this.width / 2 - 190, 50 + 75, 98, 20, I18n.format("gui.apprenticearcana:stats_button")));
+		this.dismissBtn = this.addButton(new GuiButton(4, this.width / 2 - 190, 50 + 100, 98, 20, I18n.format("gui.apprenticearcana:dismiss_button")));
+		this.setHomeBtn = this.addButton(new GuiButton(5, this.width / 2 - 190, 50 + 125, 98, 20, I18n.format("gui.apprenticearcana:set_home_button")));
+		this.goHomeBtn = this.addButton(new GuiButton(5, this.width / 2 - 190, 50 + 150, 98, 20, I18n.format("gui.apprenticearcana:go_home_button")));
+
+		// right side
+		this.identifyBtn = this.addButton(new GuiButton(5, this.width / 2 + 90, 50, 98, 20, I18n.format("gui.apprenticearcana:identify_button")));
+		this.adventuringBtn = this.addButton(new GuiButton(5, this.width / 2 + 90, 75, 98, 20, I18n.format("gui.apprenticearcana:adventuring_button")));
 	}
 
 	@Override
 	protected void actionPerformed(GuiButton button) throws IOException {
 		if (button.enabled) {
-			if (button == button1) {
+			if (button == followBtn) {
 				IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.FOLLOW_BUTTON);
 				AAPacketHandler.net.sendToServer(msg);
-			} else if (button == button2) {
+			} else if (button == HoldPositionBtn) {
 				IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.STAY_BUTTON);
 				AAPacketHandler.net.sendToServer(msg);
-			} else if (button == button3) {
+			} else if (button == studyBtn) {
 				IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.STUDY_BUTTON);
 				AAPacketHandler.net.sendToServer(msg);
-			} else if (button == button4) {
+			} else if (button == statsBtn) {
 				this.mc.displayGuiScreen(null);
-				IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.INFO_BUTTON);
+				IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.OPEN_STATS_GUI_BUTTON);
+				AAPacketHandler.net.sendToServer(msg);
+			} else if (button == dismissBtn) {
+				this.mc.displayGuiScreen(null);
+				IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.OPEN_DISMISS_WIZARD_GUI_BUTTON);
+				AAPacketHandler.net.sendToServer(msg);
+			} else if (button == setHomeBtn) {
+				this.mc.displayGuiScreen(null);
+				IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.SET_HOME_BUTTON);
+				AAPacketHandler.net.sendToServer(msg);
+			} else if (button == goHomeBtn) {
+				this.mc.displayGuiScreen(null);
+				IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.GO_HOME_BUTTON);
+				AAPacketHandler.net.sendToServer(msg);
+			} else if (button == identifyBtn) {
+				this.mc.displayGuiScreen(null);
+				IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.IDENTIFY_BUTTON);
+				AAPacketHandler.net.sendToServer(msg);
+			} else if (button == adventuringBtn) {
+				this.mc.displayGuiScreen(null);
+				IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.OPEN_ADVENTURING_GUI_BUTTON);
 				AAPacketHandler.net.sendToServer(msg);
 			}
 		}

@@ -1,7 +1,6 @@
 package com.windanesz.apprenticearcana.entity.ai;
 
 import com.windanesz.apprenticearcana.ApprenticeArcana;
-import com.windanesz.apprenticearcana.Settings;
 import com.windanesz.apprenticearcana.data.Speech;
 import com.windanesz.apprenticearcana.entity.living.EntityWizardInitiate;
 import electroblob.wizardry.block.BlockLectern;
@@ -19,14 +18,14 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 
-public class EntityAIStudy extends EntityAIBase {
+public class WizardAIStudy extends WizardAILecternBase {
 
 	private final EntityWizardInitiate wizard;
 
 	private final float maxLecternFindDistance;
 	private final float maxLecternUseDistance;
 
-	public EntityAIStudy(EntityWizardInitiate wizard, int maxLecternFindDistance, int maxLecternUseDistance) {
+	public WizardAIStudy(EntityWizardInitiate wizard, int maxLecternFindDistance, int maxLecternUseDistance) {
 		this.wizard = wizard;
 		this.maxLecternFindDistance = maxLecternFindDistance;
 		this.maxLecternUseDistance = maxLecternUseDistance;
@@ -48,7 +47,6 @@ public class EntityAIStudy extends EntityAIBase {
 				Spell spell = Spell.byMetadata(this.wizard.getHeldItem(EnumHand.OFF_HAND).getItemDamage());
 				if (!this.wizard.isSpellKnown(spell)) {
 					if (spell.canBeCastBy(this.wizard, false)) {
-
 						if (spell.getTier().ordinal() <= this.wizard.getCurrentTierCap()) {
 							BlockPos lectern = findNearbyLectern(this.wizard.world, this.wizard.getPosition());
 							if (lectern != null) {
@@ -133,66 +131,5 @@ public class EntityAIStudy extends EntityAIBase {
 		}
 	}
 
-	/**
-	 * Attempts to cast the given spell (including event firing) and returns true if it succeeded.
-	 */
-	private boolean attemptCastSpell(Spell spell, SpellModifiers modifiers) {
-
-		//		// If anything stops the spell working at this point, nothing else happens.
-		//		if(MinecraftForge.EVENT_BUS.post(new SpellCastEvent.Pre(Source.NPC, spell, attacker, modifiers))){
-		//			return false;
-		//		}
-		//
-		//		// This is only called when spell casting starts so ticksInUse is always zero
-		//		if(spell.cast(attacker.world, attacker, EnumHand.MAIN_HAND, 0, target, modifiers)){
-		//
-		//			if(spell.isContinuous){
-		//				// -1 because the spell has been cast once already!
-		//				this.continuousSpellTimer = this.continuousSpellDuration - 1;
-		//				setContinuousSpellAndNotify(spell, modifiers);
-		//
-		//			}else{
-		//
-		//				MinecraftForge.EVENT_BUS.post(new SpellCastEvent.Post(Source.NPC, spell, attacker, modifiers));
-		//
-		//				// For now, the cooldown is just added to the constant base cooldown. I think this
-		//				// is a reasonable way of doing things; it's certainly better than before.
-		//				this.cooldown = this.baseCooldown + spell.getCooldown();
-		//
-		//				if(spell.requiresPacket()){
-		//					// Sends a packet to all players in dimension to tell them to spawn particles.
-		//					IMessage msg = new PacketNPCCastSpell.Message(attacker.getEntityId(), target.getEntityId(),
-		//							EnumHand.MAIN_HAND, spell, modifiers);
-		//					WizardryPacketHandler.net.sendToDimension(msg, attacker.world.provider.getDimension());
-		//				}
-		//			}
-		//
-		//			return true;
-		//		}
-
-		return false;
-	}
-
-	@Nullable
-	public static BlockPos findNearbyLectern(World world, BlockPos centre) {
-
-		int searchRadius = 12;
-
-		for (int x = -searchRadius; x <= searchRadius; x++) {
-			for (int y = -searchRadius; y <= searchRadius; y++) {
-				for (int z = -searchRadius; z <= searchRadius; z++) {
-
-					BlockPos pos = centre.add(x, y, z);
-
-					if (world.getBlockState(pos).getBlock() instanceof BlockLectern) {
-						return pos;
-					}
-
-				}
-			}
-		}
-
-		return null;
-	}
 }
 

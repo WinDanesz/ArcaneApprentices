@@ -17,7 +17,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 
-public class ContainerWizardInitiateInventory extends Container {
+public class ContainerWizardInitiateInventory extends ContainerWizardBase {
 	private final IInventory wizardInventory;
 	public final EntityWizardInitiate wizard;
 	private static final EntityEquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EntityEquipmentSlot[] {EntityEquipmentSlot.HEAD,
@@ -202,5 +202,10 @@ public class ContainerWizardInitiateInventory extends Container {
 	public void onContainerClosed(EntityPlayer playerIn) {
 		super.onContainerClosed(playerIn);
 		this.wizardInventory.closeInventory(playerIn);
+	}
+
+	@Override
+	public EntityWizardInitiate getWizard() {
+		return wizard;
 	}
 }

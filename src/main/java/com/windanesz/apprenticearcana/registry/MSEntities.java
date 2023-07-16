@@ -19,7 +19,7 @@ public class MSEntities {
 
 		IForgeRegistry<EntityEntry> registry = event.getRegistry();
 
-		registry.register(EntityRegistry.createEntry(EntityWizardInitiate.class, "wizard_initiate", ApprenticeArcana.MODID, EntityRegistry.TrackingType.LIVING).build());
+		registry.register(EntityRegistry.createEntry(EntityWizardInitiate.class, "wizard_initiate", ApprenticeArcana.MODID, EntityRegistry.TrackingType.LIVING).egg(0x19295e, 0x03c2fc).build());
 
 	}
 }

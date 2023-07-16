@@ -1,5 +1,6 @@
 package com.windanesz.apprenticearcana.data;
 
+import akka.actor.Identify;
 import com.windanesz.apprenticearcana.ApprenticeArcana;
 import com.windanesz.apprenticearcana.entity.living.EntityWizardInitiate;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -37,6 +38,10 @@ public enum Speech {
 	WIZARD_OWNER_SPELL_CAST_COMPLIMENT_LOW_TIER(3),
 	WIZARD_COMBAT(8),
 	WIZARD_PLAYER_CLICK_STUDY_BUTTON(1),
+	WIZARD_SET_HOME(1),
+	WIZARD_GO_HOME(3),
+	WIZARD_FINISHED_SPELL_IDENTIFYING(1),
+	WIZARD_TASKED_TO_IDENTIFY_SPELL(2),
 	LEVEL_UP(3),
 	WAND_TIER_TOO_HIGH(4),
 	GREET(5),

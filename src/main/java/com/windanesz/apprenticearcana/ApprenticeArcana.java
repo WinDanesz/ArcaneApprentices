@@ -4,6 +4,7 @@ import com.windanesz.apprenticearcana.client.gui.AAGuiHandler;
 import com.windanesz.apprenticearcana.data.PlayerData;
 import com.windanesz.apprenticearcana.packet.AAPacketHandler;
 import com.windanesz.apprenticearcana.registry.BlockRegistry;
+import com.windanesz.apprenticearcana.registry.LootRegistry;
 import electroblob.wizardry.api.WizardryEnumHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
@@ -35,6 +36,8 @@ public class ApprenticeArcana {
 	@Mod.Instance(ApprenticeArcana.MODID)
 	public static ApprenticeArcana instance;
 
+	public static Settings settings = new Settings();
+
 	// Location of the proxy code, used by Forge.
 	@SidedProxy(clientSide = "com.windanesz.apprenticearcana.client.ClientProxy", serverSide = "com.windanesz.apprenticearcana.CommonProxy")
 	public static CommonProxy proxy;
@@ -44,6 +47,7 @@ public class ApprenticeArcana {
 		WizardryEnumHelper.addSpellType("NPCSPELL", "npcspell");
 		logger = event.getModLog();
 		proxy.registerRenderers();
+		LootRegistry.preInit();
 	}
 
 	@EventHandler

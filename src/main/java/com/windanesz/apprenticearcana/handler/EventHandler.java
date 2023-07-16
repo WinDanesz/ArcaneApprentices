@@ -41,6 +41,7 @@ import electroblob.wizardry.util.AllyDesignationSystem;
 import electroblob.wizardry.util.BlockUtils;
 import electroblob.wizardry.util.EntityUtils;
 import electroblob.wizardry.util.IElementalDamage;
+import electroblob.wizardry.util.Location;
 import electroblob.wizardry.util.MagicDamage;
 import electroblob.wizardry.util.ParticleBuilder;
 import electroblob.wizardry.util.SpellModifiers;
@@ -74,6 +75,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Mod.EventBusSubscriber
@@ -671,6 +673,8 @@ public final class EventHandler {
 			List<StoredEntity> list = PlayerData.getDeadApprentices(event.getEntityPlayer());
 			if (!list.isEmpty()) {
 
+				List<UUID> respawnedEntities = new ArrayList();
+
 				for (StoredEntity entity : list) {
 					World world = event.getEntityPlayer().world;
 					BlockPos pos = BlockUtils.findNearbyFloorSpace(event.getEntityPlayer(), 5, 5);
@@ -680,20 +684,88 @@ public final class EventHandler {
 					if (pos != null) {
 						Entity mob = EntityList.createEntityFromNBT(entity.getNbtTagCompound(), world);
 						if (mob instanceof EntityLivingBase) {
-						//	((EntityLivingBase) mob).heal(((EntityLivingBase) mob).getMaxHealth());
-						//	((EntityLivingBase) mob).setHealth(((EntityLivingBase) mob).getMaxHealth());
+							//	((EntityLivingBase) mob).heal(((EntityLivingBase) mob).getMaxHealth());
+							//	((EntityLivingBase) mob).setHealth(((EntityLivingBase) mob).getMaxHealth());
 							mob.setPosition(pos.getX() + 0.5f, pos.getY(), pos.getZ() + 0.5f);
 							((EntityWizardInitiate) mob).setFoodLevel(20f);
 							((EntityWizardInitiate) mob).setSaturation(10f);
 
-						//	mob.extinguish();
-							world.spawnEntity(mob);
+							//	mob.extinguish();
+							if (world.spawnEntity(mob)) {
+								respawnedEntities.add(mob.getUniqueID());
+							}
+
 						}
 					}
 				}
-				PlayerData.clearDeadEntitiesList(event.getEntityPlayer());
+
+				for (UUID uuid : respawnedEntities) {
+					PlayerData.removeDeadApprentice(event.getEntityPlayer(), uuid);
+				}
 			}
-			PlayerData.clearApprentices(event.getEntityPlayer());
+		}
+	}
+
+	@SubscribeEvent
+	public static void onPlayerTickEvent(TickEvent.PlayerTickEvent event) {
+
+		if (!event.player.world.isRemote && event.player.ticksExisted % 61 == 0) {
+
+			List<StoredEntity> list = PlayerData.getPendingHomeApprentices(event.player);
+			if (!list.isEmpty()) {
+				for (StoredEntity entity : list) {
+					World world = event.player.world;
+
+					if (entity.getNbtTagCompound().hasKey("HomePos")) {
+						Location homePos = Location.fromNBT(entity.getNbtTagCompound().getCompoundTag("HomePos"));
+						if (event.player.dimension == homePos.dimension && event.player.world.isBlockLoaded(homePos.pos) && event.player.getDistance(homePos.pos.getX(), homePos.pos.getY(), homePos.pos.getZ()) < 12) {
+
+							BlockPos pos = BlockUtils.findNearbyFloorSpace(event.player.world, homePos.pos, 3, 3);
+							Arrays.asList("CurrentStayPos", "Motion", "Leashed", "ActiveEffects", "FallDistance", "HurtTime", "Fire")
+									.forEach(tag -> entity.getNbtTagCompound().removeTag(tag));
+
+							if (pos != null) {
+								Entity mob = EntityList.createEntityFromNBT(entity.getNbtTagCompound(), world);
+								if (mob instanceof EntityLivingBase) {
+									mob.setPosition(pos.getX() + 0.5f, pos.getY(), pos.getZ() + 0.5f);
+									world.spawnEntity(mob);
+
+									PlayerData.removePendingHomeApprentice(event.player, mob.getUniqueID());
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (!event.player.world.isRemote && event.player.ticksExisted % 200 == 0) {
+			List<StoredEntity> list = PlayerData.getAdventuringApprentices(event.player);
+			if (!list.isEmpty()) {
+				for (StoredEntity entity : list) {
+					World world = event.player.world;
+
+					if (entity.getNbtTagCompound().hasKey("HomePos")) {
+						Location homePos = Location.fromNBT(entity.getNbtTagCompound().getCompoundTag("HomePos"));
+						if (event.player.dimension == homePos.dimension && event.player.world.isBlockLoaded(homePos.pos) && event.player.getDistance(homePos.pos.getX(), homePos.pos.getY(), homePos.pos.getZ()) < 12) {
+
+							BlockPos pos = BlockUtils.findNearbyFloorSpace(event.player.world, homePos.pos, 3, 3);
+							Arrays.asList("CurrentStayPos", "Motion", "Leashed", "ActiveEffects", "FallDistance", "HurtTime", "Fire")
+									.forEach(tag -> entity.getNbtTagCompound().removeTag(tag));
+
+							if (pos != null) {
+								Entity mob = EntityList.createEntityFromNBT(entity.getNbtTagCompound(), world);
+								if (mob instanceof EntityLivingBase) {
+									mob.setPosition(pos.getX() + 0.5f, pos.getY(), pos.getZ() + 0.5f);
+									world.spawnEntity(mob);
+
+									PlayerData.removePendingHomeApprentice(event.player, mob.getUniqueID());
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 }

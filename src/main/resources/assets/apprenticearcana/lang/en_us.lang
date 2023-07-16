@@ -2,6 +2,7 @@
 # Generic
 settings.apprenticearcana:general_settings=General Settings
 entity.apprenticearcana:owned_wizard.nameplate=%2$s, %1$s's apprentice
+entity.apprenticearcana:wizard_initiate.name=Wizard Initiate
 gui.apprenticearcana:wizard_level=Level %1$s (%2$s XP / %3$s XP)
 gui.apprenticearcana:known_spells=Known Spells
 gui.apprenticearcana:spell_slots=Spell Slots
@@ -21,6 +22,7 @@ message.apprenticearcana:wizard_finished_spell_learning_7=Under your guidance, I
 message.apprenticearcana:wizard_finished_spell_learning_8=With your patient guidance, I have now learned %s.
 message.apprenticearcana:wizard_finished_spell_learning_9=Continuing my studies under your watchful eye, I have now learned %s
 message.apprenticearcana:wizard_finished_spell_learning_10=With your support, I have mastered the spell %s, expanding my repertoire of spells.
+message.apprenticearcana:wizard_finished_spell_identifying_0=I finished identifying the spell you handed to me, it is %s.
 message.apprenticearcana:wizard_idling_0=Master, is there something I can assist you with?
 message.apprenticearcana:wizard_idling_1=How may I be of service to you?
 message.apprenticearcana:wizard_idling_2=Master, do you require my aid in any task?
@@ -135,8 +137,8 @@ message.apprenticearcana:wizard_take_damage_0=Ouch, that hurt!
 message.apprenticearcana:wizard_take_damage_1=Ouch!
 message.apprenticearcana:wizard_take_damage_2=That hurts!
 message.apprenticearcana:wizard_mumbling_while_studying_spell_0=Let's see... If I combine these elements together...
-message.apprenticearcana:wizard_mumbling_while_studying_spell_1=Hmmm... I wonder if I can enhance this spell with some additional components...
-message.apprenticearcana:wizard_mumbling_while_studying_spell_2=Concentrate... Focus... There must be a way to improve the effectiveness of this spell...
+message.apprenticearcana:wizard_mumbling_while_studying_spell_1=Hmmm... I wonder if I can enhance this spell with an artefact...
+message.apprenticearcana:wizard_mumbling_while_studying_spell_2=Concentrate...
 message.apprenticearcana:wizard_mumbling_while_studying_spell_3=Ah, this spell is proving to be quite challenging... I need to delve deeper into its intricacies...
 message.apprenticearcana:wizard_mumbling_while_studying_spell_4=Just a few more adjustments... If I tweak the incantation...
 message.apprenticearcana:wizard_mumbling_while_studying_spell_5=Hmm... What if I combine the theories from different schools of magic? It might create a unique effect...
@@ -299,6 +301,14 @@ message.apprenticearcana:wizard_looks_at_not_really_interesting_object_0=Hmm, ju
 message.apprenticearcana:wizard_looks_at_not_really_interesting_object_1=Ah, %s. It's quite ordinary, isn't it?
 message.apprenticearcana:wizard_looks_at_not_really_interesting_object_2=Well, well, well... what do we have here?
 
+message.apprenticearcana:wizard_set_home_0=Okay, lets settle here!
+message.apprenticearcana:wizard_go_home_0=Okay, lets meet at home!
+message.apprenticearcana:wizard_go_home_1=Sure, I can go back
+message.apprenticearcana:wizard_go_home_2=See you at home, master!
+
+message.apprenticearcana:wizard_tasked_to_identify_spell_0=Okay, I'll try my best to identify the spells you give me, master!
+message.apprenticearcana:wizard_tasked_to_identify_spell_1=Thank you for entrusting me with this task. I'll try my best to identify the spells you hand me.
+
 message.apprenticearcana:wizard_notices_very_interesting_object_0=Wait, what's this? %s!
 message.apprenticearcana:wizard_notices_very_interesting_object_1=Look over there! %s!
 message.apprenticearcana:wizard_notices_very_interesting_object_2=%s, have you seen that?
@@ -317,4 +327,40 @@ tooltip.apprenticearcana:artefact_not_usable_by_npcs=Not usable by Wizard appren
 
 info.apprenticearcana:reached_apprentice_cap=You've already reached your maximum apprentice cap!
 info.apprenticearcana:apprentice_will_respawn_at_bed=%s died, but will respawn at your bed the next time you sleep
+gui.apprenticearcana:dismiss_wizard_confirmation=Are you sure you want to send %1$s away FOREVER? %1$s will no longer be your apprentice, and teleport away to live his own life as a wizard.
+gui.apprenticearcana:wizard_journey_gui_info=Send %1$s on an journey to gather goods and gain experience. Food and mana is essential for survival in the wilderness.
+gui.apprenticearcana:dismiss_wizard_type_name=Type in the name of %s to dismiss him
+gui.apprenticearcana:confirm_button=Confirm
+gui.apprenticearcana:cancel_button=Cancel
+gui.apprenticearcana:stats_button=Stats
+gui.apprenticearcana:study_button=Study
+gui.apprenticearcana:dismiss_button=Dismiss
+gui.apprenticearcana:set_home_button=Set Home
+gui.apprenticearcana:go_home_button=Go Home
+gui.apprenticearcana:identify_button=Identify Spell
+gui.apprenticearcana:hold_this_position_button=Hold This Position
+gui.apprenticearcana:adventuring_button=Adventuring
+gui.apprenticearcana:follow_me_button=Follow Me
 
+gui.apprenticearcana:short_duration=Short Duration
+gui.apprenticearcana:medium_duration=Short Duration
+gui.apprenticearcana:long_duration=Short Duration
+gui.apprenticearcana:short_duration.description=Short journeys are usually safe, require a small amount of supplies, and the apprentices return within a day. However, this also means they cannot venture far and find highly valuable loot.
+gui.apprenticearcana:medium_duration.description=Medium-duration journeys provide a balance between safety and exploration. Apprentices can venture farther and uncover moderately valuable loot. However, these journeys require a moderate amount of supplies, and apprentices return within a few days.
+gui.apprenticearcana:long_duration.description=Long-duration journeys offer great potential for discovering rare and valuable treasures. However, they come with increased risks and demand a substantial amount of supplies. Apprentices embark on extensive expeditions that can last several days before returning.
+gui.apprenticearcana:distance_to_travel=Distance to travel
+gui.apprenticearcana:what_to_do=What to do
+gui.apprenticearcana:gather.description=Send your apprentice on a gathering task. Without a specific tool, they will gather whatever they deem valuable. You can also provide them with a pickaxe, axe, shears (for plant gathering) or shovel in their off hand to search for more specific resources.
+gui.apprenticearcana:slay_mobs.description=Instruct your apprentice to slay mobs. They will engage in combat using their magical abilities and return with loot dropped by the mobs they defeat.
+gui.apprenticearcana:adventure.description=Send your apprentice on a solo adventure where they will explore the world, searching for structures and other mysterious locations, valuable items, and uncovering hidden secrets. During their journey, they may stumble upon rare treasures and discover ancient knowledge.
+gui.apprenticearcana:nether_adventure.description=Embark your apprentice on a daring adventure into the Nether, the fiery dimension. They will face dangerous creatures and navigate treacherous landscapes in search of rare Nether resources and ancient artifacts. Be cautious, as the Nether holds great peril and only the bravest apprentices should undertake this challenging adventure.
+
+gui.apprenticearcana:short=Short
+gui.apprenticearcana:medium=Medium
+gui.apprenticearcana:long=Long
+gui.apprenticearcana:gather=Gather
+gui.apprenticearcana:slay_mobs=Slay Mobs
+gui.apprenticearcana:adventure=Adventure
+gui.apprenticearcana:nether_adventure=The Nether
+gui.apprenticearcana:not_enough_food=You haven't provided your apprentice enough food for this journey
+gui.apprenticearcana:too_low_level=Your apprentice is too inexperienced for this journey

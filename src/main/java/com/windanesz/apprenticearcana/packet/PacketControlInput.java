@@ -2,17 +2,15 @@ package com.windanesz.apprenticearcana.packet;
 
 import com.windanesz.apprenticearcana.ApprenticeArcana;
 import com.windanesz.apprenticearcana.client.gui.AAGuiHandler;
+import com.windanesz.apprenticearcana.data.JourneyType;
 import com.windanesz.apprenticearcana.data.Speech;
 import com.windanesz.apprenticearcana.entity.living.EntityWizardInitiate;
-import com.windanesz.apprenticearcana.inventory.ContainerWizardInfo;
-import com.windanesz.apprenticearcana.inventory.ContainerWizardInitiateInventory;
-import electroblob.wizardry.Wizardry;
-import electroblob.wizardry.item.ISpellCastingItem;
+import com.windanesz.apprenticearcana.inventory.ContainerWizardBase;
 import electroblob.wizardry.registry.Spells;
 import electroblob.wizardry.spell.Spell;
+import electroblob.wizardry.util.Location;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -33,22 +31,13 @@ public class PacketControlInput implements IMessageHandler<PacketControlInput.Me
 
 			player.getServerWorld().addScheduledTask(() -> {
 
-				ItemStack wand = player.getHeldItemMainhand();
-
-				if (!(wand.getItem() instanceof ISpellCastingItem)) {
-					wand = player.getHeldItemOffhand();
-				}
-
 				switch (message.controlType) {
 
 					case FOLLOW_BUTTON:
 
-						if (!(player.openContainer instanceof ContainerWizardInitiateInventory)) {
-							Wizardry.logger.warn("Received a PacketControlInput, but the player that sent it was not " +
-									"currently interacting with an NPC. This should not happen!");
-						} else {
-							((ContainerWizardInitiateInventory) player.openContainer).wizard.setTask(EntityWizardInitiate.Task.FOLLOW);
-							((ContainerWizardInitiateInventory) player.openContainer).wizard.sayImmediately(
+						if (player.openContainer instanceof ContainerWizardBase) {
+							((ContainerWizardBase) player.openContainer).getWizard().setTask(EntityWizardInitiate.Task.FOLLOW);
+							((ContainerWizardBase) player.openContainer).getWizard().sayImmediately(
 									new TextComponentTranslation(Speech.WIZARD_FOLLOWING_PLAYER.getRandom(), player.getDisplayName()));
 							player.closeScreen();
 						}
@@ -57,12 +46,9 @@ public class PacketControlInput implements IMessageHandler<PacketControlInput.Me
 
 					case STAY_BUTTON:
 
-						if (!(player.openContainer instanceof ContainerWizardInitiateInventory)) {
-							Wizardry.logger.warn("Received a PacketControlInput, but the player that sent it was not " +
-									"currently interacting with an NPC. This should not happen!");
-						} else {
-							((ContainerWizardInitiateInventory) player.openContainer).wizard.setTask(EntityWizardInitiate.Task.STAY);
-							((ContainerWizardInitiateInventory) player.openContainer).wizard.sayImmediately(
+						if (player.openContainer instanceof ContainerWizardBase) {
+							((ContainerWizardBase) player.openContainer).getWizard().setTask(EntityWizardInitiate.Task.STAY);
+							((ContainerWizardBase) player.openContainer).getWizard().sayImmediately(
 									new TextComponentTranslation(Speech.WIZARD_PLAYER_CLICK_HOLD_POSITION_BUTTON.getRandom()));
 							player.closeScreen();
 						}
@@ -71,39 +57,98 @@ public class PacketControlInput implements IMessageHandler<PacketControlInput.Me
 
 					case STUDY_BUTTON:
 
-						if (!(player.openContainer instanceof ContainerWizardInitiateInventory)) {
-							Wizardry.logger.warn("Received a PacketControlInput, but the player that sent it was not " +
-									"currently interacting with an NPC. This should not happen!");
-						} else {
-							((ContainerWizardInitiateInventory) player.openContainer).wizard.setTask(EntityWizardInitiate.Task.STUDY);
-							((ContainerWizardInitiateInventory) player.openContainer).wizard.sayImmediately(
+						if (player.openContainer instanceof ContainerWizardBase) {
+							((ContainerWizardBase) player.openContainer).getWizard().setTask(EntityWizardInitiate.Task.STUDY);
+							((ContainerWizardBase) player.openContainer).getWizard().resetStudyProgress();
+							((ContainerWizardBase) player.openContainer).getWizard().sayImmediately(
 									new TextComponentTranslation(Speech.WIZARD_PLAYER_CLICK_STUDY_BUTTON.getRandom()));
 							player.closeScreen();
 						}
 
 						break;
-					case INFO_BUTTON:
 
-						if (!(player.openContainer instanceof ContainerWizardInitiateInventory)) {
-							Wizardry.logger.warn("Received a PacketControlInput, but the player that sent it was not " +
-									"currently interacting with an NPC. This should not happen!");
-						} else {
+					case OPEN_STATS_GUI_BUTTON:
+
+						if (player.openContainer instanceof ContainerWizardBase) {
 							player.openGui(ApprenticeArcana.MODID, AAGuiHandler.WIZARD_STATS_GUI, player.world,
-									((ContainerWizardInitiateInventory) player.openContainer).wizard.getEntityId(), 0, 0);
+									((ContainerWizardBase) player.openContainer).getWizard().getEntityId(), 0, 0);
 						}
 
 						break;
 
-					case SPELL_TOGGLE:
+					case OPEN_DISMISS_WIZARD_GUI_BUTTON:
 
-						if (!(player.openContainer instanceof ContainerWizardInfo)) {
-							Wizardry.logger.warn("Received a PacketControlInput, but the player that sent it was not " +
-									"currently interacting with an NPC. This should not happen!");
-						} else {
-							((ContainerWizardInfo) player.openContainer).wizard.toggleSpellDisablement(message.spell);
+						if (player.openContainer instanceof ContainerWizardBase) {
+							player.openGui(ApprenticeArcana.MODID, AAGuiHandler.WIZARD_DISMISS_CONFIRM_GUI, player.world,
+									((ContainerWizardBase) player.openContainer).getWizard().getEntityId(), 0, 0);
 						}
 
 						break;
+
+					case SPELL_TOGGLE_BUTTON:
+
+						if (player.openContainer instanceof ContainerWizardBase) {
+							((ContainerWizardBase) player.openContainer).getWizard().toggleSpellDisablement(message.spell);
+						}
+
+						break;
+
+					case SET_HOME_BUTTON:
+
+						if (player.openContainer instanceof ContainerWizardBase) {
+							EntityWizardInitiate wizard = ((ContainerWizardBase) player.openContainer).getWizard();
+							wizard.setHome(new Location(wizard.getPos(), wizard.dimension));
+							wizard.sayImmediately(new TextComponentTranslation(Speech.WIZARD_SET_HOME.getRandom()));
+							player.closeScreen();
+						}
+
+						break;
+
+					case GO_HOME_BUTTON:
+
+						if (player.openContainer instanceof ContainerWizardBase) {
+							((ContainerWizardBase) player.openContainer).getWizard().setTask(EntityWizardInitiate.Task.GO_HOME);
+							((ContainerWizardBase) player.openContainer).getWizard().sayImmediately(new TextComponentTranslation(Speech.WIZARD_GO_HOME.getRandom()));
+							player.closeScreen();
+						}
+
+						break;
+
+					case IDENTIFY_BUTTON:
+
+						if (player.openContainer instanceof ContainerWizardBase) {
+							((ContainerWizardBase) player.openContainer).getWizard().setTask(EntityWizardInitiate.Task.IDENTIFY);
+							((ContainerWizardBase) player.openContainer).getWizard().resetStudyProgress();
+							((ContainerWizardBase) player.openContainer).getWizard().sayImmediately(new TextComponentTranslation(Speech.WIZARD_TASKED_TO_IDENTIFY_SPELL.getRandom()));
+							player.closeScreen();
+						}
+
+						break;
+
+					case OPEN_ADVENTURING_GUI_BUTTON:
+						if (player.openContainer instanceof ContainerWizardBase) {
+							player.openGui(ApprenticeArcana.MODID, AAGuiHandler.WIZARD_ADVENTURING_GUI, player.world,
+									((ContainerWizardBase) player.openContainer).getWizard().getEntityId(), 0, 0);
+						}
+
+						break;
+
+					case OPEN_WIZARD_INVENTORY_BUTTON:
+						if (player.openContainer instanceof ContainerWizardBase) {
+							player.openGui(ApprenticeArcana.MODID, AAGuiHandler.WIZARD_INVENTORY_GUI, player.world,
+									((ContainerWizardBase) player.openContainer).getWizard().getEntityId(), 0, 0);
+						}
+						break;
+
+					case JOURNEY_CONFIRM_BUTTON:
+
+						if (player.openContainer instanceof ContainerWizardBase) {
+							((ContainerWizardBase) player.openContainer).getWizard().journeyType = message.journeyType;
+							player.closeScreen();
+						}
+
+						break;
+
 				}
 			});
 		}
@@ -112,13 +157,15 @@ public class PacketControlInput implements IMessageHandler<PacketControlInput.Me
 	}
 
 	public enum ControlType {
-		FOLLOW_BUTTON, STAY_BUTTON, STUDY_BUTTON, INFO_BUTTON, SPELL_TOGGLE
+		FOLLOW_BUTTON, STAY_BUTTON, STUDY_BUTTON, OPEN_STATS_GUI_BUTTON, SPELL_TOGGLE_BUTTON, OPEN_DISMISS_WIZARD_GUI_BUTTON, DISMISS_WIZARD_BUTTON,
+		CLOSE_WINDOW_BUTTON, SET_HOME_BUTTON, GO_HOME_BUTTON, IDENTIFY_BUTTON, OPEN_ADVENTURING_GUI_BUTTON, OPEN_WIZARD_INVENTORY_BUTTON, JOURNEY_CONFIRM_BUTTON
 	}
 
 	public static class Message implements IMessage {
 
 		private ControlType controlType;
 		private Spell spell = Spells.none;
+		private JourneyType journeyType = JourneyType.NOT_ADVENTURING;
 
 		// This constructor is required otherwise you'll get errors (used somewhere in fml through reflection)
 		public Message() {
@@ -133,17 +180,24 @@ public class PacketControlInput implements IMessageHandler<PacketControlInput.Me
 			this.spell = spell;
 		}
 
+		public Message(ControlType type, JourneyType journeyType) {
+			this.controlType = type;
+			this.journeyType = journeyType;
+		}
+
 		@Override
 		public void fromBytes(ByteBuf buf) {
 			// The order is important
-			this.spell = Spell.byNetworkID(buf.readInt());
 			this.controlType = ControlType.values()[buf.readInt()];
+			this.spell = Spell.byNetworkID(buf.readInt());
+			this.journeyType = JourneyType.values()[buf.readInt()];
 		}
 
 		@Override
 		public void toBytes(ByteBuf buf) {
-			buf.writeInt(spell.networkID());
 			buf.writeInt(controlType.ordinal());
+			buf.writeInt(spell.networkID());
+			buf.writeInt(journeyType.ordinal());
 		}
 	}
 }

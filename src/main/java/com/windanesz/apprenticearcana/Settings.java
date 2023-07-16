@@ -1,6 +1,5 @@
 package com.windanesz.apprenticearcana;
 
-import ibxm.Player;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -14,12 +13,8 @@ import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
-import java.security.acl.Owner;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Config(modid = ApprenticeArcana.MODID, name = "apprenticearcana") // No fancy configs here so we can use the annotation, hurrah!
 public class Settings {
@@ -254,6 +249,24 @@ public class Settings {
 				"ebwizardry:ring_storm"
 		};
 
+		@Config.Name("Minimum NPC Level for Identifying Spells")
+		public int MINIMUM_NPC_LEVEL_FOR_IDENTIFYING_SPELLS = 10;
+
+		@Config.Name("Identify Spells in Inventory")
+		public boolean IDENTIFY_SPELLS_IN_INVENTORY = true;
+
+		@Config.Name("Wizards Can Identify Spells")
+		public boolean WIZARDS_CAN_IDENTIFY_SPELLS = true;
+
+		@Config.Name("Max Tier for Identifying Spells")
+		@Config.Comment("0 = novice, 1 = up to apprentice, 2 = up to advanced, 3 = up to master")
+		@Config.RangeInt(min = 0, max = 3)
+		public int MAX_TIER_FOR_IDENTIFYING_SPELLS = 2;
+
+		@Config.Name("Identifying Spell Duration Multiplier Compared to Learning")
+		@Config.Comment("Checked once every second. Set to 0 to disable this event.")
+		public float IDENTIFYING_SPELL_DURATION_MULTIPLIER_COMPARED_TO_LEARNING = 2.5f;
+
 		@Config.Name("Max Apprentice Level")
 		public int MAX_WIZARD_LEVEL = 30;
 
@@ -328,6 +341,23 @@ public class Settings {
 		@Config.Name("Spell Remark Message Chance")
 		public float SPELL_REMARK_MESSAGE_CHANCE = 0.05f;
 
+		@Config.Name("Wizard Journey XP Gain Modifier")
+		public float WIZARD_JOURNEY_XP_GAIN_MODIFIER = 1f;
+
+		@Config.Name("Journey Food Requirement Modifier")
+		public float JOURNEY_FOOD_REQUIREMENT_MODIFIER = 1f;
+
+		@Config.Name("Journeys Require Food")
+		public boolean JOURNEY_REQUIRE_FOOD = true;
+
+		@Config.Name("Levels Required By Each Journey Type")
+		@Config.Comment("Levels Required By Each Journey Type in a format of adventuretype:minimum_level")
+		public String[] LEVELS_REQUIRED_BY_EACH_JOURNEY_TYPE = {
+			"gather:5",
+			"slay_mobs:10",
+			"adventure:15"
+		};
+
 		@Config.Name("Items Found By Apprentices During Travelling Together")
 		@Config.Comment("List of items found by wizard apprentices that they give to the player on rare occasions during adventuring TOGETHER." +
 				"The format should be like this: modid:itemname:metadata:count_min:count_max:nbt:nbt_stuff_goes_here. The nbt tag can be omitted. "
@@ -352,7 +382,7 @@ public class Settings {
 
 		@Config.Name("Max Adventure Duration In Ticks")
 		@Config.Comment("Determines the maximum duration an NPC can spend in an adventure before it returns.")
-		public int MAX_ADVENTURE_DURATION_IN_TICKS = 1;
+		public int MAX_ADVENTURE_DURATION_IN_TICKS = 400;
 
 		@Config.Name("NPC Spell Study Time Modifier")
 		@Config.Comment("The higher the number, the longer it takes to learn a spell (as a math exponent)"
@@ -360,25 +390,27 @@ public class Settings {
 				+ "<time modifier> : <novice> | <apprentice> | <advanced> | <master>"
 				+ "4: <1 | <1 | 1 | 2"
 				+ "5: 3 | 4 | 7 | 10"
-				+ "(DEFAULT) 6: 13 | 23 | 39 | 63"
+				+ "6: 13 | 23 | 39 | 63"
 				+ "7: 65 | 127 | 233 | 408"
 				+ "8: 325 | 698 | 1400 | 2655"
 		)
 		@Config.RangeDouble(min = 4, max = 8)
-		public double NPC_SPELL_STUDY_TIME_MODIFIER = 6d;
+		public double NPC_SPELL_STUDY_TIME_MODIFIER = 5d;
 
 		@Config.Name("Min Adventure Duration In Ticks")
 		@Config.Comment("Determines the minimum duration an NPC must spend in an adventure before it returns.")
-		public int MIN_ADVENTURE_DURATION_IN_TICKS = 1;
+		public int MIN_ADVENTURE_DURATION_IN_TICKS = 200;
 
-		@Config.Name("Items Found By Apprentices During Adventure")
-		@Config.Comment("List of items found by wizard apprentices that they give to the player on rare occasions when they are sent on an adventure" +
-				"The format should be like this: modid:itemname:metadata:count_min:count_max:nbt:nbt_stuff_goes_here. The nbt tag can be omitted. "
-				+ "Example: ebwizardry:magic_crystal:0:2:5 - this didn't have an nbt tag with a random count between 2-5"
-				+ "Example: bwizardry:magic_crystal:4:2:5:nbt:{ench:[{id:6,lvl:1}]} - this would be 2-5 magic crystals with an aqua affinity enchantment and metadata as 4")
-		public String[] APPRENTICE_ITEM_LIST = {
-				"ebwizardry:astral_diamond:0:1:1"
-		};
+
+
+//		@Config.Name("Items Found By Apprentices During Adventure")
+//		@Config.Comment("List of items found by wizard apprentices that they give to the player on rare occasions when they are sent on an adventure" +
+//				"The format should be like this: modid:itemname:metadata:count_min:count_max:nbt:nbt_stuff_goes_here. The nbt tag can be omitted. "
+//				+ "Example: ebwizardry:magic_crystal:0:2:5 - this didn't have an nbt tag with a random count between 2-5"
+//				+ "Example: bwizardry:magic_crystal:4:2:5:nbt:{ench:[{id:6,lvl:1}]} - this would be 2-5 magic crystals with an aqua affinity enchantment and metadata as 4")
+//		public String[] APPRENTICE_ITEM_LIST = {
+//				"ebwizardry:astral_diamond:0:1:1"
+//		};
 	}
 
 	/**

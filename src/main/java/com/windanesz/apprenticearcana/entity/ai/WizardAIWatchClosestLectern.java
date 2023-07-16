@@ -8,11 +8,11 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 
-public class EntityAIWatchClosestLectern extends EntityAIBase {
+public class WizardAIWatchClosestLectern extends EntityAIBase {
 	protected EntityWizardInitiate wizard;
 	protected int maxDistance;
 
-	public EntityAIWatchClosestLectern(EntityWizardInitiate wizard, int maxDistance) {
+	public WizardAIWatchClosestLectern(EntityWizardInitiate wizard, int maxDistance) {
 		this.wizard = wizard;
 		this.maxDistance = maxDistance;
 		this.setMutexBits(2);
