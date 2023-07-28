@@ -1,12 +1,17 @@
 package com.windanesz.apprenticearcana.client.gui;
 
 import com.windanesz.apprenticearcana.entity.living.EntityWizardInitiate;
+import com.windanesz.apprenticearcana.inventory.ContainerInventoryInItemStack;
 import com.windanesz.apprenticearcana.inventory.ContainerWizardInfo;
 import com.windanesz.apprenticearcana.inventory.ContainerWizardInitiateInventory;
 import com.windanesz.apprenticearcana.inventory.ContainerWizardInititateAdventure;
 import com.windanesz.apprenticearcana.inventory.ContainerWizardInititateDismissal;
+import com.windanesz.apprenticearcana.inventory.IItemWithSlots;
+import com.windanesz.apprenticearcana.inventory.InventoryInItemStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 
@@ -21,6 +26,7 @@ public class AAGuiHandler implements IGuiHandler {
 	public static final int WIZARD_STATS_GUI = nextGuiId++;
 	public static final int WIZARD_DISMISS_CONFIRM_GUI = nextGuiId++;
 	public static final int WIZARD_ADVENTURING_GUI = nextGuiId++;
+	public static final int ARTEFACT_BAG_GUI = nextGuiId++;
 
 	@Override
 	public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
@@ -48,6 +54,12 @@ public class AAGuiHandler implements IGuiHandler {
 				EntityWizardInitiate wizard = (EntityWizardInitiate) entity;
 				return new ContainerWizardInititateAdventure(wizard, player);
 			}
+		} else if (id == ARTEFACT_BAG_GUI) {
+			ItemStack stack = player.getHeldItem(EnumHand.values()[x]);
+			if (stack.getItem() instanceof IItemWithSlots) {
+				InventoryInItemStack inventory = new InventoryInItemStack("test tile", true, (IItemWithSlots) stack.getItem(), stack);
+				return new ContainerInventoryInItemStack(player.inventory, inventory, player);
+			}
 		}
 		return null;
 	}
@@ -74,6 +86,12 @@ public class AAGuiHandler implements IGuiHandler {
 			Entity entity = world.getEntityByID(x);
 			if (entity instanceof EntityWizardInitiate) {
 				return new GuiScreenWizardInitiateAdventure((EntityWizardInitiate) entity);
+			}
+		} else if (id == ARTEFACT_BAG_GUI) {
+			ItemStack stack = player.getHeldItem(EnumHand.values()[x]);
+			if (stack.getItem() instanceof IItemWithSlots) {
+				InventoryInItemStack inventory = new InventoryInItemStack("test tile", true, (IItemWithSlots) stack.getItem(), stack);
+				return new GuiScreenInventoryInItem(inventory, player);
 			}
 		}
 		return null;

@@ -5,6 +5,8 @@ import com.windanesz.apprenticearcana.data.PlayerData;
 import com.windanesz.apprenticearcana.packet.AAPacketHandler;
 import com.windanesz.apprenticearcana.registry.BlockRegistry;
 import com.windanesz.apprenticearcana.registry.LootRegistry;
+import com.windanesz.apprenticearcana.village.StructureWizardHouse;
+import com.windanesz.wizardryutils.registry.ItemModelRegistry;
 import electroblob.wizardry.api.WizardryEnumHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
@@ -44,6 +46,7 @@ public class ApprenticeArcana {
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
+		ItemModelRegistry.registerModForAutoItemModelRegistry(MODID);
 		WizardryEnumHelper.addSpellType("NPCSPELL", "npcspell");
 		logger = event.getModLog();
 		proxy.registerRenderers();
@@ -56,6 +59,7 @@ public class ApprenticeArcana {
 		MinecraftForge.EVENT_BUS.register(instance);
 		proxy.registerParticles();
 		proxy.init();
+		StructureWizardHouse.init();
 		AAPacketHandler.initPackets();
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, new AAGuiHandler());
 

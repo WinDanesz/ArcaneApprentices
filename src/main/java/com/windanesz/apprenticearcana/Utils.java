@@ -1,5 +1,6 @@
 package com.windanesz.apprenticearcana;
 
+import electroblob.wizardry.spell.Spell;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -7,6 +8,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import java.util.Arrays;
 import java.util.List;
@@ -80,6 +82,18 @@ public final class Utils {
 			}
 		}
 		return entityList;
+	}
+
+	public static void overrideDefaultSpell(Spell newSpellInstance, int oldNetworkID) {
+		ApprenticeArcana.logger.info("Overriding default Electroblobs's Wizardry spell " + newSpellInstance.getRegistryName() + " to apply changes by ApprenticeArcana.");
+		// setting the ID back...
+		newSpellInstance.setId(oldNetworkID);
+		// most call this or the networkIDs will be pushed, because calling super() increments the next ID again!
+		int nextSpellId = ObfuscationReflectionHelper.getPrivateValue(Spell.class, newSpellInstance, "nextSpellId");
+		//  decrement it back...
+		nextSpellId--;
+		// and save
+		ObfuscationReflectionHelper.setPrivateValue(Spell.class, newSpellInstance, nextSpellId, "nextSpellId");
 	}
 
 }

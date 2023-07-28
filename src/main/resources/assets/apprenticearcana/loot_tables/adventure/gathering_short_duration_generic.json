@@ -10,7 +10,7 @@
                 {
                     "type": "item",
                     "name": "ebwizardry:spell_book",
-                    "weight": 20,
+                    "weight": 16,
                     "functions": [
                         {
                             "function": "ebwizardry:random_spell",

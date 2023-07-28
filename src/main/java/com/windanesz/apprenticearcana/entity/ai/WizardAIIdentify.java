@@ -8,6 +8,7 @@ import electroblob.wizardry.block.BlockLectern;
 import electroblob.wizardry.data.WizardData;
 import electroblob.wizardry.item.ItemScroll;
 import electroblob.wizardry.item.ItemSpellBook;
+import electroblob.wizardry.registry.WizardryItems;
 import electroblob.wizardry.spell.Spell;
 import electroblob.wizardry.util.SpellModifiers;
 import net.minecraft.entity.ai.EntityAIBase;
@@ -110,7 +111,9 @@ public class WizardAIIdentify extends WizardAILecternBase {
 					if (this.wizard.ticksExisted % 30 == 0 && (this.wizard.getHeldItem(EnumHand.OFF_HAND).getItem() instanceof ItemSpellBook ||
 							this.wizard.getHeldItem(EnumHand.OFF_HAND).getItem() instanceof ItemScroll)) {
 						Spell spell = Spell.byMetadata(this.wizard.getHeldItem(EnumHand.OFF_HAND).getItemDamage());
-						this.wizard.addStudyProgress(this.wizard.getStudyProgressForSpell(spell, 30) / Settings.generalSettings.IDENTIFYING_SPELL_DURATION_MULTIPLIER_COMPARED_TO_LEARNING);
+						this.wizard.addStudyProgress((this.wizard.getStudyProgressForSpell(spell, 30) / Settings.generalSettings.IDENTIFYING_SPELL_DURATION_MULTIPLIER_COMPARED_TO_LEARNING)
+								* (wizard.isArtefactActive(WizardryItems.amulet_wisdom) ? 1.15f : 1f));
+
 						if (this.wizard.isStudyComplete()) {
 							if (this.wizard.getOwner() instanceof EntityPlayer) {
 								WizardData data = WizardData.get((EntityPlayer) this.wizard.getOwner());

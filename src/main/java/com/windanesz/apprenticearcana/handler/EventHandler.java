@@ -1,12 +1,15 @@
 package com.windanesz.apprenticearcana.handler;
 
 import com.google.common.collect.Streams;
+import com.windanesz.apprenticearcana.ApprenticeArcana;
 import com.windanesz.apprenticearcana.Settings;
 import com.windanesz.apprenticearcana.Utils;
 import com.windanesz.apprenticearcana.data.PlayerData;
 import com.windanesz.apprenticearcana.data.Speech;
 import com.windanesz.apprenticearcana.data.StoredEntity;
 import com.windanesz.apprenticearcana.entity.living.EntityWizardInitiate;
+import electroblob.wizardry.Wizardry;
+import electroblob.wizardry.constants.Constants;
 import electroblob.wizardry.constants.Element;
 import electroblob.wizardry.data.WizardData;
 import electroblob.wizardry.entity.construct.EntityFireRing;
@@ -41,10 +44,12 @@ import electroblob.wizardry.util.AllyDesignationSystem;
 import electroblob.wizardry.util.BlockUtils;
 import electroblob.wizardry.util.EntityUtils;
 import electroblob.wizardry.util.IElementalDamage;
+import electroblob.wizardry.util.InventoryUtils;
 import electroblob.wizardry.util.Location;
 import electroblob.wizardry.util.MagicDamage;
 import electroblob.wizardry.util.ParticleBuilder;
 import electroblob.wizardry.util.SpellModifiers;
+import electroblob.wizardry.util.WandHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -54,16 +59,22 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.gen.structure.MapGenStructureIO;
+import net.minecraft.world.storage.loot.LootContext;
+import net.minecraft.world.storage.loot.LootTable;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.PotionEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
+import net.minecraftforge.event.terraingen.InitMapGenEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -642,6 +653,32 @@ public final class EventHandler {
 		}
 	}
 
+	@SubscribeEvent(priority = EventPriority.LOWEST) // No siphoning if the event is cancelled, that could be exploited...
+	public static void onLivingDeathEventLowest(LivingDeathEvent event) {
+
+		if (event.getSource().getTrueSource() instanceof EntityWizardInitiate) {
+
+			EntityWizardInitiate wizard = (EntityWizardInitiate) event.getSource().getTrueSource();
+
+			for (ItemStack stack : wizard.getHeldItems()) {
+
+				if (stack.getItem() instanceof IManaStoringItem && !((IManaStoringItem) stack.getItem()).isManaFull(stack)
+						&& WandHelper.getUpgradeLevel(stack, WizardryItems.siphon_upgrade) > 0) {
+
+					int mana = Constants.SIPHON_MANA_PER_LEVEL
+							* WandHelper.getUpgradeLevel(stack, WizardryItems.siphon_upgrade)
+							+ wizard.world.rand.nextInt(Constants.SIPHON_MANA_PER_LEVEL);
+
+					if (wizard.isArtefactActive(WizardryItems.ring_siphoning)) {mana *= 1.3f;}
+
+					((IManaStoringItem) stack.getItem()).rechargeMana(stack, mana);
+
+					break; // Only recharge one item per kill
+				}
+			}
+		}
+	}
+
 	@SubscribeEvent
 	public static void onPotionApplicableEvent(PotionEvent.PotionApplicableEvent event) {
 
@@ -713,6 +750,9 @@ public final class EventHandler {
 
 			List<StoredEntity> list = PlayerData.getPendingHomeApprentices(event.player);
 			if (!list.isEmpty()) {
+
+				List<UUID> respawnedEntities = new ArrayList();
+
 				for (StoredEntity entity : list) {
 					World world = event.player.world;
 
@@ -728,20 +768,27 @@ public final class EventHandler {
 								Entity mob = EntityList.createEntityFromNBT(entity.getNbtTagCompound(), world);
 								if (mob instanceof EntityLivingBase) {
 									mob.setPosition(pos.getX() + 0.5f, pos.getY(), pos.getZ() + 0.5f);
-									world.spawnEntity(mob);
-
-									PlayerData.removePendingHomeApprentice(event.player, mob.getUniqueID());
+									if (world.spawnEntity(mob)) {
+										respawnedEntities.add(mob.getUniqueID());
+									}
 								}
 							}
 						}
 					}
 				}
+
+				for (UUID uuid : respawnedEntities) {
+					PlayerData.removePendingHomeApprentice(event.player, uuid);
+				}
 			}
 		}
 
-		if (!event.player.world.isRemote && event.player.ticksExisted % 200 == 0) {
+		if (!event.player.world.isRemote && event.player.ticksExisted % 105 == 0) {
 			List<StoredEntity> list = PlayerData.getAdventuringApprentices(event.player);
 			if (!list.isEmpty()) {
+
+				List<UUID> respawnedEntities = new ArrayList();
+
 				for (StoredEntity entity : list) {
 					World world = event.player.world;
 
@@ -757,13 +804,22 @@ public final class EventHandler {
 								Entity mob = EntityList.createEntityFromNBT(entity.getNbtTagCompound(), world);
 								if (mob instanceof EntityLivingBase) {
 									mob.setPosition(pos.getX() + 0.5f, pos.getY(), pos.getZ() + 0.5f);
-									world.spawnEntity(mob);
+									if (world.spawnEntity(mob)) {
+										respawnedEntities.add(mob.getUniqueID());
+										if (mob instanceof EntityWizardInitiate) {
+											EntityWizardInitiate wizard = (EntityWizardInitiate) mob;
+											wizard.returnFromAdventuring();
 
-									PlayerData.removePendingHomeApprentice(event.player, mob.getUniqueID());
+										}
+									}
 								}
 							}
 						}
 					}
+				}
+
+				for (UUID uuid : respawnedEntities) {
+					PlayerData.removeAdventuringApprentice(event.player, uuid);
 				}
 			}
 		}

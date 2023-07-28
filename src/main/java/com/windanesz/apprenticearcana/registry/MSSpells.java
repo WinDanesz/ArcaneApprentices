@@ -1,6 +1,11 @@
 package com.windanesz.apprenticearcana.registry;
 
 import com.windanesz.apprenticearcana.ApprenticeArcana;
+import com.windanesz.apprenticearcana.spell.override.ResurrectionOverride;
+import com.windanesz.apprenticearcana.spell.override.SummonSkeletonLegionOverride;
+import com.windanesz.apprenticearcana.spell.override.SummonSkeletonOverride;
+import com.windanesz.apprenticearcana.spell.override.SummonZombieOverride;
+import com.windanesz.apprenticearcana.spell.override.ZombieApocalypseOverride;
 import electroblob.wizardry.spell.Spell;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -14,8 +19,6 @@ import javax.annotation.Nonnull;
 @EventBusSubscriber
 public final class MSSpells {
 
-	public static final Spell bat_form = placeholder();
-
 	private MSSpells() {} // no instances
 
 	@Nonnull
@@ -27,7 +30,12 @@ public final class MSSpells {
 
 		IForgeRegistry<Spell> registry = event.getRegistry();
 
-//		registry.register(new TrueResurrection());
+		// For these overrides, we cannot directly call the static references e.g. Spells.summon_zombie, because by the time we call this, they are still null
+		registry.register(new SummonZombieOverride(Spell.get("ebwizardry:summon_zombie").networkID()));
+		registry.register(new SummonSkeletonOverride(Spell.get("ebwizardry:summon_skeleton").networkID()));
+		registry.register(new SummonSkeletonLegionOverride(Spell.get("ebwizardry:summon_skeleton_legion").networkID()));
+		registry.register(new ZombieApocalypseOverride(Spell.get("ebwizardry:zombie_apocalypse").networkID()));
+		registry.register(new ResurrectionOverride(Spell.get("ebwizardry:resurrection").networkID()));
 
 	}
 }

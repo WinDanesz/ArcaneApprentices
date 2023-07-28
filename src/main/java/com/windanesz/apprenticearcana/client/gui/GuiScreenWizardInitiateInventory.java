@@ -21,7 +21,7 @@ import java.io.IOException;
 
 @SideOnly(Side.CLIENT)
 public class GuiScreenWizardInitiateInventory extends GuiContainer {
-	private static final ResourceLocation HORSE_GUI_TEXTURES = new ResourceLocation(ApprenticeArcana.MODID, "textures/gui/wizard_initiate.png");
+	private static final ResourceLocation HORSE_GUI_TEXTURES = new ResourceLocation(ApprenticeArcana.MODID, "textures/gui/wizard_inventory.png");
 	private final IInventory playerInventory;
 	private final IInventory horseInventory;
 	private final EntityWizardInitiate wizard;

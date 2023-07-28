@@ -2,6 +2,7 @@ package com.windanesz.apprenticearcana.entity.living;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.collect.Lists;
 import com.windanesz.apprenticearcana.ApprenticeArcana;
 import com.windanesz.apprenticearcana.Settings;
 import com.windanesz.apprenticearcana.Utils;
@@ -22,7 +23,10 @@ import com.windanesz.apprenticearcana.entity.ai.WizardAIWatchClosest;
 import com.windanesz.apprenticearcana.entity.ai.WizardAIWatchClosest2;
 import com.windanesz.apprenticearcana.handler.EventHandler;
 import com.windanesz.apprenticearcana.handler.XpProgression;
+import com.windanesz.apprenticearcana.inventory.ContainerWizardInitiateInventory;
 import com.windanesz.apprenticearcana.inventory.ContainerWizardInventory;
+import com.windanesz.apprenticearcana.items.ItemArtefactWithSlots;
+import com.windanesz.apprenticearcana.registry.AAItems;
 import com.windanesz.wizardryutils.tools.WizardryUtilsTools;
 import electroblob.wizardry.Wizardry;
 import electroblob.wizardry.constants.Element;
@@ -101,6 +105,8 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.storage.loot.LootContext;
+import net.minecraft.world.storage.loot.LootTable;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
@@ -109,7 +115,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
@@ -152,10 +161,27 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 
 	private static final int MAINHAND = 0;
 	private static final int OFF_HAND = 1;
-	private static final int ARTEFACT_SLOT = 22;
+	public static final int ARTEFACT_SLOT = 22;
 	public int textureIndex = 0;
 	public int adventureRemainingDuration = -1;
-	public JourneyType journeyType = JourneyType.NOT_ADVENTURING;
+
+	public JourneyType getJourneyType() {
+		return journeyType;
+	}
+
+	public void setJourneyType(JourneyType journeyType) {
+		this.journeyType = journeyType;
+	}
+
+	public void sendOnJourney() {
+		if (!this.world.isRemote && getJourneyType() != JourneyType.NOT_ADVENTURING && getOwner() instanceof EntityPlayer) {
+			if (PlayerData.storeAdventuringApprentice((EntityPlayer) this.getOwner(), this)) {
+				world.removeEntity(this);
+			}
+		}
+	}
+
+	private JourneyType journeyType = JourneyType.NOT_ADVENTURING;
 	public ContainerWizardInventory inventory;
 	public BlockPos currentStayPos = new BlockPos(0, 0, 0);
 	protected Predicate<Entity> targetSelector;
@@ -849,6 +875,12 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 			return false;
 		}
 
+		if (player.isCreative() && player.isSneaking() && !player.world.isRemote && hand == EnumHand.MAIN_HAND && player.getHeldItemMainhand().getItem() == Items.FIREWORKS) {
+			this.addExperience(80000);
+			this.setOwner(player);
+			return false;
+		}
+
 		if (!player.world.isRemote && !hasOwner() && player.getHeldItemMainhand().getItem() == WizardryItems.wizard_handbook) {
 			Advancement requirement1 = ((WorldServer) world).getAdvancementManager().getAdvancement(new ResourceLocation("ebwizardry:master"));
 			Advancement requirement2 = ((WorldServer) world).getAdvancementManager().getAdvancement(new ResourceLocation("ebwizardry:discover_master_spell"));
@@ -1349,7 +1381,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		int xpForNewLevel = (int) XpProgression.calculateTotalXpRequired(getLevel() + 1);
 
 		this.dataManager.set(XP, newAmount);
-		if (newAmount >= xpForNewLevel) {
+		if (newAmount >= xpForNewLevel && getLevel() < XpProgression.getMaxLevel()) {
 			// level up
 			setLevel(getLevel() + 1);
 			sayImmediately(new TextComponentTranslation(Speech.LEVEL_UP.getRandom()));
@@ -1410,6 +1442,184 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		return getFoodLevel() / 20 > 0.85f && this.getHealth() < this.getMaxHealth();
 	}
 
+	public void returnFromAdventuring() {
+		switch (journeyType) {
+
+			case NOT_ADVENTURING:
+				break;
+			case GATHER_SHORT_DURATION:
+				fillWithLoot(this.getOwner(), new ResourceLocation(ApprenticeArcana.MODID, "adventure/gathering_short_duration_generic"));
+				break;
+			case GATHER_MEDIUM_DURATION:
+				break;
+			case GATHER_LONG_DURATION:
+				break;
+			case SLAY_MOBS_SHORT_DURATION:
+				break;
+			case SLAY_MOBS_MEDIUM_DURATION:
+				break;
+			case SLAY_MOBS_LONG_DURATION:
+				break;
+			case ADVENTURE_SHORT_DURATION:
+				break;
+			case ADVENTURE_MEDIUM_DURATION:
+				break;
+			case ADVENTURE_LONG_DURATION:
+				break;
+		}
+	}
+
+	public void fillWithLoot(@Nullable Entity owner, ResourceLocation lootTable) {
+		if (owner instanceof EntityPlayer) {
+			EntityPlayer player = (EntityPlayer) owner;
+			if (lootTable != null) {
+				LootTable loottable = this.world.getLootTableManager().getLootTableFromLocation(lootTable);
+				Random random;
+
+				random = new Random();
+
+				LootContext.Builder lootcontext$builder = new LootContext.Builder((WorldServer) this.world);
+
+				lootcontext$builder.withLuck(player.getLuck()).withPlayer(player); // Forge: add player to LootContext
+
+				ContainerWizardInventory temporaryInventory = new ContainerWizardInventory("WizardInventory", false, 64);
+
+				loottable.fillInventory(temporaryInventory, random, lootcontext$builder.build());
+
+				mergeItemStacks(temporaryInventory);
+				List<ItemStack> itemStackList = new ArrayList<>();
+				//	List<Integer> emptySlotList = getEmptySlotsRandomized();
+
+				for (int t = 0; t < temporaryInventory.getSizeInventory(); t++) {
+					if (!temporaryInventory.getStackInSlot(t).isEmpty()) {
+						itemStackList.add(temporaryInventory.getStackInSlot(t).copy());
+					}
+				}
+
+				Iterator<ItemStack> listIterator = itemStackList.iterator();
+
+				while (listIterator.hasNext()) {
+					ItemStack stack = listIterator.next();
+					boolean flag = true;
+					// main inventory
+					for (int i = 6; i < 23; i++) {
+						if (!ContainerWizardInitiateInventory.isSlotUnlocked(i, this)) {
+							continue;
+						}
+
+						if (this.inventory.getStackInSlot(i).isEmpty()) {
+							this.inventory.setInventorySlotContents(i, stack);
+							flag = false;
+							listIterator.remove();
+							break;
+						} else if (areStacksCompatible(this.inventory.getStackInSlot(i), stack)) {
+							int available = 64 - this.inventory.getStackInSlot(i).getCount();
+							if (stack.getCount() <= available) {
+								// merge full stack
+								ItemStack newStack = this.inventory.getStackInSlot(i).copy();
+								newStack.setCount(this.inventory.getStackInSlot(i).getCount() + stack.getCount());
+								this.inventory.setInventorySlotContents(i, newStack);
+								flag = false;
+								listIterator.remove();
+								break;
+							} else {
+								//partial merge
+								ItemStack newStack = this.inventory.getStackInSlot(i).copy();
+								int remainder = stack.getCount() - available;
+								newStack.setCount(64);
+								this.inventory.setInventorySlotContents(i, newStack);
+								stack.setCount(remainder);
+							}
+						}
+					}
+
+					if (flag && isArtefactActive(AAItems.charm_bag_9)) {
+						ItemStack bag = inventory.getStackInSlot(ARTEFACT_SLOT).copy();
+						for (int i = 0; i < 9; i++) {
+							if (ItemArtefactWithSlots.isSlotEmpty(bag, i)) {
+								ItemArtefactWithSlots.setItemForSlot(bag, stack, i);
+								flag = false;
+								listIterator.remove();
+								break;
+							}
+						}
+						this.inventory.setInventorySlotContents(ARTEFACT_SLOT, bag);
+					} else if (flag && isArtefactActive(AAItems.charm_bag_27)) {
+						ItemStack bag = inventory.getStackInSlot(ARTEFACT_SLOT).copy();
+						for (int i = 0; i < 27; i++) {
+							if (ItemArtefactWithSlots.isSlotEmpty(bag, i)) {
+								ItemArtefactWithSlots.setItemForSlot(bag, stack, i);
+								flag = false;
+								listIterator.remove();
+								break;
+							}
+						}
+						this.inventory.setInventorySlotContents(ARTEFACT_SLOT, bag);
+					}
+
+
+					if (flag) {
+						// discarding the item
+						listIterator.remove();
+					}
+				}
+			}
+
+		}
+	}
+
+	public static void mergeItemStacks(IInventory inventory) {
+		int slots = inventory.getSizeInventory();
+		boolean merged;
+
+		do {
+			merged = false;
+			for (int i = 0; i < slots - 1; i++) {
+				ItemStack currentStack = inventory.getStackInSlot(i);
+
+				if (!currentStack.isEmpty() && currentStack.getCount() < currentStack.getMaxStackSize()) {
+					for (int j = i + 1; j < slots; j++) {
+						ItemStack targetStack = inventory.getStackInSlot(j);
+
+						if (areStacksCompatible(currentStack, targetStack)) {
+							int spaceInStack = currentStack.getMaxStackSize() - currentStack.getCount();
+							int transferAmount = Math.min(spaceInStack, targetStack.getCount());
+							currentStack.grow(transferAmount);
+							targetStack.shrink(transferAmount);
+
+							if (targetStack.isEmpty()) {
+								inventory.setInventorySlotContents(j, ItemStack.EMPTY);
+							}
+
+							merged = true;
+
+							if (currentStack.getCount() >= currentStack.getMaxStackSize()) {
+								break;
+							}
+						}
+					}
+				}
+			}
+		} while (merged);
+	}
+
+	private static boolean areStacksCompatible(ItemStack stack1, ItemStack stack2) {
+		return ItemStack.areItemsEqual(stack1, stack2) && ItemStack.areItemStackTagsEqual(stack1, stack2);
+	}
+
+	private List<Integer> getEmptySlotsRandomized() {
+		List<Integer> list = Lists.<Integer>newArrayList();
+
+		for (int i = 0; i < inventory.getSizeInventory(); ++i) {
+			if (inventory.getStackInSlot(i).isEmpty()) {
+				list.add(Integer.valueOf(i));
+			}
+		}
+
+		Collections.shuffle(list, rand);
+		return list;
+	}
+
 	public enum Task {
 		FOLLOW,
 		STAY,
@@ -1419,9 +1629,6 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		TRY_TO_SLEEP,
 		IDENTIFY
 	}
-
-
-
 }
 
 

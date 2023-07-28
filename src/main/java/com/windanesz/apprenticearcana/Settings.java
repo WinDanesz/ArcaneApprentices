@@ -30,6 +30,10 @@ public class Settings {
 	@Config.LangKey("settings.apprenticearcana:general_settings")
 	public static GeneralSettings generalSettings = new GeneralSettings();
 
+	@Config.Name("Journey Settings")
+	@Config.LangKey("settings.apprenticearcana:journey_settings")
+	public static JourneySettings journeySettings = new JourneySettings();
+
 	@SuppressWarnings("unused")
 	@Mod.EventBusSubscriber(modid = ApprenticeArcana.MODID)
 	private static class EventHandler {
@@ -46,30 +50,91 @@ public class Settings {
 		}
 	}
 
+	public static class JourneySettings {
+
+		@Config.Name("Journey Food Requirement Modifier")
+		public float JOURNEY_FOOD_REQUIREMENT_MODIFIER = 1f;
+
+		@Config.Name("Wizard Journey XP Gain Modifier")
+		@Config.Comment("Levels Required By Each Journey Type in a format of adventuretype:minimum_level")
+		public float WIZARD_JOURNEY_XP_GAIN_MODIFIER = 1f;
+
+		@Config.Name("Journeys Require Food")
+		public boolean JOURNEY_REQUIRE_FOOD = true;
+
+		@Config.Name("Levels Required By Each Journey Type")
+		@Config.Comment("Levels Required By Each Journey Type in a format of journeytype:minimum_level")
+		public String[] LEVELS_REQUIRED_BY_EACH_JOURNEY_TYPE = {
+				"gather:5",
+				"slay_mobs:10",
+				"adventure:15",
+				"custom_journey:5"
+		};
+
+		@Config.Name("Custom Journey")
+		@Config.Comment("Enables a 4th, custom journey type. This could be used for pack makers or whatever other purpose you want. For the Level requirement, "
+				+ "use the LEVELS_REQUIRED_BY_EACH_JOURNEY_TYPE settings' custom_journey:x type")
+		public boolean CUSTOM_JOURNEY_ENABLED = false;
+
+		@Config.Name("Custom Journey Name")
+		@Config.Comment("Name of the custom journey type. Here you can simply provide a string, or a language key as well. If the string contains a colon (:), "
+				+ "it will be treated as a language key and it will be localised. ")
+		public String CUSTOM_JOURNEY_NAME = "Rename Me";
+
+		@Config.Name("Custom Journey Loot Table")
+		@Config.Comment("Path of the Custom Journey's loot table. E.g. 'ebwizardry:chests/shrine'")
+		public String CUSTOM_JOURNEY_LOOT_TABLE = "";
+	}
+
 	public static class GeneralSettings {
 
 		@Config.Name("List of Possible Apprentice Names")
-		@Config.Comment("List of Possible Apprentice Names. Randomly chosen at first spawn for each NPC.")
+		@Config.Comment("List of Possible Apprentice Names. Randomly chosen at first spawn of an NPC.")
 		public String[] WIZARD_NAMES = {
 				"Aidan",
 				"Alaric",
 				"Alarion",
 				"Aldous",
 				"Alistair",
+				"Alphonse",
+				"Amadeus",
 				"Ambrose",
 				"Anselm",
+				"Apollo",
 				"Archibald",
+				"Argus",
+				"Armand",
+				"Asher",
 				"Ashwood",
+				"Astor",
+				"Augustus",
+				"Azriel",
+				"Baldwin",
 				"Balthazar",
+				"Bardo",
 				"Barnabas",
 				"Bartholomew",
 				"Basil",
+				"Beaumont",
 				"Beauregard",
+				"Belvedere",
+				"Benedict",
+				"Bertrand",
+				"Blaise",
 				"Boulderheart",
 				"Bramble",
+				"Bramwell",
 				"Brookstone",
+				"Byron",
+				"Calder",
+				"Callahan",
+				"Caradoc",
+				"Casimir",
 				"Caspian",
+				"Cato",
 				"Cedric",
+				"Cillian",
+				"Claudius",
 				"Claymore",
 				"Corristo",
 				"Corwin",
@@ -77,101 +142,165 @@ public class Settings {
 				"Cyprian",
 				"Cyril",
 				"Dan",
+				"Darius",
 				"Demetrius",
+				"Desmond",
+				"Dimitri",
+				"Donovan",
 				"Dorian",
+				"Draven",
 				"Drystan",
 				"Dustan",
 				"Eamon",
+				"Edgar",
+				"Edmund",
+				"Edwin",
+				"Eldritch",
 				"Electro",
+				"Elric",
 				"Ember",
 				"Emeric",
+				"Emilio",
 				"Emrys",
+				"Enzo",
+				"Ephraim",
+				"Esmond",
+				"Everard",
+				"Ezekiel",
 				"Fabian",
 				"Faelan",
+				"Ferdinand",
 				"Finley",
 				"Finnian",
 				"Flint",
+				"Florian",
 				"Frost",
 				"Fulgor",
+				"Gabriel",
 				"Gaian",
 				"Gaius",
 				"Galadriel",
 				"Galen",
+				"Gareth",
 				"Garrick",
+				"Gaspard",
+				"Geoffrey",
 				"Gideon",
+				"Gilbert",
 				"Giles",
 				"Glacieron",
+				"Godfrey",
+				"Gregory",
 				"Griffin",
 				"Hadrian",
+				"Hamish",
+				"Harlan",
+				"Hawthorn",
 				"Hawthorne",
+				"Hector",
+				"Helios",
+				"Hesperus",
+				"Horace",
 				"Horatio",
 				"Icarius",
 				"Ignatius",
-				"Ignatius",
+				"Ikaros",
+				"Indigo",
 				"Isambard",
 				"Isidore",
 				"Jareth",
+				"Jarvis",
 				"Jasper",
 				"Jericho",
 				"Jovian",
+				"Julius",
 				"Kaelan",
 				"Kai",
+				"Kendrick",
+				"Kieran",
+				"Killian",
 				"Lancelot",
+				"Lazarus",
+				"Leander",
 				"Leopold",
+				"Linus",
 				"Lucian",
 				"Lucius",
+				"Luther",
 				"Magnus",
 				"Malachi",
 				"Marcellus",
 				"Marius",
 				"Maurice",
+				"Maximilian",
 				"Meadowbrook",
 				"Merlin",
 				"Montgomery",
 				"Morgan",
 				"Mortimer",
+				"Myxir",
+				"Nathaniel",
 				"Neville",
 				"Nevin",
+				"Nicodemus",
 				"Oberon",
+				"Octavius",
 				"Octavos",
+				"Odysseus",
 				"Olaf",
 				"Onyx",
 				"Orin",
 				"Orlando",
+				"Orpheus",
 				"Oswald",
 				"Percival",
-				"Percival",
 				"Philemon",
+				"Phineas",
+				"Prospero",
 				"Ptolemy",
 				"Quentin",
 				"Quinlan",
+				"Radcliffe",
 				"Ragnar",
 				"Rai",
 				"Raiden",
+				"Raphael",
 				"Reginald",
 				"Reuben",
 				"Roderick",
 				"Roland",
+				"Roscoe",
+				"Rowan",
 				"Rufus",
+				"Rupert",
 				"Saturas",
 				"Sebastian",
 				"Silas",
+				"Silvius",
 				"Simeon",
+				"Sinclair",
 				"Solomon",
+				"Solon",
+				"Somerset",
 				"Soren",
 				"Sorin",
+				"Sterling",
 				"Stonebrook",
 				"Sylvester",
 				"Talus",
+				"Tavian",
 				"Terrin",
 				"Thaddeus",
 				"Theodoric",
+				"Theon",
 				"Theron",
 				"Thistle",
 				"Thistlewood",
 				"Tiberius",
+				"Titus",
 				"Tobias",
 				"Tristan",
+				"Tristram",
 				"Ulysses",
 				"Uri",
 				"Uriah",
@@ -182,10 +311,13 @@ public class Settings {
 				"Verdant",
 				"Vesper",
 				"Vincent",
+				"Vincenzo",
+				"Virgil",
 				"Vulcan",
 				"Waldemar",
 				"Walden",
 				"Waldo",
+				"Warrick",
 				"Wilbur",
 				"Willard",
 				"Winthrop",
@@ -194,6 +326,7 @@ public class Settings {
 				"Xavier",
 				"Yew",
 				"Ymir",
+				"Yorick",
 				"Zachariah",
 				"Zeno",
 				"Zephyr",
@@ -220,9 +353,11 @@ public class Settings {
 				"ebwizardry:amulet_recovery",
 				"ebwizardry:amulet_transience",
 				"ebwizardry:amulet_warding",
+				"ebwizardry:amulet_wisdom",
 				"ebwizardry:amulet_wither_immunity",
 				"ebwizardry:charm_experience_tome",
 				"ebwizardry:charm_minion_health",
+				"ebwizardry:charm_minion_variants",
 				"ebwizardry:greater_telekinesis",
 				"ebwizardry:ring_arcane_frost",
 				"ebwizardry:ring_battlemage",
@@ -246,7 +381,8 @@ public class Settings {
 				"ebwizardry:ring_poison",
 				"ebwizardry:ring_shattering",
 				"ebwizardry:ring_soulbinding",
-				"ebwizardry:ring_storm"
+				"ebwizardry:ring_storm",
+				"ebwizardry:ring_siphoning"
 		};
 
 		@Config.Name("Minimum NPC Level for Identifying Spells")
@@ -341,23 +477,6 @@ public class Settings {
 		@Config.Name("Spell Remark Message Chance")
 		public float SPELL_REMARK_MESSAGE_CHANCE = 0.05f;
 
-		@Config.Name("Wizard Journey XP Gain Modifier")
-		public float WIZARD_JOURNEY_XP_GAIN_MODIFIER = 1f;
-
-		@Config.Name("Journey Food Requirement Modifier")
-		public float JOURNEY_FOOD_REQUIREMENT_MODIFIER = 1f;
-
-		@Config.Name("Journeys Require Food")
-		public boolean JOURNEY_REQUIRE_FOOD = true;
-
-		@Config.Name("Levels Required By Each Journey Type")
-		@Config.Comment("Levels Required By Each Journey Type in a format of adventuretype:minimum_level")
-		public String[] LEVELS_REQUIRED_BY_EACH_JOURNEY_TYPE = {
-			"gather:5",
-			"slay_mobs:10",
-			"adventure:15"
-		};
-
 		@Config.Name("Items Found By Apprentices During Travelling Together")
 		@Config.Comment("List of items found by wizard apprentices that they give to the player on rare occasions during adventuring TOGETHER." +
 				"The format should be like this: modid:itemname:metadata:count_min:count_max:nbt:nbt_stuff_goes_here. The nbt tag can be omitted. "
@@ -401,16 +520,14 @@ public class Settings {
 		@Config.Comment("Determines the minimum duration an NPC must spend in an adventure before it returns.")
 		public int MIN_ADVENTURE_DURATION_IN_TICKS = 200;
 
-
-
-//		@Config.Name("Items Found By Apprentices During Adventure")
-//		@Config.Comment("List of items found by wizard apprentices that they give to the player on rare occasions when they are sent on an adventure" +
-//				"The format should be like this: modid:itemname:metadata:count_min:count_max:nbt:nbt_stuff_goes_here. The nbt tag can be omitted. "
-//				+ "Example: ebwizardry:magic_crystal:0:2:5 - this didn't have an nbt tag with a random count between 2-5"
-//				+ "Example: bwizardry:magic_crystal:4:2:5:nbt:{ench:[{id:6,lvl:1}]} - this would be 2-5 magic crystals with an aqua affinity enchantment and metadata as 4")
-//		public String[] APPRENTICE_ITEM_LIST = {
-//				"ebwizardry:astral_diamond:0:1:1"
-//		};
+		//		@Config.Name("Items Found By Apprentices During Adventure")
+		//		@Config.Comment("List of items found by wizard apprentices that they give to the player on rare occasions when they are sent on an adventure" +
+		//				"The format should be like this: modid:itemname:metadata:count_min:count_max:nbt:nbt_stuff_goes_here. The nbt tag can be omitted. "
+		//				+ "Example: ebwizardry:magic_crystal:0:2:5 - this didn't have an nbt tag with a random count between 2-5"
+		//				+ "Example: bwizardry:magic_crystal:4:2:5:nbt:{ench:[{id:6,lvl:1}]} - this would be 2-5 magic crystals with an aqua affinity enchantment and metadata as 4")
+		//		public String[] APPRENTICE_ITEM_LIST = {
+		//				"ebwizardry:astral_diamond:0:1:1"
+		//		};
 	}
 
 	/**

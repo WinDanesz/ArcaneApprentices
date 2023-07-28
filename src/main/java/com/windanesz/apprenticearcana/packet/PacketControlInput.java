@@ -143,7 +143,8 @@ public class PacketControlInput implements IMessageHandler<PacketControlInput.Me
 					case JOURNEY_CONFIRM_BUTTON:
 
 						if (player.openContainer instanceof ContainerWizardBase) {
-							((ContainerWizardBase) player.openContainer).getWizard().journeyType = message.journeyType;
+							((ContainerWizardBase) player.openContainer).getWizard().setJourneyType(message.journeyType);
+							((ContainerWizardBase) player.openContainer).getWizard().sendOnJourney();
 							player.closeScreen();
 						}
 

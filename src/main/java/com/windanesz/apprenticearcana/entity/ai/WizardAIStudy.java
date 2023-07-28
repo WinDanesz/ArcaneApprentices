@@ -3,6 +3,7 @@ package com.windanesz.apprenticearcana.entity.ai;
 import com.windanesz.apprenticearcana.ApprenticeArcana;
 import com.windanesz.apprenticearcana.data.Speech;
 import com.windanesz.apprenticearcana.entity.living.EntityWizardInitiate;
+import com.windanesz.apprenticearcana.registry.AAItems;
 import electroblob.wizardry.block.BlockLectern;
 import electroblob.wizardry.item.ItemSpellBook;
 import electroblob.wizardry.spell.Spell;
@@ -106,7 +107,7 @@ public class WizardAIStudy extends WizardAILecternBase {
 						this.wizard.addStudyProgress(this.wizard.getStudyProgressForSpell(spell, 30));
 						if (this.wizard.isStudyComplete()) {
 							if (spell.getTier().ordinal() > 0) {
-								if (!this.wizard.consumeArcaneTome(spell.getTier())) {
+								if (!this.wizard.isArtefactActive(AAItems.charm_eternal_grimoire) && !this.wizard.consumeArcaneTome(spell.getTier())) {
 									if (this.wizard.ticksExisted % 200 == 0) {
 										this.wizard.sayWithoutSpam(new TextComponentTranslation(Speech.WIZARD_NO_ARCANE_TOME.getRandom(),
 												spell.getTier().getDisplayName(), spell.getDisplayName()));

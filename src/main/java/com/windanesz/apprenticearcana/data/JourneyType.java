@@ -31,7 +31,7 @@ public enum JourneyType {
 
 	public int getRandomXPValueForAdventure(EntityWizardInitiate wizardInitiate) {
 		// TODO: artefact to increase xp gained in general should affect this
-		return (int) (this.getDurationValue() * Settings.generalSettings.WIZARD_JOURNEY_XP_GAIN_MODIFIER * wizardInitiate.world.rand.nextFloat() + 0.3);
+		return (int) (this.getDurationValue() * Settings.journeySettings.WIZARD_JOURNEY_XP_GAIN_MODIFIER * wizardInitiate.world.rand.nextFloat() + 0.3);
 	}
 
 	private int getDurationValue() {

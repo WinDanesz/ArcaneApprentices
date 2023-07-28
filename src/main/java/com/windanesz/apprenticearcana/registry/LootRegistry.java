@@ -12,14 +12,14 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber
 public class LootRegistry {
 
-	private static LootTable JOURNEY_LOW_TIER;
+	private static LootTable GATHERING_SHORT_DURATION_GENERIC;
 
 	private LootRegistry() {}
 
 	public static void preInit() {
 
 		// adventures
-		LootTableList.register(new ResourceLocation(ApprenticeArcana.MODID, "adventure/journey_low_tier"));
+		LootTableList.register(new ResourceLocation(ApprenticeArcana.MODID, "adventure/gathering_short_duration_generic"));
 	}
 
 }

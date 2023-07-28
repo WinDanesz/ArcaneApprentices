@@ -3,10 +3,10 @@ package com.windanesz.apprenticearcana.inventory;
 import com.windanesz.apprenticearcana.ApprenticeArcana;
 import com.windanesz.apprenticearcana.entity.living.EntityWizardInitiate;
 import com.windanesz.apprenticearcana.handler.XpProgression;
+import com.windanesz.apprenticearcana.registry.AAItems;
 import com.windanesz.wizardryutils.item.ItemNewArtefact;
 import electroblob.wizardry.item.ItemArtefact;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
@@ -120,7 +120,7 @@ public class ContainerWizardInitiateInventory extends ContainerWizardBase {
 
 					@Override
 					public boolean isItemValid(ItemStack stack) {
-						if ((((float) this.slotNumber - (float) 6) / (float) 15) <= (((float) wizard.getLevel() + 1) / XpProgression.getMaxLevel() + 0.1f)) {
+						if (isSlotUnlocked(this.slotNumber, wizard)) {
 							return super.isItemValid(stack);
 						}
 						return false;
@@ -129,7 +129,7 @@ public class ContainerWizardInitiateInventory extends ContainerWizardBase {
 					@Nullable
 					@SideOnly(Side.CLIENT)
 					public String getSlotTexture() {
-						if ((((float) this.slotNumber - (float) 6) / (float) 15) <= (((float) wizard.getLevel() + 1) / XpProgression.getMaxLevel() + 0.1f)) {
+						if (isSlotUnlocked(this.slotNumber, wizard)) {
 							return super.getSlotTexture();
 						}
 						return LOCKED_SLOT;
@@ -162,6 +162,11 @@ public class ContainerWizardInitiateInventory extends ContainerWizardBase {
 
 	public boolean canInteractWith(EntityPlayer playerIn) {
 		return this.wizardInventory.isUsableByPlayer(playerIn) && this.wizard.isEntityAlive() && this.wizard.getDistance(playerIn) < 8.0F;
+	}
+
+	public static boolean isSlotUnlocked(int slotNumber, EntityWizardInitiate wizard) {
+		return wizard.isArtefactActive(AAItems.belt_strength) ||
+				(((float) slotNumber - (float) 6) / (float) 15) <= (((float) wizard.getLevel() + 1) / XpProgression.getMaxLevel() + 0.1f);
 	}
 
 	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {

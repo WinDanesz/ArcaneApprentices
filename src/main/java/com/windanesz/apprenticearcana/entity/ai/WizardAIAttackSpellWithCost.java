@@ -82,16 +82,16 @@ public class WizardAIAttackSpellWithCost extends EntityAIBase {
 	/**
 	 * Creates a new spell attack AI with the given parameters.
 	 *
-	 * @param attacker                The entity that that uses this AI.
+	 * @param wizard                The entity that that uses this AI.
 	 * @param speed                   The speed that the entity should move when attacking. Only used when passed into the navigator.
 	 * @param maxDistance             The maximum distance the entity should be from its target.
 	 * @param baseCooldown            The number of ticks between the entity finding a new target and when it first starts
 	 *                                attacking, and also the amount that is added to the cooldown of the spell that has just been cast.
 	 * @param continuousSpellDuration The number of ticks that continuous spells will be cast for before cooling down.
 	 */
-	public WizardAIAttackSpellWithCost(EntityWizardInitiate attacker, double speed, float maxDistance, int baseCooldown, int continuousSpellDuration, boolean proxyBuffs) {
+	public WizardAIAttackSpellWithCost(EntityWizardInitiate wizard, double speed, float maxDistance, int baseCooldown, int continuousSpellDuration, boolean proxyBuffs) {
 		this.cooldown = -1;
-		this.npc = attacker;
+		this.npc = wizard;
 		this.baseCooldown = baseCooldown;
 		this.continuousSpellDuration = continuousSpellDuration;
 		this.speed = speed;
@@ -155,11 +155,12 @@ public class WizardAIAttackSpellWithCost extends EntityAIBase {
 			this.seeTime = 0;
 		}
 
+		// Allied target
+
+		// Hostile target
 		if (npc.world.rand.nextInt(200) == 0) {
-			npc.sayWithoutSpam(new TextComponentTranslation(Speech.WIZARD_COMBAT.getRandom()));
+			npc.sayWithoutSpam(new TextComponentTranslation(Speech.WIZARD_COMBAT.getRandom(), npc.getAttackTarget().getDisplayName()));
 		}
-
-
 
 		if (distanceSq <= (double) this.maxAttackDistance && this.seeTime >= 20) {
 			this.npc.getNavigator().clearPath();
@@ -254,45 +255,6 @@ public class WizardAIAttackSpellWithCost extends EntityAIBase {
 									spell = Utils.getRandomItem(matches);
 								}
 							}
-							//	scheduleNextMessage();
-							//
-							//		int healCooldown = this.getHealCooldown();
-							//		if (healCooldown == 0 && this.getHealth() < this.getMaxHealth() && this.getHealth() > 0.0F && !this.isPotionActive(WizardryPotions.arcane_jammer)) {
-							//			this.heal(this.getElement() == Element.HEALING ? 8.0F : 4.0F);
-							//			this.setHealCooldown(-1);
-							//		} else if (healCooldown == -1 && this.deathTime == 0) {
-							//			if (this.world.isRemote) {
-							//				ParticleBuilder.spawnHealParticles(this.world, this);
-							//			} else {
-							//				if (this.getHealth() < 10.0F) {
-							//					this.setHealCooldown(150);
-							//				} else {
-							//					this.setHealCooldown(400);
-							//				}
-							//
-							//				this.playSound(Spells.heal.getSounds()[0], 0.7F, this.rand.nextFloat() * 0.4F + 1.0F);
-							//			}
-							//		}
-							//
-							//		if (healCooldown > 0) {
-							//			this.setHealCooldown(healCooldown - 1);
-							//		}
-
-							//
-							//							// do not get stuck in a buff repeating loop...
-							//							boolean exit = false;
-							//							if (spell instanceof SpellBuff) {
-							//								Set<Potion> potions = ((SpellBuff) spell).getPotionSet();
-							//								for (PotionEffect effect : this.attacker.getActivePotionEffects()) {
-							//									if (potions.contains(effect.getPotion())) {
-							//										exit = true;
-							//										break;
-							//									}
-							//								}
-							//							}
-							//							if (exit) {
-							//								continue;
-							//							}
 
 							ItemStack wandStack = this.npc.getHeldItemMainhand();
 
@@ -333,26 +295,16 @@ public class WizardAIAttackSpellWithCost extends EntityAIBase {
 							// The spell worked, so we're done!
 							npc.rotationYaw = (float) (Math.atan2(dz, dx) * 180.0D / Math.PI) - 90.0F;
 
+							// -------------- NPC XP Progression --------------
 							// get some xp progress for the spell cast
 							// TODO: artefact that improves xp gain on spell cast
 							npc.addExperience(XpProgression.getXpGainPerSpellCast());
 
-							// fixing ownership inheritance
-							//							if (spell instanceof SpellaaaaMinion && ((ISummonedCreature) this.attacker).getCaster() != null) {
-							//								double radius = spell.getProperty(SUMMON_RADIUS).floatValue() + 1;
-							//								for (EntityLivingBase entity : EntityUtils.getEntitiesWithinRadius(radius, this.attacker.posX, this.attacker.posY,
-							//										this.attacker.posZ, this.attacker.world, EntityLivingBase.class)) {
-							//									if (entity instanceof ISummonedCreature && ((ISummonedCreature) entity).getOwner() == this.attacker) {
-							//										((ISummonedCreature) entity).setCaster(((ISummonedCreature) this.attacker).getCaster());
-							//									}
-							//								}
-							//
-							//							}
 							ItemStack stack = this.npc.getHeldItemMainhand();
 							ItemWand wand = ((ItemWand) stack.getItem());
 							wand.consumeMana(this.npc.getHeldItemMainhand(), spell.getCost(), this.npc);
-							System.out.println("e");
-							// Progression
+
+							// -------------- Wand Progression --------------
 							if (wand.tier.level < Tier.MASTER.level) {
 
 								// We don't care about cost modifiers here, otherwise players would be penalised for wearing robes!

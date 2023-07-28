@@ -7,6 +7,7 @@ import com.windanesz.apprenticearcana.entity.living.EntityWizardInitiate;
 import com.windanesz.apprenticearcana.inventory.ContainerWizardInititateAdventure;
 import com.windanesz.apprenticearcana.packet.AAPacketHandler;
 import com.windanesz.apprenticearcana.packet.PacketControlInput;
+import com.windanesz.apprenticearcana.registry.AAItems;
 import electroblob.wizardry.client.DrawingUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -40,6 +41,11 @@ public class GuiScreenWizardInitiateAdventure extends GuiContainer {
 	private GuiButtonWithDescription gatheringButton;
 	private GuiButtonWithDescription mobSlayingButton;
 	private GuiButtonWithDescription journeyButton;
+	private GuiButtonWithDescription spellHuntButton;
+	private GuiButtonWithDescription treasureHuntButton;
+	private GuiButtonWithDescription netherAdventureButton;
+	private GuiButtonWithDescription oceanAdventureButton;
+
 
 	public GuiScreenWizardInitiateAdventure(EntityWizardInitiate wizard) {
 		super(new ContainerWizardInititateAdventure(wizard, Minecraft.getMinecraft().player));
@@ -73,7 +79,21 @@ public class GuiScreenWizardInitiateAdventure extends GuiContainer {
 		this.buttonList.add(this.longDuration = new GuiButtonWithDescription(5, left + 110, top + 155 - offset, 40, 20, I18n.format("gui.apprenticearcana:long"), "long_duration", 1));
 		this.buttonList.add(this.gatheringButton = new GuiButtonWithDescription(6, left + 15, top + 190 - offset, 70, 20, I18n.format("gui.apprenticearcana:gather"), "gather", 2));
 		this.buttonList.add(this.mobSlayingButton = new GuiButtonWithDescription(7, left + 90, top + 190 - offset, 70, 20, I18n.format("gui.apprenticearcana:slay_mobs"), "slay_mobs", 2));
+
+		// default adventure
 		this.buttonList.add(this.journeyButton = new GuiButtonWithDescription(8, left + 15, top + 213 - offset, 70, 20, I18n.format("gui.apprenticearcana:adventure"), "adventure", 2));
+
+		// Fourth button
+		if (wizard.isArtefactActive(AAItems.charm_spell_compass)) {
+			this.buttonList.add(this.spellHuntButton = new GuiButtonWithDescription(9, left + 90, top + 213 - offset, 70, 20, I18n.format("gui.apprenticearcana:spell_hunt"), "spell_hunt", 2));
+		} else if (wizard.isArtefactActive(AAItems.charm_treasure_map)) {
+			this.buttonList.add(this.treasureHuntButton = new GuiButtonWithDescription(9, left + 90, top + 213 - offset, 70, 20, I18n.format("gui.apprenticearcana:treasure_hunt"), "treasure_hunt", 2));
+		} else if (wizard.isArtefactActive(AAItems.charm_withering_atlas)) {
+			this.buttonList.add(this.netherAdventureButton = new GuiButtonWithDescription(9, left + 90, top + 213 - offset, 70, 20, I18n.format("gui.apprenticearcana:nether_adventure"), "nether_adventure", 2));
+		} else if (wizard.isArtefactActive(AAItems.charm_golden_lure)) {
+			this.buttonList.add(this.oceanAdventureButton = new GuiButtonWithDescription(9, left + 90, top + 213 - offset, 70, 20, I18n.format("gui.apprenticearcana:ocean_adventure"), "ocean_adventure", 2));
+		}
+
 		confirmButton.width = 50;
 		cancelButton.width = 50;
 		updateButtonState();
@@ -184,7 +204,7 @@ public class GuiScreenWizardInitiateAdventure extends GuiContainer {
 	}
 
 	public boolean hasEnoughFood(JourneyType type) {
-		if (!Settings.generalSettings.JOURNEY_REQUIRE_FOOD) {
+		if (!Settings.journeySettings.JOURNEY_REQUIRE_FOOD) {
 			return true;
 		}
 
@@ -206,7 +226,7 @@ public class GuiScreenWizardInitiateAdventure extends GuiContainer {
 			cost = 200;
 		}
 
-		cost *= Settings.generalSettings.JOURNEY_FOOD_REQUIREMENT_MODIFIER;
+		cost *= Settings.journeySettings.JOURNEY_FOOD_REQUIREMENT_MODIFIER;
 		return totalFoodValue >= cost;
 	}
 
@@ -221,7 +241,7 @@ public class GuiScreenWizardInitiateAdventure extends GuiContainer {
 	}
 
 	private boolean levelRequirementsMet(String adventureTypeString) {
-		String[] levelsRequired = Settings.generalSettings.LEVELS_REQUIRED_BY_EACH_JOURNEY_TYPE;
+		String[] levelsRequired = Settings.journeySettings.LEVELS_REQUIRED_BY_EACH_JOURNEY_TYPE;
 
 		for (String levelRequired : levelsRequired) {
 			String[] parts = levelRequired.split(":");
