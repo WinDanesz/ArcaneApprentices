@@ -27,6 +27,7 @@ import com.windanesz.apprenticearcana.inventory.ContainerWizardInitiateInventory
 import com.windanesz.apprenticearcana.inventory.ContainerWizardInventory;
 import com.windanesz.apprenticearcana.items.ItemArtefactWithSlots;
 import com.windanesz.apprenticearcana.registry.AAItems;
+import com.windanesz.apprenticearcana.registry.LootRegistry;
 import com.windanesz.wizardryutils.tools.WizardryUtilsTools;
 import electroblob.wizardry.Wizardry;
 import electroblob.wizardry.constants.Element;
@@ -45,6 +46,7 @@ import electroblob.wizardry.util.EntityUtils;
 import electroblob.wizardry.util.InventoryUtils;
 import electroblob.wizardry.util.Location;
 import electroblob.wizardry.util.NBTExtras;
+import electroblob.wizardry.util.ParticleBuilder;
 import electroblob.wizardry.util.SpellModifiers;
 import electroblob.wizardry.util.WandHelper;
 import io.netty.buffer.ByteBuf;
@@ -173,11 +175,80 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		this.journeyType = journeyType;
 	}
 
-	public void sendOnJourney() {
+	public boolean verifyWandManaRequirementForJourney(JourneyType journeyType) {
+		if (this.getHeldItemMainhand().getItem() instanceof ItemWand) {
+			ItemWand wand = (ItemWand) this.getHeldItemMainhand().getItem();
+			float manaPercent = (float) wand.getMana(this.getHeldItemMainhand()) / (float) wand.getManaCapacity(this.getHeldItemMainhand());
+			return manaPercent > 0.5f;
+		}
+
+		return false;
+	}
+
+	public void goOnJourney() {
+
+
 		if (!this.world.isRemote && getJourneyType() != JourneyType.NOT_ADVENTURING && getOwner() instanceof EntityPlayer) {
+			if (this.getHome().pos == BlockPos.ORIGIN) {
+				setHome(new Location(new BlockPos(this.posX, this.posY, this.posZ), this.dimension));
+			}
+
+			Speech.WIZARD_GOING_ON_JOURNEY.say(this);
+			consumeFoodForJourney();
+			consumeManaForJourney();
 			if (PlayerData.storeAdventuringApprentice((EntityPlayer) this.getOwner(), this)) {
 				world.removeEntity(this);
 			}
+		}
+	}
+
+	public void consumeFoodForJourney() {
+		if (!Settings.journeySettings.JOURNEY_REQUIRE_FOOD) {
+			return;
+		}
+		String duration = getJourneyType().getDuration();
+
+		float cost;
+		if (duration.equals("SHORT")) {
+			cost = 30;
+		} else if (duration.equals("MEDIUM")) {
+			cost = 90;
+		} else {
+			cost = 200;
+		}
+		cost *= Settings.journeySettings.JOURNEY_FOOD_REQUIREMENT_MODIFIER;
+		for (int i = 1; i < inventory.getSizeInventory(); i++) {
+			ItemStack stack = inventory.getStackInSlot(i);
+			if (cost > 0 && stack.getItem() instanceof ItemFood && stack.getItem() != Items.ROTTEN_FLESH) {
+				float healAmount = ((ItemFood) stack.getItem()).getHealAmount(stack);
+				int count = stack.getCount();
+				for (int j = 0; j < count; j++) {
+					stack.shrink(1);
+					cost -= healAmount;
+					if (cost < 0) {break;}
+				}
+			}
+		}
+	}
+
+	public void consumeManaForJourney() {
+		String duration = getJourneyType().getDuration();
+
+		float cost;
+		if (duration.equals("SHORT")) {
+			cost = 0.2f;
+		} else if (duration.equals("MEDIUM")) {
+			cost = 0.5f;
+		} else {
+			cost = 0.7f;
+		}
+
+		cost += rand.nextBoolean() ? -(float) rand.nextInt(3) / 10 : (float) rand.nextInt(3) / 10;
+
+		if (this.getHeldItemMainhand().getItem() instanceof ItemWand) {
+			ItemWand wand = (ItemWand) this.getHeldItemMainhand().getItem();
+			float v = (float) (Math.sqrt(wand.getManaCapacity(this.getHeldItemMainhand())) * 30 * cost);
+			wand.setMana(this.getHeldItemMainhand(), (int) Math.max(0, wand.getMana(this.getHeldItemMainhand()) - v));
 		}
 	}
 
@@ -706,7 +777,10 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 				this.heal(0.5f);
 				modifySaturation(-0.8f);
 			} else if (getFoodLevel() == 0) {
-				if (getHealth() > 0.5f) {this.attackEntityFrom(DamageSource.STARVE, 0.5f);}
+				if (getHealth() > 0.5f) {
+					this.attackEntityFrom(DamageSource.STARVE, 0.5f);
+					Speech.WIZARD_STARVING.sayWithoutSpam(this);
+				}
 			}
 			foodTickTimer = 0;
 		}
@@ -875,7 +949,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 			return false;
 		}
 
-		if (player.isCreative() && player.isSneaking() && !player.world.isRemote && hand == EnumHand.MAIN_HAND && player.getHeldItemMainhand().getItem() == Items.FIREWORKS) {
+		if (player.isCreative() && player.isSneaking() && !player.world.isRemote && hand == EnumHand.MAIN_HAND && player.getHeldItemMainhand().getItem() == WizardryItems.ring_condensing) {
 			this.addExperience(80000);
 			this.setOwner(player);
 			return false;
@@ -911,7 +985,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 			sayWithoutSpam(player, new TextComponentTranslation(Speech.GREET.getRandom(), player.getDisplayName()));
 		}
 
-		return false;
+		return true;
 	}
 
 	@Override
@@ -921,6 +995,9 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 			if (this.getOwner() instanceof EntityPlayer) {
 				this.heal(10);
 				PlayerData.storeDeadApprentice((EntityPlayer) this.getOwner(), this);
+			}
+			if (!this.world.isRemote && this.world.getGameRules().getBoolean("showDeathMessages") && this.getOwner() instanceof EntityPlayerMP) {
+				this.getOwner().sendMessage(this.getCombatTracker().getDeathMessage());
 			}
 		}
 		super.onDeath(cause);
@@ -1443,35 +1520,17 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	}
 
 	public void returnFromAdventuring() {
-		switch (journeyType) {
-
-			case NOT_ADVENTURING:
-				break;
-			case GATHER_SHORT_DURATION:
-				fillWithLoot(this.getOwner(), new ResourceLocation(ApprenticeArcana.MODID, "adventure/gathering_short_duration_generic"));
-				break;
-			case GATHER_MEDIUM_DURATION:
-				break;
-			case GATHER_LONG_DURATION:
-				break;
-			case SLAY_MOBS_SHORT_DURATION:
-				break;
-			case SLAY_MOBS_MEDIUM_DURATION:
-				break;
-			case SLAY_MOBS_LONG_DURATION:
-				break;
-			case ADVENTURE_SHORT_DURATION:
-				break;
-			case ADVENTURE_MEDIUM_DURATION:
-				break;
-			case ADVENTURE_LONG_DURATION:
-				break;
+		if (journeyType != JourneyType.NOT_ADVENTURING) {
+				fillWithLoot(LootRegistry.getLootTableFor(journeyType), journeyType.getBonusLootItemCount());
 		}
+
+		Speech.WIZARD_RETURNED_FROM_JOURNEY.say(this);
+		this.getNavigator().tryMoveToEntityLiving(this.getOwner(), 0.7);
 	}
 
-	public void fillWithLoot(@Nullable Entity owner, ResourceLocation lootTable) {
-		if (owner instanceof EntityPlayer) {
-			EntityPlayer player = (EntityPlayer) owner;
+	public void fillWithLoot(ResourceLocation lootTable, int extraItemCount) {
+		if (this.getOwner() instanceof EntityPlayer) {
+			EntityPlayer player = (EntityPlayer) this.getOwner();
 			if (lootTable != null) {
 				LootTable loottable = this.world.getLootTableManager().getLootTableFromLocation(lootTable);
 				Random random;
@@ -1479,16 +1538,40 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 				random = new Random();
 
 				LootContext.Builder lootcontext$builder = new LootContext.Builder((WorldServer) this.world);
-
 				lootcontext$builder.withLuck(player.getLuck()).withPlayer(player); // Forge: add player to LootContext
-
 				ContainerWizardInventory temporaryInventory = new ContainerWizardInventory("WizardInventory", false, 64);
-
 				loottable.fillInventory(temporaryInventory, random, lootcontext$builder.build());
-
 				mergeItemStacks(temporaryInventory);
 				List<ItemStack> itemStackList = new ArrayList<>();
-				//	List<Integer> emptySlotList = getEmptySlotsRandomized();
+
+
+				// TODO: artefact that adds more stuff
+				if (isArtefactActive(AAItems.ring_serendipity)) {
+					extraItemCount += Math.max(3, rand.nextInt(6));
+				}
+				if (extraItemCount > 0) {
+					LootTable extraItems = this.world.getLootTableManager().getLootTableFromLocation(LootRegistry.STRUCTURES);
+					LootContext.Builder lootcontext$builder2 = new LootContext.Builder((WorldServer) this.world);
+					lootcontext$builder2.withLuck(player.getLuck()).withPlayer(player); // Forge: add player to LootContext
+					ContainerWizardInventory fewItemContainer = new ContainerWizardInventory("WizardInventory", false, 64);
+					extraItems.fillInventory(fewItemContainer, random, lootcontext$builder2.build());
+					mergeItemStacks(fewItemContainer);
+
+					List<ItemStack> itemStackList2 = new ArrayList<>();
+					for (int t = 0; t < fewItemContainer.getSizeInventory(); t++) {
+						if (!fewItemContainer.getStackInSlot(t).isEmpty()) {
+							itemStackList2.add(fewItemContainer.getStackInSlot(t).copy());
+						}
+					}
+					Collections.shuffle(itemStackList2);
+					for (int i = 0; i < extraItemCount; i++) {
+						if (i < itemStackList2.size()) {
+							temporaryInventory.addItem(itemStackList2.get(i).copy());
+						}
+					}
+				}
+
+				mergeItemStacks(temporaryInventory);
 
 				for (int t = 0; t < temporaryInventory.getSizeInventory(); t++) {
 					if (!temporaryInventory.getStackInSlot(t).isEmpty()) {
@@ -1556,7 +1639,6 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 						}
 						this.inventory.setInventorySlotContents(ARTEFACT_SLOT, bag);
 					}
-
 
 					if (flag) {
 						// discarding the item

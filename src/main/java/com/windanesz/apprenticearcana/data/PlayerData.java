@@ -214,7 +214,7 @@ public class PlayerData {
 
 	public static boolean removeAdventuringApprentice(EntityPlayer player, UUID uuid) {
 		WizardData data = WizardData.get(player);
-		List<StoredEntity> list = getDeadApprentices(player);
+		List<StoredEntity> list = getAdventuringApprentices(player);
 
 		int index = -1;
 		for (int i = 0; i < list.size(); i++) {
@@ -234,7 +234,7 @@ public class PlayerData {
 
 	public static boolean removePendingHomeApprentice(EntityPlayer player, UUID uuid) {
 		WizardData data = WizardData.get(player);
-		List<StoredEntity> list = getDeadApprentices(player);
+		List<StoredEntity> list = getPendingHomeApprentices(player);
 
 		int index = -1;
 		for (int i = 0; i < list.size(); i++) {

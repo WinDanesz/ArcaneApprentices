@@ -5,6 +5,7 @@ import com.windanesz.apprenticearcana.client.gui.AAGuiHandler;
 import com.windanesz.apprenticearcana.data.JourneyType;
 import com.windanesz.apprenticearcana.data.Speech;
 import com.windanesz.apprenticearcana.entity.living.EntityWizardInitiate;
+import com.windanesz.apprenticearcana.handler.JourneySurvivalHandler;
 import com.windanesz.apprenticearcana.inventory.ContainerWizardBase;
 import electroblob.wizardry.registry.Spells;
 import electroblob.wizardry.spell.Spell;
@@ -125,7 +126,7 @@ public class PacketControlInput implements IMessageHandler<PacketControlInput.Me
 
 						break;
 
-					case OPEN_ADVENTURING_GUI_BUTTON:
+					case OPEN_JOURNEY_GUI_BUTTON:
 						if (player.openContainer instanceof ContainerWizardBase) {
 							player.openGui(ApprenticeArcana.MODID, AAGuiHandler.WIZARD_ADVENTURING_GUI, player.world,
 									((ContainerWizardBase) player.openContainer).getWizard().getEntityId(), 0, 0);
@@ -143,8 +144,14 @@ public class PacketControlInput implements IMessageHandler<PacketControlInput.Me
 					case JOURNEY_CONFIRM_BUTTON:
 
 						if (player.openContainer instanceof ContainerWizardBase) {
-							((ContainerWizardBase) player.openContainer).getWizard().setJourneyType(message.journeyType);
-							((ContainerWizardBase) player.openContainer).getWizard().sendOnJourney();
+							EntityWizardInitiate wizard = ((ContainerWizardBase) player.openContainer).getWizard();
+							if (!wizard.verifyWandManaRequirementForJourney(message.journeyType)) {
+								wizard.sayImmediately(new TextComponentTranslation("message.apprenticearcana:no_wand_with_mana_for_journey"));
+								System.out.println("Survival chance: " + JourneySurvivalHandler.calculateSurvivalChance(wizard, message.journeyType));
+							} else {
+								wizard.setJourneyType(message.journeyType);
+								wizard.goOnJourney();
+							}
 							player.closeScreen();
 						}
 
@@ -159,7 +166,7 @@ public class PacketControlInput implements IMessageHandler<PacketControlInput.Me
 
 	public enum ControlType {
 		FOLLOW_BUTTON, STAY_BUTTON, STUDY_BUTTON, OPEN_STATS_GUI_BUTTON, SPELL_TOGGLE_BUTTON, OPEN_DISMISS_WIZARD_GUI_BUTTON, DISMISS_WIZARD_BUTTON,
-		CLOSE_WINDOW_BUTTON, SET_HOME_BUTTON, GO_HOME_BUTTON, IDENTIFY_BUTTON, OPEN_ADVENTURING_GUI_BUTTON, OPEN_WIZARD_INVENTORY_BUTTON, JOURNEY_CONFIRM_BUTTON
+		CLOSE_WINDOW_BUTTON, SET_HOME_BUTTON, GO_HOME_BUTTON, IDENTIFY_BUTTON, OPEN_JOURNEY_GUI_BUTTON, OPEN_WIZARD_INVENTORY_BUTTON, JOURNEY_CONFIRM_BUTTON
 	}
 
 	public static class Message implements IMessage {

@@ -1,0 +1,53 @@
+{
+    "pools": [
+        {
+            "name": "main",
+            "rolls": {
+                "min": 1,
+                "max": 1
+            },
+            "entries": [
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:entities/chicken",
+                    "weight": 5
+                },
+                {
+                    "type": "item",
+                    "name": "egg",
+                    "weight": 4
+                },
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:entities/horse",
+                    "weight": 5
+                },
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:entities/rabbit",
+                    "weight": 3
+                },
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:entities/sheep/white",
+                    "weight": 1
+                },
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:entities/sheep/black",
+                    "weight": 1
+                },
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:entities/sheep/brown",
+                    "weight": 1
+                },
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:entities/sheep/gray",
+                    "weight": 1
+                }
+            ]
+        }
+    ]
+}

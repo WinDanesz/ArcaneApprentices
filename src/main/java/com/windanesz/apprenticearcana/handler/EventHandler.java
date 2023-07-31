@@ -50,6 +50,7 @@ import electroblob.wizardry.util.MagicDamage;
 import electroblob.wizardry.util.ParticleBuilder;
 import electroblob.wizardry.util.SpellModifiers;
 import electroblob.wizardry.util.WandHelper;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -727,9 +728,9 @@ public final class EventHandler {
 							((EntityWizardInitiate) mob).setFoodLevel(20f);
 							((EntityWizardInitiate) mob).setSaturation(10f);
 
-							//	mob.extinguish();
 							if (world.spawnEntity(mob)) {
 								respawnedEntities.add(mob.getUniqueID());
+								Utils.sendMessage(event.getEntityPlayer(), "message.apprenticearcana:wizard_respawned", false, ((EntityWizardInitiate) mob).getDisplayNameWithoutOwner());
 							}
 
 						}
@@ -783,7 +784,7 @@ public final class EventHandler {
 			}
 		}
 
-		if (!event.player.world.isRemote && event.player.ticksExisted % 105 == 0) {
+		if (!event.player.world.isRemote && event.player.ticksExisted % 55 == 0) {
 			List<StoredEntity> list = PlayerData.getAdventuringApprentices(event.player);
 			if (!list.isEmpty()) {
 
@@ -812,6 +813,7 @@ public final class EventHandler {
 
 										}
 									}
+									respawnedEntities.add(mob.getUniqueID());
 								}
 							}
 						}

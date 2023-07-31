@@ -7,22 +7,35 @@ import net.minecraft.util.ResourceLocation;
 
 public enum JourneyType {
 
-	NOT_ADVENTURING("NONE"),
-	GATHER_SHORT_DURATION("SHORT"),
-	GATHER_MEDIUM_DURATION("MEDIUM"),
-	GATHER_LONG_DURATION("LONG"),
-	SLAY_MOBS_SHORT_DURATION("SHORT"),
-	SLAY_MOBS_MEDIUM_DURATION("MEDIUM"),
-	SLAY_MOBS_LONG_DURATION("LONG"),
-	ADVENTURE_SHORT_DURATION("SHORT"),
-	ADVENTURE_MEDIUM_DURATION("MEDIUM"),
-	ADVENTURE_LONG_DURATION("LONG"),
+	NOT_ADVENTURING("NONE", 1f, 0),
+	GATHER_SHORT_DURATION("SHORT", 1f, 0),
+	GATHER_MEDIUM_DURATION("MEDIUM", 0.9f, 1),
+	GATHER_LONG_DURATION("LONG", 0.8f, 2),
+	GATHER_SHORT_DURATION_AXE("SHORT", 1f, 0),
+	GATHER_MEDIUM_DURATION_AXE("MEDIUM", 0.95f, 0),
+	GATHER_LONG_DURATION_AXE("LONG", 0.85f, 0),
+	GATHER_SHORT_DURATION_PICKAXE("SHORT", 0.9f, 0),
+	GATHER_MEDIUM_DURATION_PICKAXE("MEDIUM", 0.8f, 0),
+	GATHER_LONG_DURATION_PICKAXE("LONG", 0.7f, 0),
+	GATHER_SHORT_DURATION_SHEARS("SHORT", 0.95f, 0),
+	GATHER_MEDIUM_DURATION_SHEARS("MEDIUM", 0.90f, 0),
+	GATHER_LONG_DURATION_SHEARS("LONG", 0.85f, 0),
+	SLAY_MOBS_SHORT_DURATION("SHORT", 0.7f, 0),
+	SLAY_MOBS_MEDIUM_DURATION("MEDIUM", 0.6f, 0),
+	SLAY_MOBS_LONG_DURATION("LONG", 0.5f, 0),
+	ADVENTURE_SHORT_DURATION("SHORT", 0.7f, 1),
+	ADVENTURE_MEDIUM_DURATION("MEDIUM", 0.6f, 2),
+	ADVENTURE_LONG_DURATION("LONG", 0.5f, 3),
 	;
 
 	private final String duration;
+	private final float survivalModifier;
+	private final int bonusLootItemCount;
 
-	JourneyType(String duration) {
+	JourneyType(String duration, float survivalModifier, int bonusLootItemCount) {
 		this.duration = duration;
+		this.survivalModifier = survivalModifier;
+		this.bonusLootItemCount = bonusLootItemCount;
 	}
 
 	public String getDuration() {
@@ -63,5 +76,12 @@ public enum JourneyType {
 	public ResourceLocation getLootTable() {
 		return new ResourceLocation(ApprenticeArcana.MODID, "adventure/" + this.toString().toLowerCase());
 	}
-	
+
+	public float getSurvivalModifier() {
+		return survivalModifier;
+	}
+
+	public int getBonusLootItemCount() {
+		return bonusLootItemCount;
+	}
 }

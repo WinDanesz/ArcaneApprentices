@@ -35,7 +35,7 @@ public class GuiScreenWizardInitiateInventory extends GuiContainer {
 	private GuiButton setHomeBtn;
 	private GuiButton goHomeBtn;
 	private GuiButton identifyBtn;
-	private GuiButton adventuringBtn;
+	private GuiButton journeyBtn;
 
 	public GuiScreenWizardInitiateInventory(IInventory playerInv, IInventory horseInv, EntityWizardInitiate wizard) {
 		super(new ContainerWizardInitiateInventory(playerInv, horseInv, wizard, Minecraft.getMinecraft().player));
@@ -74,7 +74,7 @@ public class GuiScreenWizardInitiateInventory extends GuiContainer {
 
 		// right side
 		this.identifyBtn = this.addButton(new GuiButton(5, this.width / 2 + 90, 50, 98, 20, I18n.format("gui.apprenticearcana:identify_button")));
-		this.adventuringBtn = this.addButton(new GuiButton(5, this.width / 2 + 90, 75, 98, 20, I18n.format("gui.apprenticearcana:adventuring_button")));
+		this.journeyBtn = this.addButton(new GuiButton(5, this.width / 2 + 90, 75, 98, 20, I18n.format("gui.apprenticearcana:journey_button")));
 	}
 
 	@Override
@@ -109,9 +109,9 @@ public class GuiScreenWizardInitiateInventory extends GuiContainer {
 				this.mc.displayGuiScreen(null);
 				IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.IDENTIFY_BUTTON);
 				AAPacketHandler.net.sendToServer(msg);
-			} else if (button == adventuringBtn) {
+			} else if (button == journeyBtn) {
 				this.mc.displayGuiScreen(null);
-				IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.OPEN_ADVENTURING_GUI_BUTTON);
+				IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.OPEN_JOURNEY_GUI_BUTTON);
 				AAPacketHandler.net.sendToServer(msg);
 			}
 		}

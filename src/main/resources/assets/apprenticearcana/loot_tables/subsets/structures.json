@@ -1,0 +1,81 @@
+{
+    "pools": [
+        {
+            "name": "main",
+            "rolls": {
+                "min": 1,
+                "max": 1
+            },
+            "entries": [
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:chests/abandoned_mineshaft",
+                    "weight": 6
+                },
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:gameplay/fishing",
+                    "weight": 5,
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 2,
+                                "max": 8
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:chests/desert_pyramid",
+                    "weight": 3
+                },
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:chests/jungle_temple",
+                    "weight": 4
+                },
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:chests/village_blacksmith",
+                    "weight": 2
+                },
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:chests/simple_dungeon",
+                    "weight": 6
+                },
+                {
+                    "type": "loot_table",
+                    "name": "ebwizardry:chests/wizard_tower",
+                    "weight": 4
+                },
+                {
+                    "type": "loot_table",
+                    "name": "ebwizardry:chests/shrine",
+                    "weight": 3
+                },
+                {
+                    "type": "loot_table",
+                    "name": "ebwizardry:chests/obelisk",
+                    "weight": 4
+                },
+                {
+                    "type": "loot_table",
+                    "name": "ebwizardry:chests/library_ruins_bookshelf",
+                    "weight": 4,
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 1,
+                                "max": 5
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

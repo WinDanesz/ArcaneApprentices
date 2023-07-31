@@ -1,0 +1,68 @@
+{
+    "pools": [
+        {
+            "name": "main",
+            "rolls": {
+                "min": 1,
+                "max": 1
+            },
+            "entries": [
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:entities/cave_spider",
+                    "weight": 3
+                },
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:entities/enderman",
+                    "weight": 2
+                },
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:entities/husk",
+                    "weight": 4
+                },
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:entities/silverfish",
+                    "weight": 1
+                },
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:entities/zombie",
+                    "weight": 30
+                },
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:entities/creeper",
+                    "weight": 12
+                },
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:entities/spider",
+                    "weight": 12
+                },
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:entities/witch",
+                    "weight": 2
+                },
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:entities/skeleton",
+                    "weight": 20
+                },
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:entities/stray",
+                    "weight": 2
+                },
+                {
+                    "type": "loot_table",
+                    "name": "ebwizardry:entities/evil_wizard",
+                    "weight": 3
+                }
+            ]
+        }
+    ]
+}

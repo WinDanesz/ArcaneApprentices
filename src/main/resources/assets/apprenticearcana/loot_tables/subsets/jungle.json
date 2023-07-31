@@ -1,0 +1,49 @@
+{
+    "pools": [
+        {
+            "name": "main",
+            "rolls": {
+                "min": 1,
+                "max": 2
+            },
+            "entries": [
+                {
+                    "type": "item",
+                    "name": "log",
+                    "weight": 12,
+                    "functions": [
+                        {
+                            "function": "set_data",
+                            "data": 3
+                        },
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 16,
+                                "max": 40
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "name": "sapling",
+                    "weight": 6,
+                    "functions": [
+                        {
+                            "function": "set_data",
+                            "data": 3
+                        },
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 2,
+                                "max": 8
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

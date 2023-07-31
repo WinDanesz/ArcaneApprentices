@@ -1,0 +1,117 @@
+{
+    "pools": [
+        {
+            "name": "main",
+            "rolls": {
+                "min": 1,
+                "max": 1
+            },
+            "entries": [
+                {
+                    "type": "item",
+                    "name": "coal",
+                    "weight": 13,
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 2,
+                                "max": 8
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "name": "iron_ore",
+                    "weight": 10,
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 1,
+                                "max": 6
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "name": "gold_ore",
+                    "weight": 4,
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 1,
+                                "max": 4
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "name": "redstone",
+                    "weight": 7,
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 1,
+                                "max": 6
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "entryName": "lapis_lazuli",
+                    "name": "dye",
+                    "weight": 5,
+                    "functions": [
+                        {
+                            "function": "set_data",
+                            "data": 4
+                        },
+                        {
+
+
+                            "function": "set_count",
+                            "count": {
+                                "min": 4,
+                                "max": 14
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "name": "diamond",
+                    "weight": 1,
+                    "functions": [
+                        {
+
+
+                            "function": "set_count",
+                            "count": {
+                                "min": 1,
+                                "max": 4
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "name": "emerald",
+                    "weight": 4,
+                    "conditions": [
+                        {
+                            "condition": "apprenticearcana:biome_condition",
+                            "required_biomes": ["minecraft:extreme_hills"]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

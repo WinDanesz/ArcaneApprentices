@@ -4,11 +4,13 @@ import com.windanesz.apprenticearcana.ApprenticeArcana;
 import com.windanesz.apprenticearcana.Settings;
 import com.windanesz.apprenticearcana.data.JourneyType;
 import com.windanesz.apprenticearcana.entity.living.EntityWizardInitiate;
+import com.windanesz.apprenticearcana.handler.JourneySurvivalHandler;
 import com.windanesz.apprenticearcana.inventory.ContainerWizardInititateAdventure;
 import com.windanesz.apprenticearcana.packet.AAPacketHandler;
 import com.windanesz.apprenticearcana.packet.PacketControlInput;
 import com.windanesz.apprenticearcana.registry.AAItems;
 import electroblob.wizardry.client.DrawingUtils;
+import electroblob.wizardry.util.ParticleBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
@@ -16,9 +18,13 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Items;
+import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemFood;
+import net.minecraft.item.ItemPickaxe;
+import net.minecraft.item.ItemShears;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -101,6 +107,7 @@ public class GuiScreenWizardInitiateAdventure extends GuiContainer {
 
 	@Override
 	protected void actionPerformed(GuiButton button) throws IOException {
+		String suffix = "";
 		//	if (button == confirmButton) {
 		//		IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.DISMISS_WIZARD_BUTTON);
 		//		AAPacketHandler.net.sendToServer(msg);
@@ -138,9 +145,32 @@ public class GuiScreenWizardInitiateAdventure extends GuiContainer {
 			IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.OPEN_WIZARD_INVENTORY_BUTTON);
 			AAPacketHandler.net.sendToServer(msg);
 		} else if (button == confirmButton) {
-			JourneyType type = JourneyType.valueOf((getJourneyType() + "_" + getDuration()).toUpperCase());
+
+			if (getJourneyType().toLowerCase().toString().contains("gather")) {
+				if (wizard.getHeldItemOffhand().getItem() instanceof ItemAxe) {
+					suffix = "_AXE";
+				} else if (wizard.getHeldItemOffhand().getItem() instanceof ItemPickaxe) {
+					suffix = "_PICKAXE";
+				} else if (wizard.getHeldItemOffhand().getItem() instanceof ItemShears) {
+					suffix = "_SHEARS";
+				}
+			}
+
+			JourneyType type = JourneyType.valueOf((getJourneyType() + "_" + getDuration()).toUpperCase() + suffix);
 			IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.JOURNEY_CONFIRM_BUTTON, type);
 			AAPacketHandler.net.sendToServer(msg);
+
+			if (wizard.verifyWandManaRequirementForJourney(type)) {
+				for(int i = 0; i < 20; i++){
+
+					float brightness = wizard.world.rand.nextFloat() * 0.1f + 0.1f;
+					ParticleBuilder.create(ParticleBuilder.Type.CLOUD, wizard.world.rand, wizard.posX +1, wizard.posY, wizard.posZ, 1, false)
+							.clr(brightness, brightness, brightness).time(80 + wizard.world.rand.nextInt(12)).shaded(true).spawn(wizard.world);
+
+
+				}
+			}
+
 		}
 		//		if (button == shortDuration || button == mediumDuration || button == longDuration) {
 		//			shortDuration.enabled = button != shortDuration && hasEnoughFood(AdventureType.GATHERING_LOW_TIER);
@@ -235,12 +265,12 @@ public class GuiScreenWizardInitiateAdventure extends GuiContainer {
 		shortDuration.enabled = shortDuration.requirementsMet = hasEnoughFood(JourneyType.GATHER_SHORT_DURATION);
 		mediumDuration.enabled = mediumDuration.requirementsMet = hasEnoughFood(JourneyType.GATHER_MEDIUM_DURATION);
 		longDuration.enabled = longDuration.requirementsMet = hasEnoughFood(JourneyType.GATHER_LONG_DURATION);
-		gatheringButton.enabled = gatheringButton.requirementsMet = levelRequirementsMet(gatheringButton.buttonCodeName);
-		mobSlayingButton.enabled = mobSlayingButton.requirementsMet = levelRequirementsMet(mobSlayingButton.buttonCodeName);
-		journeyButton.enabled = journeyButton.requirementsMet = levelRequirementsMet(journeyButton.buttonCodeName);
+		gatheringButton.enabled = gatheringButton.requirementsMet = requirementsMet(gatheringButton.buttonCodeName);
+		mobSlayingButton.enabled = mobSlayingButton.requirementsMet = requirementsMet(mobSlayingButton.buttonCodeName);
+		journeyButton.enabled = journeyButton.requirementsMet = requirementsMet(journeyButton.buttonCodeName);
 	}
 
-	private boolean levelRequirementsMet(String adventureTypeString) {
+	private boolean requirementsMet(String adventureTypeString) {
 		String[] levelsRequired = Settings.journeySettings.LEVELS_REQUIRED_BY_EACH_JOURNEY_TYPE;
 
 		for (String levelRequired : levelsRequired) {
