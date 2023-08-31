@@ -382,7 +382,10 @@ public class Settings {
 				"ebwizardry:ring_shattering",
 				"ebwizardry:ring_soulbinding",
 				"ebwizardry:ring_storm",
-				"ebwizardry:ring_siphoning"
+				"ebwizardry:charm_withering_atlas",
+				"ebwizardry:charm_golden_lure",
+				"ebwizardry:ring_siphoning",
+				"ebwizardry:amulet_survival_chance",
 		};
 
 		@Config.Name("Minimum NPC Level for Identifying Spells")
@@ -499,9 +502,29 @@ public class Settings {
 		@Config.Comment("Checked once every second. Set to 0 to disable this event.")
 		public float EVENT_FREQUENCY_GIVE_HEALING_POTION_TO_DYING_OWNER = 1;
 
-		@Config.Name("Max Adventure Duration In Ticks")
+		@Config.Name("Max Adventure Duration In Ticks (short journeys)")
 		@Config.Comment("Determines the maximum duration an NPC can spend in an adventure before it returns.")
-		public int MAX_ADVENTURE_DURATION_IN_TICKS = 400;
+		public int MAX_ADVENTURE_DURATION_IN_TICKS_SHORT = 6000;
+
+		@Config.Name("Min Adventure Duration In Ticks (short journeys)")
+		@Config.Comment("Determines the minimum duration an NPC must spend in an adventure before it returns.")
+		public int MIN_ADVENTURE_DURATION_IN_TICKS_SHORT = 18000;
+
+		@Config.Name("Max Adventure Duration In Ticks (medium journeys)")
+		@Config.Comment("Determines the maximum duration an NPC can spend in an adventure before it returns.")
+		public int MAX_ADVENTURE_DURATION_IN_TICKS_MEDIUM = 18000;
+
+		@Config.Name("Min Adventure Duration In Ticks (medium journeys)")
+		@Config.Comment("Determines the minimum duration an NPC must spend in an adventure before it returns.")
+		public int MIN_ADVENTURE_DURATION_IN_TICKS_MEDIUM = 54000;
+
+		@Config.Name("Max Adventure Duration In Ticks (long journeys)")
+		@Config.Comment("Determines the maximum duration an NPC can spend in an adventure before it returns.")
+		public int MAX_ADVENTURE_DURATION_IN_TICKS_LONG = 54000;
+
+		@Config.Name("Min Adventure Duration In Ticks (long journeys)")
+		@Config.Comment("Determines the minimum duration an NPC must spend in an adventure before it returns.")
+		public int MIN_ADVENTURE_DURATION_IN_TICKS_LONG = 81000;
 
 		@Config.Name("NPC Spell Study Time Modifier")
 		@Config.Comment("The higher the number, the longer it takes to learn a spell (as a math exponent)"
@@ -515,10 +538,6 @@ public class Settings {
 		)
 		@Config.RangeDouble(min = 4, max = 8)
 		public double NPC_SPELL_STUDY_TIME_MODIFIER = 5d;
-
-		@Config.Name("Min Adventure Duration In Ticks")
-		@Config.Comment("Determines the minimum duration an NPC must spend in an adventure before it returns.")
-		public int MIN_ADVENTURE_DURATION_IN_TICKS = 200;
 
 		//		@Config.Name("Items Found By Apprentices During Adventure")
 		//		@Config.Comment("List of items found by wizard apprentices that they give to the player on rare occasions when they are sent on an adventure" +

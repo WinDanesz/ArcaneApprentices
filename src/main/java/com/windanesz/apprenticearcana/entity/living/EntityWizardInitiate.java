@@ -1144,8 +1144,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, IEntityLivingData livingdata) {
 		livingdata = super.onInitialSpawn(difficulty, livingdata);
 		this.setCustomNameTag(Utils.generateWizardName(world));
-		// this.textureIndex = this.rand.nextInt(1);
-		this.textureIndex = 0; //this.rand.nextInt(1);
+		this.textureIndex = this.rand.nextInt(1);
 		if (this.rand.nextBoolean()) {
 			this.setElement(Element.values()[this.rand.nextInt(Element.values().length - 1) + 1]);
 		} else {

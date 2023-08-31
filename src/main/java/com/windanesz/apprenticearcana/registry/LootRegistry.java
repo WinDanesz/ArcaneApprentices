@@ -44,6 +44,12 @@ public class LootRegistry {
 		LootTableList.register(new ResourceLocation(ApprenticeArcana.MODID, "adventure/gather_short_duration_shears"));
 		LootTableList.register(new ResourceLocation(ApprenticeArcana.MODID, "adventure/gather_medium_duration_shears"));
 		LootTableList.register(new ResourceLocation(ApprenticeArcana.MODID, "adventure/gather_long_duration_shears"));
+		LootTableList.register(new ResourceLocation(ApprenticeArcana.MODID, "adventure/nether_adventure_short_duration"));
+		LootTableList.register(new ResourceLocation(ApprenticeArcana.MODID, "adventure/nether_adventure_medium_duration"));
+		LootTableList.register(new ResourceLocation(ApprenticeArcana.MODID, "adventure/nether_adventure_long_duration"));
+		LootTableList.register(new ResourceLocation(ApprenticeArcana.MODID, "adventure/ocean_adventure_short_duration"));
+		LootTableList.register(new ResourceLocation(ApprenticeArcana.MODID, "adventure/ocean_adventure_medium_duration"));
+		LootTableList.register(new ResourceLocation(ApprenticeArcana.MODID, "adventure/ocean_adventure_long_duration"));
 
 		// subsets
 		LootTableList.register(new ResourceLocation(ApprenticeArcana.MODID, "subsets/oak"));
@@ -58,6 +64,10 @@ public class LootRegistry {
 		LootTableList.register(new ResourceLocation(ApprenticeArcana.MODID, "subsets/random_items_multiple"));
 		LootTableList.register(new ResourceLocation(ApprenticeArcana.MODID, "subsets/rare_items"));
 		LootTableList.register(new ResourceLocation(ApprenticeArcana.MODID, "subsets/plants"));
+		LootTableList.register(new ResourceLocation(ApprenticeArcana.MODID, "subsets/nether_blocks"));
+		LootTableList.register(new ResourceLocation(ApprenticeArcana.MODID, "subsets/nether_mobs"));
+		LootTableList.register(new ResourceLocation(ApprenticeArcana.MODID, "subsets/ocean_mobs"));
+		LootTableList.register(new ResourceLocation(ApprenticeArcana.MODID, "subsets/ocean_monument"));
 
 	}
 

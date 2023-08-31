@@ -4,7 +4,7 @@
             "name": "main",
             "rolls": {
                 "min": 2,
-                "max": 8
+                "max": 7
             },
             "entries": [
                 {

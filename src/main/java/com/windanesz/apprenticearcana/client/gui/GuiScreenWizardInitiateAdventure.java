@@ -24,12 +24,12 @@ import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemShears;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 
 @SideOnly(Side.CLIENT)
 public class GuiScreenWizardInitiateAdventure extends GuiContainer {
@@ -92,17 +92,19 @@ public class GuiScreenWizardInitiateAdventure extends GuiContainer {
 		// Fourth button
 		if (wizard.isArtefactActive(AAItems.charm_spell_compass)) {
 			this.buttonList.add(this.spellHuntButton = new GuiButtonWithDescription(9, left + 90, top + 213 - offset, 70, 20, I18n.format("gui.apprenticearcana:spell_hunt"), "spell_hunt", 2));
-		} else if (wizard.isArtefactActive(AAItems.charm_treasure_map)) {
-			this.buttonList.add(this.treasureHuntButton = new GuiButtonWithDescription(9, left + 90, top + 213 - offset, 70, 20, I18n.format("gui.apprenticearcana:treasure_hunt"), "treasure_hunt", 2));
+// TODO
+			//		} else if (wizard.isArtefactActive(AAItems.charm_treasure_map)) {
+//			this.buttonList.add(this.treasureHuntButton = new GuiButtonWithDescription(9, left + 90, top + 213 - offset, 70, 20, I18n.format("gui.apprenticearcana:treasure_hunt"), "treasure_hunt", 2));
 		} else if (wizard.isArtefactActive(AAItems.charm_withering_atlas)) {
 			this.buttonList.add(this.netherAdventureButton = new GuiButtonWithDescription(9, left + 90, top + 213 - offset, 70, 20, I18n.format("gui.apprenticearcana:nether_adventure"), "nether_adventure", 2));
 		} else if (wizard.isArtefactActive(AAItems.charm_golden_lure)) {
 			this.buttonList.add(this.oceanAdventureButton = new GuiButtonWithDescription(9, left + 90, top + 213 - offset, 70, 20, I18n.format("gui.apprenticearcana:ocean_adventure"), "ocean_adventure", 2));
-		}
+	    }
 
 		confirmButton.width = 50;
 		cancelButton.width = 50;
 		updateButtonState();
+
 	}
 
 	@Override
@@ -221,6 +223,32 @@ public class GuiScreenWizardInitiateAdventure extends GuiContainer {
 					drawHoveringText(I18n.format("gui.apprenticearcana:wizard_journey_gui_info", this.wizard.getDisplayNameWithoutOwner().getFormattedText()), tooltipX, tooltipY);
 				}
 			}
+		}
+
+		if (confirmButton.enabled) {
+			int left = (this.width / 2 - xSize / 2);
+			int top = this.height / 2 - this.ySize / 2;
+			//
+			//
+		//	this.fontRenderer.drawSplitString(I18n.format("TEST"), left + 73, top + 207, 170, 4210752);
+
+			String suffix = "";
+			if (getJourneyType().toLowerCase().toString().contains("gather")) {
+
+				if (wizard.getHeldItemOffhand().getItem() instanceof ItemAxe) {
+					suffix = "_AXE";
+				} else if (wizard.getHeldItemOffhand().getItem() instanceof ItemPickaxe) {
+					suffix = "_PICKAXE";
+				} else if (wizard.getHeldItemOffhand().getItem() instanceof ItemShears) {
+					suffix = "_SHEARS";
+				}
+			}
+			JourneyType type = JourneyType.valueOf((getJourneyType() + "_" + getDuration()).toUpperCase() + suffix);
+			float percent = JourneySurvivalHandler.calculateSurvivalChance(wizard, type);
+			NumberFormat percentFormat = NumberFormat.getPercentInstance();
+			percentFormat.setMinimumFractionDigits(1);
+			String percentString = percentFormat.format(percent);
+			this.fontRenderer.drawSplitString(percentString, left + 73, top + 207, 170, 4210752);
 		}
 	}
 

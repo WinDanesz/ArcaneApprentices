@@ -3,6 +3,7 @@ package com.windanesz.apprenticearcana.data;
 import com.windanesz.apprenticearcana.ApprenticeArcana;
 import com.windanesz.apprenticearcana.Settings;
 import com.windanesz.apprenticearcana.entity.living.EntityWizardInitiate;
+import com.windanesz.apprenticearcana.registry.AAItems;
 import net.minecraft.util.ResourceLocation;
 
 public enum JourneyType {
@@ -21,11 +22,20 @@ public enum JourneyType {
 	GATHER_MEDIUM_DURATION_SHEARS("MEDIUM", 0.90f, 0),
 	GATHER_LONG_DURATION_SHEARS("LONG", 0.85f, 0),
 	SLAY_MOBS_SHORT_DURATION("SHORT", 0.7f, 0),
-	SLAY_MOBS_MEDIUM_DURATION("MEDIUM", 0.6f, 0),
-	SLAY_MOBS_LONG_DURATION("LONG", 0.5f, 0),
-	ADVENTURE_SHORT_DURATION("SHORT", 0.7f, 1),
-	ADVENTURE_MEDIUM_DURATION("MEDIUM", 0.6f, 2),
-	ADVENTURE_LONG_DURATION("LONG", 0.5f, 3),
+	SLAY_MOBS_MEDIUM_DURATION("MEDIUM", 0.7f, 0),
+	SLAY_MOBS_LONG_DURATION("LONG", 0.60f, 0),
+	ADVENTURE_SHORT_DURATION("SHORT", 0.75f, 1),
+	ADVENTURE_MEDIUM_DURATION("MEDIUM", 0.7f, 2),
+	ADVENTURE_LONG_DURATION("LONG", 0.67f, 3),
+	SPELL_HUNT_SHORT_DURATION("SHORT", 0.75f, 1),
+	SPELL_HUNT_MEDIUM_DURATION("MEDIUM", 0.7f, 2),
+	SPELL_HUNT_LONG_DURATION("LONG", 0.67f, 3),
+	NETHER_ADVENTURE_SHORT_DURATION("SHORT", 0.75f, 1),
+	NETHER_ADVENTURE_MEDIUM_DURATION("MEDIUM", 0.7f, 2),
+	NETHER_ADVENTURE_LONG_DURATION("LONG", 0.67f, 3),
+	OCEAN_ADVENTURE_SHORT_DURATION("SHORT", 0.8f, 1),
+	OCEAN_ADVENTURE_MEDIUM_DURATION("MEDIUM", 0.75f, 2),
+	OCEAN_ADVENTURE_LONG_DURATION("LONG", 0.7f, 3),
 	;
 
 	private final String duration;
@@ -64,11 +74,21 @@ public enum JourneyType {
 
 	public int getRandomAdventureDuration(EntityWizardInitiate wizardInitiate) {
 		// TODO: artefact to reduce duration
-		int min = this.getDurationValue() * Settings.generalSettings.MIN_ADVENTURE_DURATION_IN_TICKS;
-		int max = this.getDurationValue() * Settings.generalSettings.MAX_ADVENTURE_DURATION_IN_TICKS;
-
-		if (max > min) {
-			return wizardInitiate.world.rand.nextInt(max - min + 1) + min;
+		float modifier = wizardInitiate.isArtefactActive(AAItems.belt_explorer) ? 0.85f : 1.0f;
+		switch (duration) {
+			case "NONE":
+				int min = this.getDurationValue() * Settings.generalSettings.MIN_ADVENTURE_DURATION_IN_TICKS_SHORT;
+				int max = this.getDurationValue() * Settings.generalSettings.MAX_ADVENTURE_DURATION_IN_TICKS_SHORT;
+				if (max > min) {
+					return wizardInitiate.world.rand.nextInt(max - min + 1) + min;
+				}
+				return 0;
+			case "SHORT":
+				return 1;
+			case "MEDIUM":
+				return 2;
+			case "HARD":
+				return 3;
 		}
 		return 0;
 	}

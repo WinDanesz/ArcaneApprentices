@@ -33,6 +33,7 @@ public final class AAItems {
 	public static final Item charm_withering_atlas = placeholder();
 	public static final Item charm_golden_lure = placeholder();
 	public static final Item ring_serendipity = placeholder();
+	public static final Item amulet_survival_chance = placeholder();
 
 	@SubscribeEvent
 	public static void register(RegistryEvent.Register<Item> event) {
@@ -44,11 +45,12 @@ public final class AAItems {
 		ItemRegistry.registerItemArtefact(registry, "charm_bag_27", ApprenticeArcana.MODID, new ItemArtefactWithSlots(EnumRarity.EPIC, ItemArtefact.Type.CHARM, 3, 9, true));
 		ItemRegistry.registerItemArtefact(registry, "charm_eternal_grimoire", ApprenticeArcana.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
 		ItemRegistry.registerItemArtefact(registry, "charm_spell_compass", ApprenticeArcana.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
-		ItemRegistry.registerItemArtefact(registry, "charm_talent_detector", ApprenticeArcana.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
-		ItemRegistry.registerItemArtefact(registry, "charm_treasure_map", ApprenticeArcana.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
+//		ItemRegistry.registerItemArtefact(registry, "charm_talent_detector", ApprenticeArcana.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
+//		ItemRegistry.registerItemArtefact(registry, "charm_treasure_map", ApprenticeArcana.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
 		ItemRegistry.registerItemArtefact(registry, "charm_withering_atlas", ApprenticeArcana.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
 		ItemRegistry.registerItemArtefact(registry, "charm_golden_lure", ApprenticeArcana.MODID, new ItemArtefact(EnumRarity.RARE, ItemArtefact.Type.CHARM));
 		ItemRegistry.registerItemArtefact(registry, "ring_serendipity", ApprenticeArcana.MODID, new ItemArtefact(EnumRarity.RARE, ItemArtefact.Type.RING));
+		ItemRegistry.registerItemArtefact(registry, "amulet_survival_chance", ApprenticeArcana.MODID, new ItemArtefact(EnumRarity.RARE, ItemArtefact.Type.AMULET));
 	}
 
 	@Nonnull

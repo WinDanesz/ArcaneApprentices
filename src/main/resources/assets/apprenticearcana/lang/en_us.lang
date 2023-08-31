@@ -337,7 +337,7 @@ tooltip.apprenticearcana:artefact_not_usable_by_npcs=Not usable by apprentice wi
 info.apprenticearcana:reached_apprentice_cap=You've already reached your maximum apprentice cap!
 info.apprenticearcana:apprentice_will_respawn_at_bed=%s died, but will respawn at your bed the next time you sleep
 gui.apprenticearcana:dismiss_wizard_confirmation=Are you sure you want to send %1$s away FOREVER? %1$s will no longer be your apprentice, and teleport away to live his own life as a wizard.
-gui.apprenticearcana:wizard_journey_gui_info=Send %1$s on an journey to gather goods and gain experience. Food and mana is essential for survival in the wilderness.
+gui.apprenticearcana:wizard_journey_gui_info=Embark %1$s on a journey to gather goods and acquire experience. Food and mana are essential for wilderness survival. Journeys come with their own dangers, so keep an eye on your novice's survival %% chance displayed at the bottom of this screen. The following factors affect survival: journey duration, armor, armor toughness, current level, number of known spells, current health %%, and maximum health.
 gui.apprenticearcana:dismiss_wizard_type_name=Type in the name of %s to dismiss him
 gui.apprenticearcana:confirm_button=Confirm
 gui.apprenticearcana:cancel_button=Cancel
@@ -391,7 +391,7 @@ item.apprenticearcana:charm_treasure_map.desc=Unlocks the Treasure Hunting journ
 item.apprenticearcana:belt_strength.name=Belt of Strength
 item.apprenticearcana:belt_strength.desc=Allows an apprentice wizard to access all of his inventory slots regardless of his current level
 item.apprenticearcana:belt_explorer.name=Explorer's Belt
-item.apprenticearcana:belt_explorer.desc=TODO
+item.apprenticearcana:belt_explorer.desc=Reduces the time an apprentice's journey takes by 15%%
 item.apprenticearcana:charm_spell_compass.name=Spellseeker's Compass
 item.apprenticearcana:charm_spell_compass.desc=Unlocks the Spell hunt journey type for apprentice wizards
 item.apprenticearcana:charm_eternal_grimoire.name=Netherius' Eternal Grimoire
@@ -406,4 +406,7 @@ item.apprenticearcana:ring_serendipity.name=Ring of Serendipity
 item.apprenticearcana:ring_serendipity.desc=Apprentice wizards can find more loot during journeys
 item.apprenticearcana:head_identification.name=Cognizance Circlet
 item.apprenticearcana:head_identification.desc=Grants 15%% chance to not consume a Scroll of Identification on use. Apprentice wizards can identify spells up to advanced tier and identification is 30%% faster
+item.apprenticearcana:amulet_survival_chance.name=Zandar's Amulet of Warding
+item.apprenticearcana:amulet_survival_chance.desc=Increases survival chance of apprentices during journeys by 15%%
+
 

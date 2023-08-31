@@ -4,6 +4,7 @@ import com.windanesz.apprenticearcana.ApprenticeArcana;
 import com.windanesz.apprenticearcana.Settings;
 import com.windanesz.apprenticearcana.data.JourneyType;
 import com.windanesz.apprenticearcana.entity.living.EntityWizardInitiate;
+import com.windanesz.apprenticearcana.registry.AAItems;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.util.math.MathHelper;
@@ -18,6 +19,7 @@ public class JourneySurvivalHandler {
 	private double currentHealthPercent;
 	private double maxHealth;
 	private JourneyType journey;
+	private EntityWizardInitiate wizard;
 
 	private static final float DEFAULT_SURVIVAL_CHANCE = 0.5f;
 
@@ -30,6 +32,7 @@ public class JourneySurvivalHandler {
 		this.currentHealthPercent = wizard.getHealth() / wizard.getMaxHealth();
 		this.maxHealth = wizard.getMaxHealth();
 		this.journey = journey;
+		this.wizard = wizard;
 	}
 
 	public float calculateSurvivalChance() {
@@ -44,7 +47,9 @@ public class JourneySurvivalHandler {
 		survivalChance += ((float) numKnownSpells / Settings.generalSettings.MAX_WIZARD_SPELL_SLOTS) * 0.08;
 		survivalChance += ((currentHealthPercent) * 0.8) * 0.15;
 		survivalChance += ((maxHealth) * 0.3) * 0.01;
-
+		if (wizard.isArtefactActive(AAItems.amulet_survival_chance)) {
+			survivalChance *= 1.15f;
+		}
 
 		// Cap survivalChance between 0 and 1
 		survivalChance = (float) Math.max(0.0, Math.min(1.0, survivalChance));
