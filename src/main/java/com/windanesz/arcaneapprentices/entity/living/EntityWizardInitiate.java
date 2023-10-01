@@ -964,12 +964,12 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 			if (requirement1 != null && !advancements.getProgress(requirement1).isDone() || requirement2 != null && !advancements.getProgress(requirement2).isDone()) {
 				sayImmediately(player, new TextComponentTranslation(Speech.PLAYER_GIVES_HANDBOOK_WITHOUT_REQUIREMENTS.getRandom(), player.getDisplayName()));
 				AAAdvancementTriggers.no_requirements_met.triggerFor(player);
-			} else if (PlayerData.addApprenticeForPlayer(player, this)) {
-				AAAdvancementTriggers.take_apprentice.triggerFor(player);
+			} else if (PlayerData.addApprenticeForPlayer(player, this) || PlayerData.getApprentices(player).stream().anyMatch(a -> a.equals(this.getUniqueID()))) {
 				sayImmediately(player, new TextComponentTranslation(Speech.PLAYER_GIVES_HANDBOOK.getRandom(), player.getDisplayName()));
 				this.setOwner(player);
 				this.setHome(new Location(this.getPos(), this.dimension));
 				setTask(Task.FOLLOW);
+				//	AAAdvancementTriggers.take_apprentice.triggerFor(player);
 				return true;
 			} else {
 				// reached apprentice cap

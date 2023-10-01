@@ -1,8 +1,10 @@
 package com.windanesz.arcaneapprentices.packet;
 
 import com.windanesz.arcaneapprentices.ArcaneApprentices;
+import com.windanesz.arcaneapprentices.Utils;
 import com.windanesz.arcaneapprentices.client.gui.AAGuiHandler;
 import com.windanesz.arcaneapprentices.data.JourneyType;
+import com.windanesz.arcaneapprentices.data.PlayerData;
 import com.windanesz.arcaneapprentices.data.Speech;
 import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
 import com.windanesz.arcaneapprentices.handler.JourneySurvivalHandler;
@@ -12,10 +14,14 @@ import electroblob.wizardry.spell.Spell;
 import electroblob.wizardry.util.Location;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <b>[Client -> Server]</b> This packet is for control events such as buttons in GUIs and key presses.
@@ -152,6 +158,24 @@ public class PacketControlInput implements IMessageHandler<PacketControlInput.Me
 								wizard.setJourneyType(message.journeyType);
 								wizard.goOnJourney();
 							}
+							player.closeScreen();
+						}
+
+						break;
+
+					case DISMISS_WIZARD_BUTTON:
+
+						if (player.openContainer instanceof ContainerWizardBase) {
+							List<ItemStack> stackList = new ArrayList<>();
+							EntityWizardInitiate wizard = ((ContainerWizardBase) player.openContainer).getWizard();
+							for (int i = 0; i < wizard.inventory.getSizeInventory(); i++) {
+								stackList.add(wizard.inventory.getStackInSlot(i).copy());
+							}
+							for (ItemStack stack : stackList) {
+								Utils.giveStackToPlayer(player, stack);
+							}
+							PlayerData.removeApprentice(player, wizard);
+							player.world.removeEntityDangerously(wizard);
 							player.closeScreen();
 						}
 
