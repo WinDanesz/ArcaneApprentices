@@ -19,25 +19,25 @@ public class PlayerData {
 	// For some reason 'the diamond' doesn't work if I chain methods onto this. Type inference is weird.
 	public static final IStoredVariable<List<UUID>> WIZARD_APPRENTICES = new IStoredVariable.StoredVariable<>("wizardApprentices",
 			s -> NBTExtras.listToNBT(s, NBTUtil::createUUIDTag),
-			// For some reason gradle screams at me unless I explicitly declare the type of t here, despite IntelliJ being fine without it
+			// For some reason gradle screams at me unless I explicitly declare the type of there, despite IntelliJ being fine without it
 			(NBTTagList t) -> new ArrayList<>(NBTExtras.NBTToList(t, NBTUtil::getUUIDFromTag)),
 			Persistence.ALWAYS);
 
 	// For some reason 'the diamond' doesn't work if I chain methods onto this. Type inference is weird.
 	public static final IStoredVariable<List<UUID>> CURRENT_PARTY = new IStoredVariable.StoredVariable<>("currentApprenticeParty",
 			s -> NBTExtras.listToNBT(s, NBTUtil::createUUIDTag),
-			// For some reason gradle screams at me unless I explicitly declare the type of t here, despite IntelliJ being fine without it
+			// For some reason gradle screams at me unless I explicitly declare the type of there, despite IntelliJ being fine without it
 			(NBTTagList t) -> new ArrayList<>(NBTExtras.NBTToList(t, NBTUtil::getUUIDFromTag)),
 			Persistence.ALWAYS);
 
 	public static final IStoredVariable<List<StoredEntity>> DEAD_APPRENTICES = new IStoredVariable.StoredVariable<List<StoredEntity>, NBTTagList>("deadApprentices",
-			s -> NBTExtras.listToNBT(s, StoredEntity::toNBT), t -> new ArrayList<>(NBTExtras.NBTToList(t, StoredEntity::fromNBT)), Persistence.ALWAYS);
+			s -> NBTExtras.listToNBT(s, StoredEntity::toNBT), t -> new ArrayList<>(NBTExtras.NBTToList(t, StoredEntity::fromNBT)), Persistence.ALWAYS).setSynced();
 
 	public static final IStoredVariable<List<StoredEntity>> ADVENTURING_APPRENTICES = new IStoredVariable.StoredVariable<List<StoredEntity>, NBTTagList>("adventuringApprentices",
-			s -> NBTExtras.listToNBT(s, StoredEntity::toNBT), t -> new ArrayList<>(NBTExtras.NBTToList(t, StoredEntity::fromNBT)), Persistence.ALWAYS);
+			s -> NBTExtras.listToNBT(s, StoredEntity::toNBT), t -> new ArrayList<>(NBTExtras.NBTToList(t, StoredEntity::fromNBT)), Persistence.ALWAYS).setSynced();
 
 	public static final IStoredVariable<List<StoredEntity>> PENDING_HOME_APPRENTICES = new IStoredVariable.StoredVariable<List<StoredEntity>, NBTTagList>("pendingHomeApprentices",
-			s -> NBTExtras.listToNBT(s, StoredEntity::toNBT), t -> new ArrayList<>(NBTExtras.NBTToList(t, StoredEntity::fromNBT)), Persistence.ALWAYS);
+			s -> NBTExtras.listToNBT(s, StoredEntity::toNBT), t -> new ArrayList<>(NBTExtras.NBTToList(t, StoredEntity::fromNBT)), Persistence.ALWAYS).setSynced();
 
 	// no instances!
 	private PlayerData() {}
@@ -166,12 +166,27 @@ public class PlayerData {
 
 	public static boolean storeAdventuringApprentice(EntityPlayer player, EntityLivingBase entity) {
 		WizardData data = WizardData.get(player);
-		List<StoredEntity> list = getDeadApprentices(player);
+		List<StoredEntity> list = getAdventuringApprentices(player);
 		StoredEntity entityToStore = new StoredEntity(entity);
 
 		if (!list.contains(entityToStore)) {
 			list.add(entityToStore);
 			data.setVariable(ADVENTURING_APPRENTICES, list);
+			data.sync();
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean storeAdventuringApprentice(EntityPlayer player, StoredEntity entityToStore) {
+		WizardData data = WizardData.get(player);
+		List<StoredEntity> list = getAdventuringApprentices(player);
+
+		if (!list.contains(entityToStore)) {
+			list.add(entityToStore);
+			data.setVariable(ADVENTURING_APPRENTICES, list);
+			data.sync();
 			return true;
 		}
 
@@ -180,7 +195,7 @@ public class PlayerData {
 
 	public static boolean storePendingHomeApprentice(EntityPlayer player, EntityLivingBase entity) {
 		WizardData data = WizardData.get(player);
-		List<StoredEntity> list = getDeadApprentices(player);
+		List<StoredEntity> list = getPendingHomeApprentices(player);
 		StoredEntity entityToStore = new StoredEntity(entity);
 
 		if (!list.contains(entityToStore)) {
@@ -226,6 +241,7 @@ public class PlayerData {
 		if (index != -1) {
 			list.remove(index);
 			data.setVariable(ADVENTURING_APPRENTICES, list);
+			data.sync();
 			return true;
 		}
 
@@ -246,6 +262,7 @@ public class PlayerData {
 		if (index != -1) {
 			list.remove(index);
 			data.setVariable(PENDING_HOME_APPRENTICES, list);
+			data.sync();
 			return true;
 		}
 

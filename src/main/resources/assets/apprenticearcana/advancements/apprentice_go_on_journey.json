@@ -1,0 +1,19 @@
+{
+    "display": {
+        "icon": {
+            "item": "minecraft:map"
+        },
+        "title": {
+            "translate": "advancement.apprenticearcana:apprentice_go_on_journey"
+        },
+        "description": {
+            "translate": "advancement.apprenticearcana:apprentice_go_on_journey.desc"
+        }
+    },
+    "parent": "apprenticearcana:take_apprentice",
+    "criteria": {
+        "criteria_0": {
+            "trigger": "apprenticearcana:apprentice_go_on_journey"
+        }
+    }
+}

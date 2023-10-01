@@ -1,6 +1,7 @@
 package com.windanesz.apprenticearcana.client.gui;
 
 import com.windanesz.apprenticearcana.entity.living.EntityWizardInitiate;
+import com.windanesz.apprenticearcana.inventory.ContainerCharmItinerary;
 import com.windanesz.apprenticearcana.inventory.ContainerInventoryInItemStack;
 import com.windanesz.apprenticearcana.inventory.ContainerWizardInfo;
 import com.windanesz.apprenticearcana.inventory.ContainerWizardInitiateInventory;
@@ -27,6 +28,7 @@ public class AAGuiHandler implements IGuiHandler {
 	public static final int WIZARD_DISMISS_CONFIRM_GUI = nextGuiId++;
 	public static final int WIZARD_ADVENTURING_GUI = nextGuiId++;
 	public static final int ARTEFACT_BAG_GUI = nextGuiId++;
+	public static final int ARTEFACT_ITINERARY_GUI = nextGuiId++;
 
 	@Override
 	public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
@@ -60,6 +62,8 @@ public class AAGuiHandler implements IGuiHandler {
 				InventoryInItemStack inventory = new InventoryInItemStack("test tile", true, (IItemWithSlots) stack.getItem(), stack);
 				return new ContainerInventoryInItemStack(player.inventory, inventory, player);
 			}
+		} else if (id == ARTEFACT_ITINERARY_GUI) {
+			return new ContainerCharmItinerary();
 		}
 		return null;
 	}
@@ -90,9 +94,11 @@ public class AAGuiHandler implements IGuiHandler {
 		} else if (id == ARTEFACT_BAG_GUI) {
 			ItemStack stack = player.getHeldItem(EnumHand.values()[x]);
 			if (stack.getItem() instanceof IItemWithSlots) {
-				InventoryInItemStack inventory = new InventoryInItemStack("test tile", true, (IItemWithSlots) stack.getItem(), stack);
+				InventoryInItemStack inventory = new InventoryInItemStack("Artefact", true, (IItemWithSlots) stack.getItem(), stack);
 				return new GuiScreenInventoryInItem(inventory, player);
 			}
+		} else if (id == ARTEFACT_ITINERARY_GUI) {
+			return new GuiScreenCharmItinerary();
 		}
 		return null;
 	}

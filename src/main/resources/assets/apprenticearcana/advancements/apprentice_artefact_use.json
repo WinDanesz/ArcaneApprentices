@@ -1,0 +1,19 @@
+{
+    "display": {
+        "icon": {
+            "item": "apprenticearcana:ring_serendipity"
+        },
+        "title": {
+            "translate": "advancement.apprenticearcana:apprentice_artefact_use"
+        },
+        "description": {
+            "translate": "advancement.apprenticearcana:apprentice_artefact_use.desc"
+        }
+    },
+    "parent": "apprenticearcana:take_apprentice",
+    "criteria": {
+        "criteria_0": {
+            "trigger": "apprenticearcana:apprentice_artefact_use"
+        }
+    }
+}

@@ -73,24 +73,31 @@ public enum JourneyType {
 	}
 
 	public int getRandomAdventureDuration(EntityWizardInitiate wizardInitiate) {
-		// TODO: artefact to reduce duration
 		float modifier = wizardInitiate.isArtefactActive(AAItems.belt_explorer) ? 0.85f : 1.0f;
+		int min, max;
+
 		switch (duration) {
-			case "NONE":
-				int min = this.getDurationValue() * Settings.generalSettings.MIN_ADVENTURE_DURATION_IN_TICKS_SHORT;
-				int max = this.getDurationValue() * Settings.generalSettings.MAX_ADVENTURE_DURATION_IN_TICKS_SHORT;
-				if (max > min) {
-					return wizardInitiate.world.rand.nextInt(max - min + 1) + min;
-				}
-				return 0;
 			case "SHORT":
-				return 1;
+				min = this.getDurationValue() * Settings.generalSettings.MIN_ADVENTURE_DURATION_IN_TICKS_SHORT;
+				max = this.getDurationValue() * Settings.generalSettings.MAX_ADVENTURE_DURATION_IN_TICKS_SHORT;
+				break;
 			case "MEDIUM":
-				return 2;
-			case "HARD":
-				return 3;
+				min = this.getDurationValue() * Settings.generalSettings.MIN_ADVENTURE_DURATION_IN_TICKS_MEDIUM;
+				max = this.getDurationValue() * Settings.generalSettings.MAX_ADVENTURE_DURATION_IN_TICKS_MEDIUM;
+				break;
+			case "LONG":
+				min = this.getDurationValue() * Settings.generalSettings.MIN_ADVENTURE_DURATION_IN_TICKS_LONG;
+				max = this.getDurationValue() * Settings.generalSettings.MAX_ADVENTURE_DURATION_IN_TICKS_LONG;
+				break;
+			default:
+				return 0;
 		}
-		return 0;
+
+		if (max > min) {
+			return (int) ((wizardInitiate.world.rand.nextInt(max - min + 1) + min) * modifier);
+		}
+
+		return min;
 	}
 
 	public ResourceLocation getLootTable() {

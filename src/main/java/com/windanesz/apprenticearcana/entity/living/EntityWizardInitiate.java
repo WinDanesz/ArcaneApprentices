@@ -26,6 +26,7 @@ import com.windanesz.apprenticearcana.handler.XpProgression;
 import com.windanesz.apprenticearcana.inventory.ContainerWizardInitiateInventory;
 import com.windanesz.apprenticearcana.inventory.ContainerWizardInventory;
 import com.windanesz.apprenticearcana.items.ItemArtefactWithSlots;
+import com.windanesz.apprenticearcana.registry.AAAdvancementTriggers;
 import com.windanesz.apprenticearcana.registry.AAItems;
 import com.windanesz.apprenticearcana.registry.LootRegistry;
 import com.windanesz.wizardryutils.tools.WizardryUtilsTools;
@@ -46,7 +47,6 @@ import electroblob.wizardry.util.EntityUtils;
 import electroblob.wizardry.util.InventoryUtils;
 import electroblob.wizardry.util.Location;
 import electroblob.wizardry.util.NBTExtras;
-import electroblob.wizardry.util.ParticleBuilder;
 import electroblob.wizardry.util.SpellModifiers;
 import electroblob.wizardry.util.WandHelper;
 import io.netty.buffer.ByteBuf;
@@ -196,8 +196,10 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 			Speech.WIZARD_GOING_ON_JOURNEY.say(this);
 			consumeFoodForJourney();
 			consumeManaForJourney();
+			adventureRemainingDuration = journeyType.getRandomAdventureDuration(this);
 			if (PlayerData.storeAdventuringApprentice((EntityPlayer) this.getOwner(), this)) {
 				world.removeEntity(this);
+				AAAdvancementTriggers.apprentice_go_on_journey.triggerFor((EntityPlayer) getOwner());
 			}
 		}
 	}
@@ -961,7 +963,9 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 			PlayerAdvancements advancements = ((EntityPlayerMP) player).getAdvancements();
 			if (requirement1 != null && !advancements.getProgress(requirement1).isDone() || requirement2 != null && !advancements.getProgress(requirement2).isDone()) {
 				sayImmediately(player, new TextComponentTranslation(Speech.PLAYER_GIVES_HANDBOOK_WITHOUT_REQUIREMENTS.getRandom(), player.getDisplayName()));
+				AAAdvancementTriggers.no_requirements_met.triggerFor(player);
 			} else if (PlayerData.addApprenticeForPlayer(player, this)) {
+				AAAdvancementTriggers.take_apprentice.triggerFor(player);
 				sayImmediately(player, new TextComponentTranslation(Speech.PLAYER_GIVES_HANDBOOK.getRandom(), player.getDisplayName()));
 				this.setOwner(player);
 				this.setHome(new Location(this.getPos(), this.dimension));
@@ -1144,7 +1148,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, IEntityLivingData livingdata) {
 		livingdata = super.onInitialSpawn(difficulty, livingdata);
 		this.setCustomNameTag(Utils.generateWizardName(world));
-		this.textureIndex = this.rand.nextInt(1);
+		this.textureIndex = this.rand.nextInt(2);
 		if (this.rand.nextBoolean()) {
 			this.setElement(Element.values()[this.rand.nextInt(Element.values().length - 1) + 1]);
 		} else {
@@ -1348,12 +1352,20 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 
 	public void learnSpell(Spell spell) {
 		if (!isSpellKnown(spell)) {
+			if (getOwner() instanceof EntityPlayer) {
+				AAAdvancementTriggers.apprentice_learn_spell.triggerFor((EntityPlayer) getOwner());
+			}
 			List<Spell> spells = getSpells();
 			spells.add(spell);
 			NBTTagCompound newSpellNbt = new NBTTagCompound();
 			NBTExtras.storeTagSafely(newSpellNbt, "spells", NBTExtras.listToNBT(spells, s -> new NBTTagInt(s.metadata())));
 			setSpellCompound(newSpellNbt);
 			this.resetStudyProgress();
+		}
+		if (getSpells().size() == Settings.generalSettings.MAX_WIZARD_SPELL_SLOTS) {
+			if (getOwner() instanceof EntityPlayer) {
+				AAAdvancementTriggers.apprentice_learn_max_spell.triggerFor((EntityPlayer) getOwner());
+			}
 		}
 	}
 
@@ -1459,6 +1471,14 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		this.dataManager.set(XP, newAmount);
 		if (newAmount >= xpForNewLevel && getLevel() < XpProgression.getMaxLevel()) {
 			// level up
+			if (getOwner() instanceof EntityPlayer) {
+				AAAdvancementTriggers.apprentice_levels_up.triggerFor((EntityPlayer) getOwner());
+			}
+			if (getLevel() + 1 == XpProgression.getMaxLevel()) {
+				if (getOwner() instanceof EntityPlayer) {
+					AAAdvancementTriggers.apprentice_max_level.triggerFor((EntityPlayer) getOwner());
+				}
+			}
 			setLevel(getLevel() + 1);
 			sayImmediately(new TextComponentTranslation(Speech.LEVEL_UP.getRandom()));
 			this.world.playSound(null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_PLAYER_LEVELUP, this.getSoundCategory(), 0.75F, 1.0F);
@@ -1524,6 +1544,9 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		}
 
 		Speech.WIZARD_RETURNED_FROM_JOURNEY.say(this);
+		if (getOwner() instanceof EntityPlayer) {
+			AAAdvancementTriggers.apprentice_returns_from_journey.triggerFor((EntityPlayer) getOwner());
+		}
 		this.getNavigator().tryMoveToEntityLiving(this.getOwner(), 0.7);
 	}
 

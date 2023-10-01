@@ -3,11 +3,13 @@ package com.windanesz.apprenticearcana;
 import com.windanesz.apprenticearcana.client.gui.AAGuiHandler;
 import com.windanesz.apprenticearcana.data.PlayerData;
 import com.windanesz.apprenticearcana.packet.AAPacketHandler;
+import com.windanesz.apprenticearcana.registry.AAAdvancementTriggers;
 import com.windanesz.apprenticearcana.registry.BlockRegistry;
 import com.windanesz.apprenticearcana.registry.LootRegistry;
 import com.windanesz.apprenticearcana.village.StructureWizardHouse;
 import com.windanesz.wizardryutils.registry.ItemModelRegistry;
 import electroblob.wizardry.api.WizardryEnumHelper;
+import electroblob.wizardry.registry.WizardryAdvancementTriggers;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -51,6 +53,7 @@ public class ApprenticeArcana {
 		logger = event.getModLog();
 		proxy.registerRenderers();
 		LootRegistry.preInit();
+		AAAdvancementTriggers.register();
 	}
 
 	@EventHandler

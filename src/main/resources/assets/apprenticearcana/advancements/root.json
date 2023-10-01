@@ -1,0 +1,29 @@
+{
+    "display": {
+        "title": {
+            "translate": "advancement.apprenticearcana:root"
+        },
+        "description": {
+            "translate": "advancement.apprenticearcana:root.desc"
+        },
+        "show_toast": false,
+        "announce_to_chat": false,
+        "background": "ebwizardry:textures/gui/advancement_background.png",
+        "icon": {
+            "item": "apprenticearcana:amulet_survival_chance"
+        }
+    },
+    "criteria": {
+        "criteria_0": {
+            "trigger": "ebwizardry:discover_spell",
+            "conditions": {
+                "spell": {
+                    "tiers": [
+                        "master"
+                    ]
+                },
+                "source": "casting"
+            }
+        }
+    }
+}

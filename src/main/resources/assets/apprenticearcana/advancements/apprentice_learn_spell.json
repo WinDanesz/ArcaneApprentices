@@ -1,0 +1,19 @@
+{
+    "display": {
+        "icon": {
+            "item": "ebwizardry:spell_book"
+        },
+        "title": {
+            "translate": "advancement.apprenticearcana:apprentice_learn_spell"
+        },
+        "description": {
+            "translate": "advancement.apprenticearcana:apprentice_learn_spell.desc"
+        }
+    },
+    "parent": "apprenticearcana:take_apprentice",
+    "criteria": {
+        "criteria_0": {
+            "trigger": "apprenticearcana:take_apprentice"
+        }
+    }
+}

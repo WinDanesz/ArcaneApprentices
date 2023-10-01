@@ -1,14 +1,12 @@
 package com.windanesz.apprenticearcana.handler;
 
 import com.google.common.collect.Streams;
-import com.windanesz.apprenticearcana.ApprenticeArcana;
 import com.windanesz.apprenticearcana.Settings;
 import com.windanesz.apprenticearcana.Utils;
 import com.windanesz.apprenticearcana.data.PlayerData;
 import com.windanesz.apprenticearcana.data.Speech;
 import com.windanesz.apprenticearcana.data.StoredEntity;
 import com.windanesz.apprenticearcana.entity.living.EntityWizardInitiate;
-import electroblob.wizardry.Wizardry;
 import electroblob.wizardry.constants.Constants;
 import electroblob.wizardry.constants.Element;
 import electroblob.wizardry.data.WizardData;
@@ -44,13 +42,11 @@ import electroblob.wizardry.util.AllyDesignationSystem;
 import electroblob.wizardry.util.BlockUtils;
 import electroblob.wizardry.util.EntityUtils;
 import electroblob.wizardry.util.IElementalDamage;
-import electroblob.wizardry.util.InventoryUtils;
 import electroblob.wizardry.util.Location;
 import electroblob.wizardry.util.MagicDamage;
 import electroblob.wizardry.util.ParticleBuilder;
 import electroblob.wizardry.util.SpellModifiers;
 import electroblob.wizardry.util.WandHelper;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -60,22 +56,15 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.structure.MapGenStructureIO;
-import net.minecraft.world.storage.loot.LootContext;
-import net.minecraft.world.storage.loot.LootTable;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.PotionEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
-import net.minecraftforge.event.terraingen.InitMapGenEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -87,6 +76,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -746,6 +736,9 @@ public final class EventHandler {
 
 	@SubscribeEvent
 	public static void onPlayerTickEvent(TickEvent.PlayerTickEvent event) {
+		if (event.phase != TickEvent.Phase.END) {
+			return; // Only process at the end of the tick phase
+		}
 
 		if (!event.player.world.isRemote && event.player.ticksExisted % 61 == 0) {
 
@@ -784,36 +777,45 @@ public final class EventHandler {
 			}
 		}
 
-		if (!event.player.world.isRemote && event.player.ticksExisted % 55 == 0) {
+		int tickRate = 55;
+		if (!event.player.world.isRemote && event.player.ticksExisted % tickRate == 0) {
 			List<StoredEntity> list = PlayerData.getAdventuringApprentices(event.player);
 			if (!list.isEmpty()) {
 
-				List<UUID> respawnedEntities = new ArrayList();
+				List<UUID> respawnedEntities = new ArrayList<>();
+				List<UUID> updatedEntities = new ArrayList<>();
 
 				for (StoredEntity entity : list) {
 					World world = event.player.world;
 
-					if (entity.getNbtTagCompound().hasKey("HomePos")) {
-						Location homePos = Location.fromNBT(entity.getNbtTagCompound().getCompoundTag("HomePos"));
-						if (event.player.dimension == homePos.dimension && event.player.world.isBlockLoaded(homePos.pos) && event.player.getDistance(homePos.pos.getX(), homePos.pos.getY(), homePos.pos.getZ()) < 12) {
+					if (entity.getNbtTagCompound().hasKey("HomePos") && entity.getNbtTagCompound().hasKey("AdventureRemainingDuration")) {
 
-							BlockPos pos = BlockUtils.findNearbyFloorSpace(event.player.world, homePos.pos, 3, 3);
-							Arrays.asList("CurrentStayPos", "Motion", "Leashed", "ActiveEffects", "FallDistance", "HurtTime", "Fire")
-									.forEach(tag -> entity.getNbtTagCompound().removeTag(tag));
+						int remainingCountdown = entity.getNbtTagCompound().getInteger("AdventureRemainingDuration");
+						if (remainingCountdown > tickRate) {
+							updatedEntities.add(entity.getNbtTagCompound().getUniqueId("UUID"));
+						} else {
 
-							if (pos != null) {
-								Entity mob = EntityList.createEntityFromNBT(entity.getNbtTagCompound(), world);
-								if (mob instanceof EntityLivingBase) {
-									mob.setPosition(pos.getX() + 0.5f, pos.getY(), pos.getZ() + 0.5f);
-									if (world.spawnEntity(mob)) {
-										respawnedEntities.add(mob.getUniqueID());
-										if (mob instanceof EntityWizardInitiate) {
-											EntityWizardInitiate wizard = (EntityWizardInitiate) mob;
-											wizard.returnFromAdventuring();
+							Location homePos = Location.fromNBT(entity.getNbtTagCompound().getCompoundTag("HomePos"));
+							if (event.player.dimension == homePos.dimension && event.player.world.isBlockLoaded(homePos.pos) && event.player.getDistance(homePos.pos.getX(), homePos.pos.getY(), homePos.pos.getZ()) < 12) {
 
+								BlockPos pos = BlockUtils.findNearbyFloorSpace(event.player.world, homePos.pos, 3, 3);
+								Arrays.asList("CurrentStayPos", "Motion", "Leashed", "ActiveEffects", "FallDistance", "HurtTime", "Fire")
+										.forEach(tag -> entity.getNbtTagCompound().removeTag(tag));
+
+								if (pos != null) {
+									Entity mob = EntityList.createEntityFromNBT(entity.getNbtTagCompound(), world);
+									if (mob instanceof EntityLivingBase) {
+										mob.setPosition(pos.getX() + 0.5f, pos.getY(), pos.getZ() + 0.5f);
+										if (world.spawnEntity(mob)) {
+											respawnedEntities.add(mob.getUniqueID());
+											if (mob instanceof EntityWizardInitiate) {
+												EntityWizardInitiate wizard = (EntityWizardInitiate) mob;
+												wizard.returnFromAdventuring();
+
+											}
 										}
+										respawnedEntities.add(mob.getUniqueID());
 									}
-									respawnedEntities.add(mob.getUniqueID());
 								}
 							}
 						}
@@ -823,7 +825,49 @@ public final class EventHandler {
 				for (UUID uuid : respawnedEntities) {
 					PlayerData.removeAdventuringApprentice(event.player, uuid);
 				}
+
+				// Loop through the updatedEntities list, which contains UUIDs of apprentices that need updating.
+				for (UUID uuid : updatedEntities) {
+					// Get the list of adventuring apprentices for the current player.
+					List<StoredEntity> list2 = PlayerData.getAdventuringApprentices(event.player);
+
+					boolean entityUpdated = false;
+
+					for (int i = 0; i < list2.size(); i++) {
+						StoredEntity entity = list2.get(i);
+
+						// Check if the UUID of the current entity matches the one we're updating.
+						if (Objects.equals(entity.getNbtTagCompound().getUniqueId("UUID"), uuid)) {
+							// Only update the entity once to avoid multiple updates for the same UUID.
+							if (!entityUpdated) {
+								// Get the remaining adventure duration for the entity.
+								int remainingCountdown = entity.getNbtTagCompound().getInteger("AdventureRemainingDuration");
+
+								// Decrease the remaining duration by the tickRate.
+								remainingCountdown -= tickRate;
+
+								// Update the entity's remaining adventure duration.
+								entity.getNbtTagCompound().setInteger("AdventureRemainingDuration", remainingCountdown);
+
+								// Remove the apprentice from the adventuring list.
+								PlayerData.removeAdventuringApprentice(event.player, uuid);
+
+								// Store the updated apprentice back into the adventuring list.
+								PlayerData.storeAdventuringApprentice(event.player, entity);
+
+								entityUpdated = true;
+							}
+						}
+					}
+				}
+
 			}
 		}
+	}
+
+	private static void handlePendingHomeApprentices(EntityPlayer player) {
+	}
+
+	private static void handleAdventuringApprentices(EntityPlayer player, int tickRate) {
 	}
 }

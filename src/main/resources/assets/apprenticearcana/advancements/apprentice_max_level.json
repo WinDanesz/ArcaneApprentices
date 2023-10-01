@@ -1,0 +1,19 @@
+{
+    "display": {
+        "icon": {
+            "item": "ebwizardry:master_wand"
+        },
+        "title": {
+            "translate": "advancement.apprenticearcana:apprentice_max_level"
+        },
+        "description": {
+            "translate": "advancement.apprenticearcana:apprentice_max_level.desc"
+        }
+    },
+    "parent": "apprenticearcana:apprentice_levels_up",
+    "criteria": {
+        "criteria_0": {
+            "trigger": "apprenticearcana:apprentice_max_level"
+        }
+    }
+}

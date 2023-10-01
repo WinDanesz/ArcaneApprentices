@@ -3,6 +3,7 @@ package com.windanesz.apprenticearcana.registry;
 import com.windanesz.apprenticearcana.ApprenticeArcana;
 import com.windanesz.apprenticearcana.items.ItemArtefactWithAttributeModifier;
 import com.windanesz.apprenticearcana.items.ItemArtefactWithSlots;
+import com.windanesz.apprenticearcana.items.ItemCharmItinerary;
 import com.windanesz.wizardryutils.registry.ItemRegistry;
 import electroblob.wizardry.item.ItemArtefact;
 import net.minecraft.item.EnumRarity;
@@ -32,6 +33,7 @@ public final class AAItems {
 	public static final Item charm_treasure_map = placeholder();
 	public static final Item charm_withering_atlas = placeholder();
 	public static final Item charm_golden_lure = placeholder();
+	public static final Item charm_itinerary = placeholder();
 	public static final Item ring_serendipity = placeholder();
 	public static final Item amulet_survival_chance = placeholder();
 
@@ -45,6 +47,7 @@ public final class AAItems {
 		ItemRegistry.registerItemArtefact(registry, "charm_bag_27", ApprenticeArcana.MODID, new ItemArtefactWithSlots(EnumRarity.EPIC, ItemArtefact.Type.CHARM, 3, 9, true));
 		ItemRegistry.registerItemArtefact(registry, "charm_eternal_grimoire", ApprenticeArcana.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
 		ItemRegistry.registerItemArtefact(registry, "charm_spell_compass", ApprenticeArcana.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
+		ItemRegistry.registerItemArtefact(registry, "charm_itinerary", ApprenticeArcana.MODID, new ItemCharmItinerary(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
 //		ItemRegistry.registerItemArtefact(registry, "charm_talent_detector", ApprenticeArcana.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
 //		ItemRegistry.registerItemArtefact(registry, "charm_treasure_map", ApprenticeArcana.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
 		ItemRegistry.registerItemArtefact(registry, "charm_withering_atlas", ApprenticeArcana.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));

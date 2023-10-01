@@ -1,0 +1,19 @@
+{
+    "display": {
+        "icon": {
+            "item": "ebwizardry:arcane_tome"
+        },
+        "title": {
+            "translate": "advancement.apprenticearcana:apprentice_learn_max_spell"
+        },
+        "description": {
+            "translate": "advancement.apprenticearcana:apprentice_learn_max_spell.desc"
+        }
+    },
+    "parent": "apprenticearcana:apprentice_learn_spell",
+    "criteria": {
+        "criteria_0": {
+            "trigger": "apprenticearcana:apprentice_learn_max_spell"
+        }
+    }
+}

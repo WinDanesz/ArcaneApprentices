@@ -504,11 +504,11 @@ public class Settings {
 
 		@Config.Name("Max Adventure Duration In Ticks (short journeys)")
 		@Config.Comment("Determines the maximum duration an NPC can spend in an adventure before it returns.")
-		public int MAX_ADVENTURE_DURATION_IN_TICKS_SHORT = 6000;
+		public int MAX_ADVENTURE_DURATION_IN_TICKS_SHORT = 18000;
 
 		@Config.Name("Min Adventure Duration In Ticks (short journeys)")
 		@Config.Comment("Determines the minimum duration an NPC must spend in an adventure before it returns.")
-		public int MIN_ADVENTURE_DURATION_IN_TICKS_SHORT = 18000;
+		public int MIN_ADVENTURE_DURATION_IN_TICKS_SHORT = 6000;
 
 		@Config.Name("Max Adventure Duration In Ticks (medium journeys)")
 		@Config.Comment("Determines the maximum duration an NPC can spend in an adventure before it returns.")
@@ -520,11 +520,11 @@ public class Settings {
 
 		@Config.Name("Max Adventure Duration In Ticks (long journeys)")
 		@Config.Comment("Determines the maximum duration an NPC can spend in an adventure before it returns.")
-		public int MAX_ADVENTURE_DURATION_IN_TICKS_LONG = 54000;
+		public int MAX_ADVENTURE_DURATION_IN_TICKS_LONG = 81000;
 
 		@Config.Name("Min Adventure Duration In Ticks (long journeys)")
 		@Config.Comment("Determines the minimum duration an NPC must spend in an adventure before it returns.")
-		public int MIN_ADVENTURE_DURATION_IN_TICKS_LONG = 81000;
+		public int MIN_ADVENTURE_DURATION_IN_TICKS_LONG = 54000;
 
 		@Config.Name("NPC Spell Study Time Modifier")
 		@Config.Comment("The higher the number, the longer it takes to learn a spell (as a math exponent)"
