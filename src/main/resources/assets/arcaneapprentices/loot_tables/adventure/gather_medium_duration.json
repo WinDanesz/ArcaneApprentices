@@ -1,0 +1,36 @@
+{
+    "pools": [
+        {
+            "name": "main",
+            "rolls": {
+                "min": 2,
+                "max": 11
+            },
+            "entries": [
+                {
+                    "type": "loot_table",
+                    "name": "arcaneapprentices:subsets/random_items_multiple"
+                }
+            ]
+        },
+        {
+            "name": "animal_drops",
+            "rolls": {
+                "min": 0,
+                "max": 4
+            },
+            "entries": [
+                {
+                    "type": "loot_table",
+                    "name": "arcaneapprentices:subsets/animal_drops",
+                    "weight": 3
+                },
+                {
+                    "type": "loot_table",
+                    "name": "arcaneapprentices:subsets/mob_drops",
+                    "weight": 1
+                }
+            ]
+        }
+    ]
+}

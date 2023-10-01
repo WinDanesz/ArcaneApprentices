@@ -1,0 +1,19 @@
+{
+    "display": {
+        "icon": {
+            "item": "minecraft:compass"
+        },
+        "title": {
+            "translate": "advancement.arcaneapprentices:apprentice_returns_from_journey"
+        },
+        "description": {
+            "translate": "advancement.arcaneapprentices:apprentice_returns_from_journey.desc"
+        }
+    },
+    "parent": "arcaneapprentices:apprentice_go_on_journey",
+    "criteria": {
+        "criteria_0": {
+            "trigger": "arcaneapprentices:apprentice_returns_from_journey"
+        }
+    }
+}

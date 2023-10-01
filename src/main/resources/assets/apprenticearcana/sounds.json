@@ -1,5 +1,0 @@
-{
-    "entity.light_wisp.noise": 	{"category": "hostile", "sounds": ["apprenticearcana:light_wisp_noise"]},
-    "entity.light_wisp.hurt": 		{"category": "hostile", "sounds": ["apprenticearcana:light_wisp_hit"]},
-    "entity.radiant_spark.hit": 	{"category": "hostile", "sounds": ["apprenticearcana:radiant_spark_hit"]}
-}

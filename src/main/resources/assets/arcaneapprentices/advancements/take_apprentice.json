@@ -1,0 +1,19 @@
+{
+    "display": {
+        "icon": {
+            "item": "minecraft:writable_book"
+        },
+        "title": {
+            "translate": "advancement.arcaneapprentices:take_apprentice"
+        },
+        "description": {
+            "translate": "advancement.arcaneapprentices:take_apprentice.desc"
+        }
+    },
+    "parent": "arcaneapprentices:root",
+    "criteria": {
+        "criteria_0": {
+            "trigger": "arcaneapprentices:take_apprentice"
+        }
+    }
+}

@@ -1,0 +1,126 @@
+{
+    "pools": [
+        {
+            "name": "main",
+            "rolls": {
+                "min": 5,
+                "max": 10
+            },
+            "entries": [
+                {
+                    "type": "item",
+                    "name": "cobblestone",
+                    "weight": 15,
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 8,
+                                "max": 16
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "name": "dirt",
+                    "weight": 7,
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 3,
+                                "max": 10
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "name": "gravel",
+                    "weight": 5,
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 8,
+                                "max": 12
+                            }
+                        }
+                    ]
+                },
+                {
+                    "entryName": "granite",
+                    "weight": 4,
+                    "type": "item",
+                    "name": "stone",
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 4,
+                                "max": 12
+                            }
+                        },
+                        {
+                            "function":  "set_data",
+                            "data": 1
+                        }
+                    ]
+                },
+                {
+                    "entryName": "diorite",
+                    "weight": 4,
+                    "type": "item",
+                    "name": "stone",
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 4,
+                                "max": 12
+                            }
+                        },
+                        {
+                            "function":  "set_data",
+                            "data": 3
+                        }
+                    ]
+                },
+                {
+                    "entryName": "andesite",
+                    "weight": 4,
+                    "type": "item",
+                    "name": "stone",
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 4,
+                                "max": 12
+                            }
+                        },
+                        {
+                            "function":  "set_data",
+                            "data": 5
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ores",
+            "rolls": {
+                "min": 2,
+                "max": 6
+            },
+            "entries": [
+                {
+                    "type": "loot_table",
+                    "name": "arcaneapprentices:subsets/common_ores",
+                    "weight": 1
+                }
+            ]
+        }
+    ]
+}

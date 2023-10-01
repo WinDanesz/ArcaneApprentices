@@ -1,4 +1,4 @@
-package com.windanesz.apprenticearcana;
+package com.windanesz.arcaneapprentices;
 
 import com.windanesz.wizardryutils.WizardryUtils;
 import com.windanesz.wizardryutils.item.ItemNewArtefact;

@@ -1,0 +1,36 @@
+{
+    "pools": [
+        {
+            "name": "main",
+            "rolls": {
+                "min": 7,
+                "max": 12
+            },
+            "entries": [
+                {
+                    "type": "loot_table",
+                    "name": "minecraft:chests/nether_bridge",
+                    "weight": 1
+                },
+                {
+                    "type": "loot_table",
+                    "name": "arcaneapprentices:subsets/nether_blocks",
+                    "weight": 6
+                }
+            ]
+        },
+        {
+            "name": "mob_drops",
+            "rolls": {
+                "min": 4,
+                "max": 6
+            },
+            "entries": [
+                {
+                    "type": "loot_table",
+                    "name": "arcaneapprentices:subsets/nether_mobs"
+                }
+            ]
+        }
+    ]
+}

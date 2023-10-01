@@ -1,0 +1,19 @@
+{
+    "display": {
+        "icon": {
+            "item": "ebwizardry:magic_wand"
+        },
+        "title": {
+            "translate": "advancement.arcaneapprentices:apprentice_levels_up"
+        },
+        "description": {
+            "translate": "advancement.arcaneapprentices:apprentice_levels_up.desc"
+        }
+    },
+    "parent": "arcaneapprentices:take_apprentice",
+    "criteria": {
+        "criteria_0": {
+            "trigger": "arcaneapprentices:apprentice_levels_up"
+        }
+    }
+}

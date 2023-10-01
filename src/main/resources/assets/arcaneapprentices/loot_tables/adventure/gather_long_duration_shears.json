@@ -1,0 +1,17 @@
+{
+    "pools": [
+        {
+            "name": "main",
+            "rolls": {
+                "min": 8,
+                "max": 16
+            },
+            "entries": [
+                {
+                    "type": "loot_table",
+                    "name": "arcaneapprentices:subsets/plants"
+                }
+            ]
+        }
+    ]
+}
