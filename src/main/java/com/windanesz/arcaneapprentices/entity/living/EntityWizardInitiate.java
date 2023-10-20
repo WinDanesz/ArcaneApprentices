@@ -1232,7 +1232,6 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		return super.attackEntityFrom(source, damage);
 	}
 
-	//
 	//	@Override
 	public void onInventoryChanged(IInventory inventory) {
 		ItemStack oldItem = this.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND);
