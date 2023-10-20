@@ -902,7 +902,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		}
 
 		if (this.getTask() == Task.FOLLOW && this.ticksExisted % 100 == 0) {
-			this.addExperience(2);
+			this.addExperience(1);
 		}
 
 		if (!world.isRemote && isLyingInBed() && this.ticksExisted % 100 == 0 && getMaxHealth() > getHealth()) {
