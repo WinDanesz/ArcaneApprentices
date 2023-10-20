@@ -867,7 +867,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		}
 
 		// sleeping
-		if ((this.getTask() == Task.STAY || this.getTask() == Task.STUDY) && !this.world.isDaytime()) {
+		if ((this.getTask() == Task.STAY || this.getTask() == Task.STUDY || this.getTask() == Task.IDENTIFY) && !this.world.isDaytime()) {
 			BlockPos bedPos = findBed();
 			if (bedPos != null) {
 				this.getNavigator().tryMoveToXYZ(bedPos.getX() + 0.5f, bedPos.getY(), bedPos.getZ() + 0.5, 0.5f);
@@ -893,6 +893,10 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 					setLyingInBed(this.getPos().equals(getBedPos()));
 				}
 			}
+		}
+
+		if (this.getTask() == Task.FOLLOW && this.ticksExisted % 100 == 0) {
+			this.addExperience(2);
 		}
 
 		if (!world.isRemote && isLyingInBed() && this.ticksExisted % 100 == 0 && getMaxHealth() > getHealth()) {
