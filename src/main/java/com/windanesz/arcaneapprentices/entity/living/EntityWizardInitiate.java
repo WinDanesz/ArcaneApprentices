@@ -15,6 +15,8 @@ import com.windanesz.arcaneapprentices.entity.ai.WizardAIAttackSpellWithCost;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIFollowOwner;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIGoHome;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIIdentify;
+import com.windanesz.arcaneapprentices.entity.ai.WizardAIOwnerHurtByTarget;
+import com.windanesz.arcaneapprentices.entity.ai.WizardAIOwnerHurtTarget;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIPanicAtLowHP;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIStudy;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIWander;
@@ -67,6 +69,8 @@ import net.minecraft.entity.ai.EntityAIHurtByTarget;
 import net.minecraft.entity.ai.EntityAIMoveTowardsRestriction;
 import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 import net.minecraft.entity.ai.EntityAIOpenDoor;
+import net.minecraft.entity.ai.EntityAIOwnerHurtByTarget;
+import net.minecraft.entity.ai.EntityAIOwnerHurtTarget;
 import net.minecraft.entity.ai.EntityAIRestrictOpenDoor;
 import net.minecraft.entity.ai.EntityAISwimming;
 import net.minecraft.entity.monster.IMob;
@@ -639,6 +643,8 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		this.tasks.addTask(7, new WizardAIWander(this, 0.4, 10));
 		this.tasks.addTask(8, new WizardAIWatchClosest(this, EntityLiving.class, 8.0F));
 		this.tasks.addTask(8, new WizardAILookAround(this, 8.0F, 0.1f));
+		this.targetTasks.addTask(1, new WizardAIOwnerHurtByTarget(this));
+		this.targetTasks.addTask(2, new WizardAIOwnerHurtTarget(this));
 		this.targetSelector = (entity) -> {
 			return entity != null && !entity.isInvisible() && entity != getOwner() && AllyDesignationSystem.isValidTarget(this, entity) && (entity instanceof IMob || entity instanceof ISummonedCreature || Arrays.asList(Wizardry.settings.summonedCreatureTargetsWhitelist).contains(EntityList.getKey(entity.getClass()))) && !Arrays.asList(Wizardry.settings.summonedCreatureTargetsBlacklist).contains(EntityList.getKey(entity.getClass()));
 		};
