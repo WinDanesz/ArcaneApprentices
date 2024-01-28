@@ -65,7 +65,7 @@ public enum JourneyType {
 				return 1;
 			case "MEDIUM":
 				return 2;
-			case "HARD":
+			case "LONG":
 				return 3;
 		}
 
