@@ -406,8 +406,8 @@ public class Settings {
 		@Config.Name("Apprentice XP Gain on identified spells. Each tier multiplies it")
 		public int XP_GAIN_ON_IDENTIFICATION = 100;
 
-		@Config.Name("Apprentice XP Gain on observing player spell casts. Each tier multiplies it")
-		public int XP_GAIN_ON_WATCHING_PLAYER_USING_MAGIC = 3;
+		@Config.Name("Apprentice XP Gain on observing player spell casts. Each tier multiplies it. This depends on the chance of SPELL_REMARK_MESSAGE_CHANCE setting.")
+		public int XP_GAIN_ON_WATCHING_PLAYER_USING_MAGIC = 30;
 
 		@Config.Name("Identifying Spell Duration Multiplier Compared to Learning")
 		@Config.Comment("Checked once every second. Set to 0 to disable this event.")
@@ -523,7 +523,7 @@ public class Settings {
 
 		@Config.Name("Min Adventure Duration In Ticks (medium journeys)")
 		@Config.Comment("Determines the minimum duration an NPC must spend in an adventure before it returns.")
-		public int MIN_ADVENTURE_DURATION_IN_TICKS_MEDIUM = 54000;
+		public int MIN_ADVENTURE_DURATION_IN_TICKS_MEDIUM = 14000;
 
 		@Config.Name("Max Adventure Duration In Ticks (long journeys)")
 		@Config.Comment("Determines the maximum duration an NPC can spend in an adventure before it returns.")

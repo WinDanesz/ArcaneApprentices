@@ -268,8 +268,8 @@ public final class EventHandler {
 				}
 
 				if (event.getCaster() == wizard.getOwner()) {
+					wizard.addExperience(Settings.generalSettings.XP_GAIN_ON_WATCHING_PLAYER_USING_MAGIC * (event.getSpell().getTier().ordinal() + 1));
 					if (event.getSpell().getTier().ordinal() < 3) {
-						wizard.addExperience(Settings.generalSettings.XP_GAIN_ON_WATCHING_PLAYER_USING_MAGIC * (event.getSpell().getTier().ordinal() + 1));
 						wizard.sayImmediately(new TextComponentTranslation(Speech.WIZARD_OWNER_SPELL_CAST_COMPLIMENT_LOW_TIER.getRandom(), event.getSpell().getDisplayName()));
 					} else {
 						wizard.sayImmediately(new TextComponentTranslation(Speech.WIZARD_OWNER_SPELL_CAST_COMPLIMENT_HIGH_TIER.getRandom(), event.getSpell().getDisplayName()));
