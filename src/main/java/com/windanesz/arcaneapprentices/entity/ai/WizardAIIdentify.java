@@ -114,6 +114,7 @@ public class WizardAIIdentify extends WizardAILecternBase {
 								WizardData data = WizardData.get((EntityPlayer) this.wizard.getOwner());
 								if (!data.hasSpellBeenDiscovered(spell)) {
 									data.discoverSpell(spell);
+									this.wizard.addExperience(Settings.generalSettings.XP_GAIN_ON_IDENTIFICATION * (spell.getTier().ordinal() + 1));
 									this.wizard.sayImmediately(new TextComponentTranslation(Speech.WIZARD_FINISHED_SPELL_IDENTIFYING.getRandom(),
 											spell.getDisplayName()));
 								}

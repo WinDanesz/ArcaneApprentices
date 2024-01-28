@@ -157,6 +157,7 @@ public class Settings {
 				"Edwin",
 				"Eldritch",
 				"Electro",
+				"Elek",
 				"Elric",
 				"Ember",
 				"Emeric",
@@ -391,7 +392,7 @@ public class Settings {
 		@Config.Name("Minimum NPC Level for Identifying Spells")
 		public int MINIMUM_NPC_LEVEL_FOR_IDENTIFYING_SPELLS = 10;
 
-		@Config.Name("Identify Spells in Inventory")
+		@Config.Name("[UNUSED] Identify Spells in Inventory")
 		public boolean IDENTIFY_SPELLS_IN_INVENTORY = true;
 
 		@Config.Name("Wizards Can Identify Spells")
@@ -401,6 +402,9 @@ public class Settings {
 		@Config.Comment("0 = novice, 1 = up to apprentice, 2 = up to advanced, 3 = up to master")
 		@Config.RangeInt(min = 0, max = 3)
 		public int MAX_TIER_FOR_IDENTIFYING_SPELLS = 2;
+
+		@Config.Name("Apprentice XP Gain on identified spells. Each tier multiplies it")
+		public int XP_GAIN_ON_IDENTIFICATION = 100;
 
 		@Config.Name("Identifying Spell Duration Multiplier Compared to Learning")
 		@Config.Comment("Checked once every second. Set to 0 to disable this event.")
