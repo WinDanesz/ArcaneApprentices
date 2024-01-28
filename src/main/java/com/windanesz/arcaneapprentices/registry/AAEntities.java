@@ -10,9 +10,9 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.registries.IForgeRegistry;
 
 @Mod.EventBusSubscriber
-public class MSEntities {
+public class AAEntities {
 
-	private MSEntities() {}
+	private AAEntities() {}
 
 	@SubscribeEvent
 	public static void register(RegistryEvent.Register<EntityEntry> event) {

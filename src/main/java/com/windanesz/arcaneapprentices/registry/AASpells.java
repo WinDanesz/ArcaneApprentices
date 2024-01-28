@@ -1,6 +1,7 @@
 package com.windanesz.arcaneapprentices.registry;
 
 import com.windanesz.arcaneapprentices.ArcaneApprentices;
+import com.windanesz.arcaneapprentices.spell.RecallApprentices;
 import com.windanesz.arcaneapprentices.spell.override.ResurrectionOverride;
 import com.windanesz.arcaneapprentices.spell.override.SummonSkeletonLegionOverride;
 import com.windanesz.arcaneapprentices.spell.override.SummonSkeletonOverride;
@@ -17,9 +18,11 @@ import javax.annotation.Nonnull;
 
 @ObjectHolder(ArcaneApprentices.MODID)
 @EventBusSubscriber
-public final class MSSpells {
+public final class AASpells {
 
-	private MSSpells() {} // no instances
+	private AASpells() {} // no instances
+
+	public static final Spell recall_apprentices = placeholder();
 
 	@Nonnull
 	@SuppressWarnings("ConstantConditions")
@@ -36,6 +39,8 @@ public final class MSSpells {
 		registry.register(new SummonSkeletonLegionOverride(Spell.get("ebwizardry:summon_skeleton_legion").networkID()));
 		registry.register(new ZombieApocalypseOverride(Spell.get("ebwizardry:zombie_apocalypse").networkID()));
 		registry.register(new ResurrectionOverride(Spell.get("ebwizardry:resurrection").networkID()));
+
+		registry.register(new RecallApprentices());
 
 	}
 }

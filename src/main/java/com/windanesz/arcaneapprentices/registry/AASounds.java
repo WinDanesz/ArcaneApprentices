@@ -13,8 +13,8 @@ import java.util.List;
 
 @GameRegistry.ObjectHolder(ArcaneApprentices.MODID)
 @Mod.EventBusSubscriber(modid = ArcaneApprentices.MODID)
-public class MSSounds {
-	private MSSounds() {}
+public class AASounds {
+	private AASounds() {}
 
 	private static final List<SoundEvent> sounds = new ArrayList<>();
 

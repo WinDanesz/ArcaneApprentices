@@ -55,6 +55,21 @@ public class GuiScreenWizardInitiateInventory extends GuiContainer {
 	}
 
 	@Override
+	protected void renderHoveredToolTip(int mouseX, int mouseY) {
+		super.renderHoveredToolTip(mouseX, mouseY);
+		int slotIndex = getSlotUnderMouse() != null ? getSlotUnderMouse().slotNumber : -1;
+		if (slotIndex != -1 && !inventorySlots.getSlot(slotIndex).getHasStack()) {
+
+			if (slotIndex == 2) {
+				drawHoveringText(I18n.format("gui.arcaneapprentices:artefact_slot"), mouseX, mouseY);
+			}
+			if (slotIndex == EntityWizardInitiate.OFF_HAND_SLOT) {
+				drawHoveringText(I18n.format("gui.arcaneapprentices:apprentice_offhand_slot"), mouseX, mouseY);
+			}
+		}
+	}
+
+	@Override
 	public void initGui() {
 		super.initGui();
 		this.buttonList.clear();

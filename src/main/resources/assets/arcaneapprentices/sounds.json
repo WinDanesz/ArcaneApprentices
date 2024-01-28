@@ -1,5 +1,8 @@
 {
     "entity.light_wisp.noise": 	{"category": "hostile", "sounds": ["arcaneapprentices:light_wisp_noise"]},
     "entity.light_wisp.hurt": 		{"category": "hostile", "sounds": ["arcaneapprentices:light_wisp_hit"]},
-    "entity.radiant_spark.hit": 	{"category": "hostile", "sounds": ["arcaneapprentices:radiant_spark_hit"]}
+    "entity.radiant_spark.hit": 	{"category": "hostile", "sounds": ["arcaneapprentices:radiant_spark_hit"]},
+    "spell.recall_apprentices":  	{"category": "spells", "sounds": ["portal/trigger"]}
 }
+
+
