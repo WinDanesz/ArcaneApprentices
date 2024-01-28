@@ -15,12 +15,12 @@ import com.windanesz.arcaneapprentices.entity.ai.WizardAIAttackSpellWithCost;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIFollowOwner;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIGoHome;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIIdentify;
+import com.windanesz.arcaneapprentices.entity.ai.WizardAILookAround;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIOwnerHurtByTarget;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIOwnerHurtTarget;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIPanicAtLowHP;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIStudy;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIWander;
-import com.windanesz.arcaneapprentices.entity.ai.WizardAILookAround;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIWatchClosest;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIWatchClosest2;
 import com.windanesz.arcaneapprentices.handler.EventHandler;
@@ -69,8 +69,6 @@ import net.minecraft.entity.ai.EntityAIHurtByTarget;
 import net.minecraft.entity.ai.EntityAIMoveTowardsRestriction;
 import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 import net.minecraft.entity.ai.EntityAIOpenDoor;
-import net.minecraft.entity.ai.EntityAIOwnerHurtByTarget;
-import net.minecraft.entity.ai.EntityAIOwnerHurtTarget;
 import net.minecraft.entity.ai.EntityAIRestrictOpenDoor;
 import net.minecraft.entity.ai.EntityAISwimming;
 import net.minecraft.entity.monster.IMob;
@@ -978,12 +976,13 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 				sayImmediately(player, new TextComponentTranslation(Speech.PLAYER_GIVES_HANDBOOK.getRandom(), player.getDisplayName()));
 				this.setOwner(player);
 				this.setHome(new Location(this.getPos(), this.dimension));
+				WizardryUtilsTools.sendMessage(player, "message.arcaneapprentices:apprentice_taken", false);
 				setTask(Task.FOLLOW);
 				//	AAAdvancementTriggers.take_apprentice.triggerFor(player);
 				return true;
 			} else {
 				// reached apprentice cap
-				Utils.sendMessage(player, "info.arcaneapprentices:reached_apprentice_cap", false);
+				Utils.sendMessage(player, "info.arcaneapprentices:reached_apprentice_cap", false,  this.getName());
 				return false;
 			}
 
@@ -996,7 +995,11 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 			}
 			player.openGui(ArcaneApprentices.MODID, AAGuiHandler.WIZARD_INVENTORY_GUI, this.world, this.getEntityId(), 0, 0);
 		} else {
-			sayWithoutSpam(player, new TextComponentTranslation(Speech.GREET.getRandom(), player.getDisplayName()));
+			if (!hasOwner()) {
+				sayWithoutSpam(player, new TextComponentTranslation(Speech.GREET_HANDBOOK_HINT.getRandom(), player.getDisplayName()));
+			} else {
+				sayWithoutSpam(player, new TextComponentTranslation(Speech.GREET.getRandom(), player.getDisplayName()));
+			}
 		}
 
 		return true;
