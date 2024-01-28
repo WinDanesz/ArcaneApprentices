@@ -164,7 +164,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	private static final DataParameter<BlockPos> BED_POSITION = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.BLOCK_POS);
 
 	private static final int MAINHAND = 0;
-	private static final int OFF_HAND = 1;
+	public static final int OFF_HAND_SLOT = 1;
 	public static final int ARTEFACT_SLOT = 22;
 	public int textureIndex = 0;
 	public int adventureRemainingDuration = -1;
@@ -1522,13 +1522,14 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	public List<ItemStack> getActiveArtefacts() {
 		List<ItemStack> list = new ArrayList<>();
 		list.add(inventory.getStackInSlot(ARTEFACT_SLOT));
+		list.add(inventory.getStackInSlot(OFF_HAND_SLOT));
 		return list;
 	}
 
 	public List<ItemStack> getHeldItems() {
 		List<ItemStack> list = new ArrayList<>();
 		list.add(inventory.getStackInSlot(MAINHAND));
-		list.add(inventory.getStackInSlot(OFF_HAND));
+		list.add(inventory.getStackInSlot(OFF_HAND_SLOT));
 		return list;
 	}
 
