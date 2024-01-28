@@ -46,7 +46,7 @@ public final class AAItems {
 		ItemRegistry.registerItemArtefact(registry, "charm_bag_27", ArcaneApprentices.MODID, new ItemArtefactWithSlots(EnumRarity.EPIC, ItemArtefact.Type.CHARM, 3, 9, true));
 		ItemRegistry.registerItemArtefact(registry, "charm_eternal_grimoire", ArcaneApprentices.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
 		ItemRegistry.registerItemArtefact(registry, "charm_spell_compass", ArcaneApprentices.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
-		ItemRegistry.registerItemArtefact(registry, "charm_itinerary", ArcaneApprentices.MODID, new ItemCharmItinerary(EnumRarity.RARE, ItemArtefact.Type.CHARM));
+		ItemRegistry.registerItemArtefact(registry, "charm_itinerary", ArcaneApprentices.MODID, new ItemCharmItinerary(EnumRarity.UNCOMMON, ItemArtefact.Type.CHARM));
 //		ItemRegistry.registerItemArtefact(registry, "charm_talent_detector", ApprenticeArcana.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
 //		ItemRegistry.registerItemArtefact(registry, "charm_treasure_map", ApprenticeArcana.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
 		ItemRegistry.registerItemArtefact(registry, "charm_withering_atlas", ArcaneApprentices.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
