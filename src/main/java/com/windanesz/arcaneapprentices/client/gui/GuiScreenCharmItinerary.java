@@ -4,6 +4,7 @@ import com.windanesz.arcaneapprentices.ArcaneApprentices;
 import com.windanesz.arcaneapprentices.data.PlayerData;
 import com.windanesz.arcaneapprentices.data.StoredEntity;
 import com.windanesz.arcaneapprentices.inventory.ContainerCharmItinerary;
+import electroblob.wizardry.util.Location;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -33,7 +34,13 @@ public class GuiScreenCharmItinerary extends GuiContainer {
 				if (entity.nbtTagCompound.hasKey("CustomName")) {
 					String name = entity.nbtTagCompound.getString("CustomName");
 					int minutes = entity.nbtTagCompound.getInteger("AdventureRemainingDuration") / 20 / 60;
-					this.fontRenderer.drawSplitString(I18n.format("gui.arcaneapprentices:charm_itinerary_entry", name, minutes), 20, i, 105, 1);
+					if (entity.nbtTagCompound.hasKey("HomePos")) {
+						Location homePos = Location.fromNBT(entity.getNbtTagCompound().getCompoundTag("HomePos"));
+						this.fontRenderer.drawSplitString(I18n.format("gui.arcaneapprentices:charm_itinerary_entry_with_pos", name, minutes, homePos.pos.getX(),  homePos.pos.getY(),  homePos.pos.getZ()), 20, i, 105, 1);
+					} else {
+						this.fontRenderer.drawSplitString(I18n.format("gui.arcaneapprentices:charm_itinerary_entry", name, minutes), 20, i, 105, 1);
+					}
+
 					//this.fontRenderer.drawString(String.valueOf(),20 + 60 , i, 10);
 				}
 				i += 24;
