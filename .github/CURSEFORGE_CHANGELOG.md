@@ -1,19 +1,21 @@
-<h2>Version v1.5.10 - 4/22/2023</h2>
+<h2>Version v1.1.0 - 1/28/2024</h2>
 <p>&nbsp;</p>
 <h3>What's Changed</h3>
 <p><span style="font-size: 1.2rem;">&nbsp;</span></p>
-<h4><strong>Bug Fixes</strong></h4>
-<p>- Condensing Updates now recharge Sage Tomes in the inventory as well. Fixes#148</p>
-<p>- Golden Scroll Holder no longer voids the current scroll when trying to swap scrolls. Fixes #146</p>
-<p>- Fixed Omnicron applying wrong mana from shards/grand crystals. Fixes #136</p>
-<p>- Unknown crafted ancient books become discovered  upon crafting at the Scribing Desk. Fixes #134</p>
-<p>- Fix some compile errors</p>
-<p>- Fixed Glyph of Illumination not providing light</p>
-
 <h4><strong>Features</strong></h4>
-<p>- Words of Unbinding supports sage tomes and battlemage swords</p>
-<p>- Bookshelf support for the rare scrolls</p>
-<p>- Mana flask now works with sage tomes</p>
+<p>- Spell identification grants XP for NPCs (configurable)</p>
+<p>- Some more speech-hints about how to hire an apprentice</p>
+<p>- Lowered Enchanted Itinerary artefact tier to Rare</p>
+<p>- Apprentices learn from and gain some XP just by watching the player casting spells</p>
+<p>- Apprentices learn from and gain some XP just by watching the player casting spells</p>
+<p>- Lowered Itinerary tier to Uncommon</p>
+<p>- Improved itinerary artefact with location</p>
+<p>- Apprentices can two artefacts, using the offhand and the artefact slot</p>
+<p>- Added Recall Apprentices spell</p>
+
+<h4><strong>Bug Fixes</strong></h4>
+<p>- Fixed long duration journeys having a broken timer</p>
+<p>- Fixed medium and long duration journeys having much longer duration that set in the config</p>
 <p>&nbsp;</p>
 <p>As always, the easiest way to get help or feedback is through the Discord server! Find the link on the CurseForge page.</p>
 <p>&nbsp;</p>
