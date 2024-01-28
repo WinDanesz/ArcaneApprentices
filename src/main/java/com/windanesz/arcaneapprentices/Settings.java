@@ -406,6 +406,9 @@ public class Settings {
 		@Config.Name("Apprentice XP Gain on identified spells. Each tier multiplies it")
 		public int XP_GAIN_ON_IDENTIFICATION = 100;
 
+		@Config.Name("Apprentice XP Gain on observing player spell casts. Each tier multiplies it")
+		public int XP_GAIN_ON_WATCHING_PLAYER_USING_MAGIC = 3;
+
 		@Config.Name("Identifying Spell Duration Multiplier Compared to Learning")
 		@Config.Comment("Checked once every second. Set to 0 to disable this event.")
 		public float IDENTIFYING_SPELL_DURATION_MULTIPLIER_COMPARED_TO_LEARNING = 2.5f;

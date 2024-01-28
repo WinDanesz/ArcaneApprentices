@@ -249,6 +249,7 @@ message.arcaneapprentices:wizard_owner_spell_cast_compliment_high_tier_1=That %s
 message.arcaneapprentices:wizard_owner_spell_cast_compliment_low_tier_0=Ah, the good ol' %s
 message.arcaneapprentices:wizard_owner_spell_cast_compliment_low_tier_1=%s, quite an useful spell
 message.arcaneapprentices:wizard_owner_spell_cast_compliment_low_tier_2=What a spell repertoire
+message.arcaneapprentices:wizard_owner_spell_cast_compliment_low_tier_3=I learn just by watching what you're doing!
 message.arcaneapprentices:wizard_nearby_dispenser_spell_cast_0=Watch out with that %s!
 message.arcaneapprentices:wizard_nearby_hostile_spell_cast_0=Your %s is no match for me!
 message.arcaneapprentices:wizard_nearby_hostile_spell_cast_1=Ha, %s... predictable
