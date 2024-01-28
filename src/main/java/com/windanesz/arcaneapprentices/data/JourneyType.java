@@ -54,22 +54,7 @@ public enum JourneyType {
 
 	public int getRandomXPValueForAdventure(EntityWizardInitiate wizardInitiate) {
 		// TODO: artefact to increase xp gained in general should affect this
-		return (int) (this.getDurationValue() * Settings.journeySettings.WIZARD_JOURNEY_XP_GAIN_MODIFIER * wizardInitiate.world.rand.nextFloat() + 0.3);
-	}
-
-	private int getDurationValue() {
-		switch (duration) {
-			case "NONE":
-				return 0;
-			case "SHORT":
-				return 1;
-			case "MEDIUM":
-				return 2;
-			case "LONG":
-				return 3;
-		}
-
-		return 0;
+		return (int) (Settings.journeySettings.WIZARD_JOURNEY_XP_GAIN_MODIFIER * wizardInitiate.world.rand.nextFloat() + 0.3);
 	}
 
 	public int getRandomAdventureDuration(EntityWizardInitiate wizardInitiate) {
@@ -78,16 +63,16 @@ public enum JourneyType {
 
 		switch (duration) {
 			case "SHORT":
-				min = this.getDurationValue() * Settings.generalSettings.MIN_ADVENTURE_DURATION_IN_TICKS_SHORT;
-				max = this.getDurationValue() * Settings.generalSettings.MAX_ADVENTURE_DURATION_IN_TICKS_SHORT;
+				min = Settings.generalSettings.MIN_ADVENTURE_DURATION_IN_TICKS_SHORT;
+				max = Settings.generalSettings.MAX_ADVENTURE_DURATION_IN_TICKS_SHORT;
 				break;
 			case "MEDIUM":
-				min = this.getDurationValue() * Settings.generalSettings.MIN_ADVENTURE_DURATION_IN_TICKS_MEDIUM;
-				max = this.getDurationValue() * Settings.generalSettings.MAX_ADVENTURE_DURATION_IN_TICKS_MEDIUM;
+				min = Settings.generalSettings.MIN_ADVENTURE_DURATION_IN_TICKS_MEDIUM;
+				max = Settings.generalSettings.MAX_ADVENTURE_DURATION_IN_TICKS_MEDIUM;
 				break;
 			case "LONG":
-				min = this.getDurationValue() * Settings.generalSettings.MIN_ADVENTURE_DURATION_IN_TICKS_LONG;
-				max = this.getDurationValue() * Settings.generalSettings.MAX_ADVENTURE_DURATION_IN_TICKS_LONG;
+				min = Settings.generalSettings.MIN_ADVENTURE_DURATION_IN_TICKS_LONG;
+				max = Settings.generalSettings.MAX_ADVENTURE_DURATION_IN_TICKS_LONG;
 				break;
 			default:
 				return 0;
