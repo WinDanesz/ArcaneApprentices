@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [v1.1.1] - 2024-01-30
+### :bug: Bug Fixes
+- [`54466da`](https://github.com/WinDanesz/ArcaneApprentices/commit/54466da9a734f2e301c1dc70d26f8478456c3204) - Fixed occasional crash with Apprentices fighting mobs *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+
+
 ## [v1.1.0] - 2024-01-28
 ### :sparkles: New Features
 - [`2a79c5d`](https://github.com/WinDanesz/ArcaneApprentices/commit/2a79c5dcafd3a896421879774ea35cbc8d948ba6) - Spell identification grants XP for NPCs (configurable) *(commit by [@WinDanesz](https://github.com/WinDanesz))*
@@ -23,3 +28,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 [v1.1.0]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.0.2...v1.1.0
+[v1.1.1]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.1.0...v1.1.1
