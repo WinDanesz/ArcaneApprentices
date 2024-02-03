@@ -3,6 +3,8 @@ package com.windanesz.arcaneapprentices.entity.ai;
 import com.windanesz.arcaneapprentices.Utils;
 import com.windanesz.arcaneapprentices.data.Speech;
 import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
+import electroblob.wizardry.registry.WizardryItems;
+import electroblob.wizardry.spell.Spell;
 import electroblob.wizardry.util.BlockUtils;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
@@ -15,13 +17,18 @@ import net.minecraft.init.PotionTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.pathfinding.PathNodeType;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 import java.util.Arrays;
 
@@ -66,17 +73,17 @@ public class WizardAIFollowOwner extends EntityAIBase {
 			}
 
 
-			if (wizard.world.rand.nextInt(3000) == 0 && player.getHealth() <= (player.getMaxHealth() * 0.4)) { // 400
-				if (wizard.rareEventReady() && wizard.world.rand.nextFloat() <= EntityWizardInitiate.RARE_EVENT_CHANCE) {
+			if (wizard.world.rand.nextInt(600) == 0 && player.getHealth() <= (player.getMaxHealth() * 0.4)) {
+				if (wizard.rareEventReady()) {
 					ItemStack item = PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), PotionTypes.HEALING);
 					Utils.giveStackToPlayer(player, item);
 					this.wizard.sayImmediately(new TextComponentTranslation(Speech.OWNER_GIVE_HEALING_POTION.getRandom(), item.getDisplayName()));
-					this.wizard.resetRareEventCooldown();
+					this.wizard.resetRareEventCooldown(1f);
 				} else {
 					Speech.OWNER_HAS_LOW_HEALTH.say(this.wizard);
 				}
-			} else if (wizard.world.rand.nextInt(2000) == 0 && player.getFoodStats().getFoodLevel() < 10) { // 400
-				if (wizard.rareEventReady() && wizard.world.rand.nextFloat() <= EntityWizardInitiate.RARE_EVENT_CHANCE) {
+			} else if (wizard.world.rand.nextInt(400) == 0 && player.getFoodStats().getFoodLevel() < 10) {
+				if (wizard.rareEventReady()) {
 					ItemStack itemStack = new ItemStack(Utils.getRandomItem(Arrays.asList(Items.BREAD, Items.COOKED_CHICKEN, Items.COOKED_FISH, Items.MUSHROOM_STEW)));
 					this.wizard.sayImmediately(new TextComponentTranslation(Speech.OWNER_GIVE_FOOD.getRandom(), itemStack.getDisplayName()));
 					Utils.giveStackToPlayer(player, itemStack);
@@ -86,14 +93,25 @@ public class WizardAIFollowOwner extends EntityAIBase {
 				}
 			}
 
-			if (wizard.rareEventReady() && (wizard.world.rand.nextInt(1200) == 0)) {
+			if (wizard.rareEventReady() && (wizard.world.rand.nextInt(600) == 0)) {
 				BlockPos pos = this.wizard.getPos();
-				if (!world.canSeeSky(pos) && world.getLightBrightness(pos) < 0.4f && world.isAirBlock(pos)) {
-					if (BlockUtils.canPlaceBlock(owner, world, pos)) {
+				boolean f = true;
+				if (this.owner.motionX == 0 && world.getLightBrightness(pos) < 0.4f && world.isAirBlock(pos)) {
+					if (this.owner instanceof EntityPlayer && world.rand.nextFloat() < 0.5f && Loader.isModLoaded("ancientspellcraft")) {
+						Potion pot = ForgeRegistries.POTIONS.getValue(new ResourceLocation("ancientspellcraft:candlelight"));
+						if (pot != null && !this.owner.isPotionActive(pot)) {
+							this.owner.addPotionEffect(new PotionEffect(pot, 2400));
+							f = false;
+							this.wizard.resetRareEventCooldown(1f);
+							this.wizard.sayImmediately(new TextComponentTranslation(Speech.WIZARD_CAST_SCROLL_ON_OWNER.getRandom(),
+									(new ItemStack(WizardryItems.scroll, 1, Spell.get("ancientspellcraft:candlelight").metadata())).getDisplayName()));
+						}
+					}
+					if (f && BlockUtils.canPlaceBlock(owner, world, pos)) {
 						world.setBlockState(pos, Blocks.TORCH.getDefaultState());
 						this.wizard.sayImmediately(new TextComponentTranslation(Speech.WIZARD_PLACE_TORCH.getRandom()));
-						this.wizard.resetRareEventCooldown();
 					}
+					this.wizard.resetRareEventCooldown(0.2f);
 				}
 			}
 

@@ -582,14 +582,6 @@ public final class EventHandler {
 	@SubscribeEvent
 	public static void onLivingDeathEvent(LivingDeathEvent event) {
 
-		// moved to onDeath
-		//		if (!event.getEntity().world.isRemote && event.getEntity() instanceof EntityWizardInitiate && (Settings.generalSettings.APPRENTICES_CAN_BE_RESURRECTED ||
-		//				Settings.generalSettings.APPRENTICES_RESPAWN_AT_PLAYER_SPAWNPOINT) && ((EntityWizardInitiate) event.getEntity()).hasOwner()) {
-		//			if (((EntityWizardInitiate) event.getEntity()).getOwner() instanceof EntityPlayer) {
-		//				PlayerData.storeDeadApprentice((EntityPlayer) ((EntityWizardInitiate) event.getEntity()).getOwner(), (EntityLivingBase) event.getEntity());
-		//			}
-		//		}
-
 		if (event.getEntity() instanceof EntityLivingBase && event.getSource().getTrueSource() instanceof EntityWizardInitiate) {
 			EntityWizardInitiate wizard = (EntityWizardInitiate) event.getSource().getTrueSource();
 			// TODO: artefact that improves xp gain on kills
@@ -718,6 +710,8 @@ public final class EventHandler {
 							mob.setPosition(pos.getX() + 0.5f, pos.getY(), pos.getZ() + 0.5f);
 							((EntityWizardInitiate) mob).setFoodLevel(20f);
 							((EntityWizardInitiate) mob).setSaturation(10f);
+							((EntityWizardInitiate) mob).resetChatCooldown();
+							((EntityWizardInitiate) mob).resetRareEventCooldown();
 
 							if (world.spawnEntity(mob)) {
 								respawnedEntities.add(mob.getUniqueID());

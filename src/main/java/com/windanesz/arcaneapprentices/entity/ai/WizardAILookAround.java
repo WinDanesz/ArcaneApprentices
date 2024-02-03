@@ -62,7 +62,7 @@ public class WizardAILookAround extends EntityAIBase {
 			}
 			settingLook = false;
 
-			if (this.wizard.getDistance(lookPos.getX(), lookPos.getY(), lookPos.getZ()) < 4) {
+			if (this.wizard.getDistance(lookPos.getX(), lookPos.getY(), lookPos.getZ()) < 4 && !this.wizard.world.isAirBlock(lookPos)) {
 				((EntityWizardInitiate) this.wizard).sayWithoutSpam(("What an interesting " + this.wizard.world.getBlockState(lookPos).getBlock().getLocalizedName()));
 			}
 		}

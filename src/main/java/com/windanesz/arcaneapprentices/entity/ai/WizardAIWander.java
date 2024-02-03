@@ -20,15 +20,23 @@ public class WizardAIWander extends EntityAIWander {
 
 	@Override
 	public boolean shouldExecute() {
-		return super.shouldExecute() && ((EntityWizardInitiate) entity).getTask() != EntityWizardInitiate.Task.TRY_TO_SLEEP;
+		return ((EntityWizardInitiate) entity).getTask() != EntityWizardInitiate.Task.TRY_TO_SLEEP;
+	}
+
+	@Override
+	public boolean shouldContinueExecuting() {
+		return entity.getAttackTarget() == null;
 	}
 
 	@Override
 	public void startExecuting() {
 		super.startExecuting();
-		if (entity.world.rand.nextInt(250) == 0) {
+		//if (entity.world.rand.nextInt(20) == 0) {
+		if (entity.getAttackTarget() == null) {
+
 			Speech.WIZARD_IDLING.sayWithoutSpam((EntityWizardInitiate) entity);
 		}
+		//}
 		if (entity.getDistanceSq(((EntityWizardInitiate) entity).currentStayPos) > 12) {
 			this.entity.getNavigator().tryMoveToXYZ(((EntityWizardInitiate) entity).currentStayPos.getX(), ((EntityWizardInitiate) entity).currentStayPos.getY(),
 					((EntityWizardInitiate) entity).currentStayPos.getZ(), speed);
@@ -40,4 +48,6 @@ public class WizardAIWander extends EntityAIWander {
 	{
 		return RandomPositionGenerator.findRandomTarget(this.entity, this.entity.world.rand.nextInt(10), 7);
 	}
+
+
 }
