@@ -1,6 +1,7 @@
 package com.windanesz.arcaneapprentices;
 
 import com.windanesz.arcaneapprentices.client.gui.AAGuiHandler;
+import com.windanesz.arcaneapprentices.command.CommandResetApprenticeData;
 import com.windanesz.arcaneapprentices.data.PlayerData;
 import com.windanesz.arcaneapprentices.packet.AAPacketHandler;
 import com.windanesz.arcaneapprentices.registry.AAAdvancementTriggers;
@@ -72,6 +73,9 @@ public class ArcaneApprentices {
 	}
 
 	@EventHandler
-	public void serverStartup(FMLServerStartingEvent event) { }
+	public void serverStarting(FMLServerStartingEvent event) {
+		event.registerServerCommand(new CommandResetApprenticeData());
+
+	}
 
 }
