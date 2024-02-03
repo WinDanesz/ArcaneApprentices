@@ -822,7 +822,7 @@ public class EntityWizardInitiate extends EntityCreature
 				modifyFoodLevel(-0.1f);
 			}
 
-			if (this.getAttackTarget() == null && getFoodLevel() / 20 < 0.8f) {
+			if (this.getAttackTarget() == null && getFoodLevel() / 20 < 0.85f) {
 				// starting from inventory index 1 to skip mainhand
 				for (int i = 1; i < this.inventory.getSizeInventory(); i++) {
 					ItemStack stack = this.inventory.getStackInSlot(i).copy();
@@ -1581,7 +1581,7 @@ public class EntityWizardInitiate extends EntityCreature
 	}
 
 	public boolean shouldHeal() {
-		return getFoodLevel() / 20 > 0.85f && this.getHealth() < this.getMaxHealth();
+		return getFoodLevel() / 20 > 0.75f && this.getHealth() < this.getMaxHealth();
 	}
 
 	public void returnFromAdventuring() {
