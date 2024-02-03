@@ -88,6 +88,12 @@ public class Settings {
 
 	public static class GeneralSettings {
 
+		@Config.Name("PotionCore Compat Fix")
+		@Config.Comment("The PotionCore mod has a setting named 'Fix Effects When Changing Dimensions'. This is known to cause issues with modded entities,"
+				+ " and if it is set to true, respawning apprentices will instantly die. When this 'PotionCore Compat Fix' setting is set to true, it will force the mentioned"
+				+ "PotionCore config to be false.")
+		public boolean POTIONCORE_COMPAT_FIX = true;
+
 		@Config.Name("List of Possible Apprentice Names")
 		@Config.Comment("List of Possible Apprentice Names. Randomly chosen at first spawn of an NPC.")
 		public String[] WIZARD_NAMES = {

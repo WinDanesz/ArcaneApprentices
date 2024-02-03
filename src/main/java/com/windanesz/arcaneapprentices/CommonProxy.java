@@ -1,5 +1,8 @@
 package com.windanesz.arcaneapprentices;
 
+import com.windanesz.arcaneapprentices.integration.PotionCoreCompat;
+import net.minecraftforge.fml.common.Loader;
+
 public class CommonProxy {
 
 	/**
@@ -16,8 +19,9 @@ public class CommonProxy {
 
 	}
 
-
-
 	public void postInit() {
+		if (Loader.isModLoaded("potioncore") && Settings.generalSettings.POTIONCORE_COMPAT_FIX) {
+			PotionCoreCompat.setPotionCoreHealthSetting();
+		}
 	}
 }

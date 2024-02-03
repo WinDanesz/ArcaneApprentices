@@ -148,6 +148,7 @@ dependencies {
     implementation fg.deobf("curse.maven:WizardryUtils-${wizardryutils_projectid}:${wizardryutils_fileid}")
     implementation fg.deobf("curse.maven:baubles-${baubles_projectid}:${baubles_fileid}")
     implementation fg.deobf("mezz.jei:jei_${mc_version}:${jei_version}")
+    implementation fg.deobf("curse.maven:PotionCore-${potioncore_projectid}:${potioncore_fileid}")
 }
 
 //// Project manifest data ////
