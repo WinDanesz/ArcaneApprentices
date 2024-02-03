@@ -55,6 +55,10 @@ public class Settings {
 		@Config.Name("Journey Food Requirement Modifier")
 		public float JOURNEY_FOOD_REQUIREMENT_MODIFIER = 1f;
 
+		@Config.Name("Sets the modifier of the Explorer's Belt artefact. This is a multiplier, setting it to 1 makes it have no effect, lower values"
+				+ "reduce the journey duration (default -25%")
+		public float EXPLORERS_BELT_JOURNEY_TIME_MODIFIER = 0.75f;
+
 		@Config.Name("Wizard Journey XP Gain Modifier")
 		@Config.Comment("Levels Required By Each Journey Type in a format of adventuretype:minimum_level")
 		public float WIZARD_JOURNEY_XP_GAIN_MODIFIER = 1f;
