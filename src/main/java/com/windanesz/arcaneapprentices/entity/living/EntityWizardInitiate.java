@@ -56,6 +56,7 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.PlayerAdvancements;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityList;
@@ -65,6 +66,7 @@ import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.IEntityOwnable;
 import net.minecraft.entity.INpc;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.EntityAIAttackMelee;
 import net.minecraft.entity.ai.EntityAIHurtByTarget;
 import net.minecraft.entity.ai.EntityAIMoveTowardsRestriction;
 import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
@@ -85,6 +87,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemSword;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
@@ -102,6 +105,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.village.MerchantRecipeList;
@@ -263,6 +267,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	List<MessageEntry> scheduledMessages = new ArrayList<>();
 	//	private EntityAIAttackSpell<EntityWizardInitiate> spellCastingAI = new EntityAIAttackSpell(this, 0.5, 14.0F, 30, 50);
 	private WizardAIAttackSpellWithCost spellCastingAI = new WizardAIAttackSpellWithCost(this, 0.5, 14.0F, 30, 50, false);
+	private final EntityAIAttackMelee meleeAI = new EntityAIAttackMelee(this, 0.5D, false);
 	private MerchantRecipeList trades;
 	private BlockPos lectern;
 	private boolean isEating = false;
@@ -462,6 +467,10 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		this.rareEventCooldown = rareEventMaxCooldown;
 	}
 
+	public void resetRareEventCooldown(float totalPercent) {
+		this.rareEventCooldown = (int) (rareEventMaxCooldown * totalPercent);
+	}
+
 	protected void entityInit() {
 		super.entityInit();
 		this.dataManager.register(HEAL_COOLDOWN, -1);
@@ -580,6 +589,11 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		return this.dataManager.get(KNOWN_SPELLS);
 	}
 
+	public void removeAllKnownSpells() {
+		this.dataManager.set(KNOWN_SPELLS, new NBTTagCompound());
+		this.dataManager.set(DISABLED_SPELLS, new NBTTagCompound());
+	}
+
 	protected void setSpellCompound(NBTTagCompound tag) {
 		this.dataManager.set(KNOWN_SPELLS, tag);
 	}
@@ -640,7 +654,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		this.tasks.addTask(7, new WizardAIWatchClosest2(this, EntityPlayer.class, 3.0F, 1.0F));
 		this.tasks.addTask(7, new WizardAIWander(this, 0.4, 10));
 		this.tasks.addTask(8, new WizardAIWatchClosest(this, EntityLiving.class, 8.0F));
-		this.tasks.addTask(8, new WizardAILookAround(this, 8.0F, 0.1f));
+		this.tasks.addTask(5, new WizardAILookAround(this, 8.0F, 0.1f));
 		this.targetTasks.addTask(1, new WizardAIOwnerHurtByTarget(this));
 		this.targetTasks.addTask(2, new WizardAIOwnerHurtTarget(this));
 		this.targetSelector = (entity) -> {
@@ -654,6 +668,8 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		super.applyEntityAttributes();
 		this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5);
 		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(30.0);
+		this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(1.0D);
+
 	}
 
 	private int getHealCooldown() {
@@ -932,7 +948,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 			float foodHealAmount = food.getHealAmount(this.getHeldItemMainhand());
 			float saturation = food.getSaturationModifier(this.getHeldItemMainhand());
 			modifyFoodLevel(foodHealAmount);
-			modifySaturation(saturation);
+			modifySaturation(saturation * 4);
 			this.isEating = false;
 		}
 
@@ -1220,7 +1236,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	}
 
 	public boolean attackEntityFrom(DamageSource source, float damage) {
-		if (rand.nextInt(15) == 0) {
+		if (rand.nextInt(5) == 0) {
 			if (source.getTrueSource() instanceof EntityPlayer) {
 				if (((EntityPlayer) source.getTrueSource()).getHeldItemMainhand().getItem().getRegistryName().toString().contains("sword")) {
 					Speech.WIZARD_TAKE_DAMAGE_BY_SWORD.say(this);
@@ -1250,6 +1266,14 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		this.setItemStackToSlot(EntityEquipmentSlot.CHEST, inventory.getStackInSlot(3));
 		this.setItemStackToSlot(EntityEquipmentSlot.LEGS, inventory.getStackInSlot(4));
 		this.setItemStackToSlot(EntityEquipmentSlot.FEET, inventory.getStackInSlot(5));
+
+		if (inventory.getStackInSlot(0).getItem() instanceof ItemSword) {
+			this.tasks.removeTask(spellCastingAI);
+			this.tasks.addTask(3, meleeAI);
+		} else {
+			this.tasks.removeTask(meleeAI);
+			this.tasks.addTask(3, spellCastingAI);
+		}
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -1745,6 +1769,60 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		STUDY,
 		TRY_TO_SLEEP,
 		IDENTIFY
+	}
+
+
+	public boolean attackEntityAsMob(Entity entityIn)
+	{
+		float f = (float)this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
+		int i = 0;
+
+		if (entityIn instanceof EntityLivingBase)
+		{
+			f += EnchantmentHelper.getModifierForCreature(this.getHeldItemMainhand(), ((EntityLivingBase)entityIn).getCreatureAttribute());
+			i += EnchantmentHelper.getKnockbackModifier(this);
+		}
+
+		boolean flag = entityIn.attackEntityFrom(DamageSource.causeMobDamage(this), f);
+
+		if (flag)
+		{
+			if (i > 0 && entityIn instanceof EntityLivingBase)
+			{
+				((EntityLivingBase)entityIn).knockBack(this, (float)i * 0.5F, (double) MathHelper.sin(this.rotationYaw * 0.017453292F), (double)(-MathHelper.cos(this.rotationYaw * 0.017453292F)));
+				this.motionX *= 0.6D;
+				this.motionZ *= 0.6D;
+			}
+
+			int j = EnchantmentHelper.getFireAspectModifier(this);
+
+			if (j > 0)
+			{
+				entityIn.setFire(j * 4);
+			}
+
+			if (entityIn instanceof EntityPlayer)
+			{
+				EntityPlayer entityplayer = (EntityPlayer)entityIn;
+				ItemStack itemstack = this.getHeldItemMainhand();
+				ItemStack itemstack1 = entityplayer.isHandActive() ? entityplayer.getActiveItemStack() : ItemStack.EMPTY;
+
+				if (!itemstack.isEmpty() && !itemstack1.isEmpty() && itemstack.getItem().canDisableShield(itemstack, itemstack1, entityplayer, this) && itemstack1.getItem().isShield(itemstack1, entityplayer))
+				{
+					float f1 = 0.25F + (float)EnchantmentHelper.getEfficiencyModifier(this) * 0.05F;
+
+					if (this.rand.nextFloat() < f1)
+					{
+						entityplayer.getCooldownTracker().setCooldown(itemstack1.getItem(), 100);
+						this.world.setEntityState(entityplayer, (byte)30);
+					}
+				}
+			}
+
+			this.applyEnchantments(this, entityIn);
+		}
+
+		return flag;
 	}
 }
 
