@@ -11,6 +11,7 @@ import com.windanesz.arcaneapprentices.data.JourneyType;
 import com.windanesz.arcaneapprentices.data.PlayerData;
 import com.windanesz.arcaneapprentices.data.Speech;
 import com.windanesz.arcaneapprentices.entity.MessageEntry;
+import com.windanesz.arcaneapprentices.entity.ai.WizardAIAttackRangedBow;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIAttackSpellWithCost;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIFollowOwner;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIGoHome;
@@ -65,18 +66,23 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.IEntityOwnable;
 import net.minecraft.entity.INpc;
+import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIAttackMelee;
+import net.minecraft.entity.ai.EntityAIAttackRangedBow;
 import net.minecraft.entity.ai.EntityAIHurtByTarget;
 import net.minecraft.entity.ai.EntityAIMoveTowardsRestriction;
 import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 import net.minecraft.entity.ai.EntityAIOpenDoor;
 import net.minecraft.entity.ai.EntityAIRestrictOpenDoor;
 import net.minecraft.entity.ai.EntityAISwimming;
+import net.minecraft.entity.monster.AbstractSkeleton;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityPotion;
+import net.minecraft.entity.projectile.EntityTippedArrow;
 import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
 import net.minecraft.init.SoundEvents;
@@ -84,6 +90,8 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.IInventoryChangedListener;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemArrow;
+import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
@@ -130,7 +138,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
-public class EntityWizardInitiate extends EntityCreature implements INpc, ISpellCaster, IEntityAdditionalSpawnData, IInventoryChangedListener, IEntityOwnable {
+public class EntityWizardInitiate extends EntityCreature
+		implements INpc, ISpellCaster, IEntityAdditionalSpawnData, IInventoryChangedListener, IEntityOwnable, IRangedAttackMob {
 
 	public static final float RARE_EVENT_CHANCE = 0.05f;
 	/**
@@ -166,6 +175,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	private static final DataParameter<Optional<UUID>> OWNER_UNIQUE_ID = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.OPTIONAL_UNIQUE_ID);
 	private static final DataParameter<NBTTagCompound> SCHEDULED_MESSAGES = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.COMPOUND_TAG);
 	private static final DataParameter<BlockPos> BED_POSITION = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.BLOCK_POS);
+	private static final DataParameter<Boolean> SWINGING_ARMS = EntityDataManager.<Boolean>createKey(EntityWizardInitiate.class, DataSerializers.BOOLEAN);
 
 	private static final int MAINHAND = 0;
 	public static final int OFF_HAND_SLOT = 1;
@@ -192,7 +202,6 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	}
 
 	public void goOnJourney() {
-
 
 		if (!this.world.isRemote && getJourneyType() != JourneyType.NOT_ADVENTURING && getOwner() instanceof EntityPlayer) {
 			if (this.getHome().pos == BlockPos.ORIGIN) {
@@ -267,7 +276,9 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	List<MessageEntry> scheduledMessages = new ArrayList<>();
 	//	private EntityAIAttackSpell<EntityWizardInitiate> spellCastingAI = new EntityAIAttackSpell(this, 0.5, 14.0F, 30, 50);
 	private WizardAIAttackSpellWithCost spellCastingAI = new WizardAIAttackSpellWithCost(this, 0.5, 14.0F, 30, 50, false);
-	private final EntityAIAttackMelee meleeAI = new EntityAIAttackMelee(this, 0.5D, false);
+	private EntityAIAttackMelee meleeAI = new EntityAIAttackMelee(this, 0.5D, false);
+	private WizardAIAttackRangedBow<EntityWizardInitiate> bowAI = new WizardAIAttackRangedBow<>(this, 0.5D, 25, 15.0F);
+
 	private MerchantRecipeList trades;
 	private BlockPos lectern;
 	private boolean isEating = false;
@@ -493,6 +504,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		this.dataManager.register(DISABLED_SPELLS, new NBTTagCompound());
 		this.dataManager.register(SCHEDULED_MESSAGES, new NBTTagCompound());
 		this.dataManager.register(OWNER_UNIQUE_ID, Optional.absent());
+		this.dataManager.register(SWINGING_ARMS, Boolean.valueOf(false));
 	}
 
 	protected final void setSize(float width, float height) {
@@ -666,10 +678,9 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 
 	protected void applyEntityAttributes() {
 		super.applyEntityAttributes();
+		this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(1.0D);
 		this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5);
 		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(30.0);
-		this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(1.0D);
-
 	}
 
 	private int getHealCooldown() {
@@ -689,13 +700,11 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	}
 
 	public List<Spell> getSpells() {
-		return (List<Spell>) NBTExtras.NBTToList(getSpellCompound().getTagList("spells", Constants.NBT.TAG_INT),
-				(NBTTagInt tag) -> Spell.byMetadata(tag.getInt()));
+		return (List<Spell>) NBTExtras.NBTToList(getSpellCompound().getTagList("spells", Constants.NBT.TAG_INT), (NBTTagInt tag) -> Spell.byMetadata(tag.getInt()));
 	}
 
 	public List<Spell> getDisabledSpells() {
-		return (List<Spell>) NBTExtras.NBTToList(getDisabledSpellCompound().getTagList("spells", Constants.NBT.TAG_INT),
-				(NBTTagInt tag) -> Spell.byMetadata(tag.getInt()));
+		return (List<Spell>) NBTExtras.NBTToList(getDisabledSpellCompound().getTagList("spells", Constants.NBT.TAG_INT), (NBTTagInt tag) -> Spell.byMetadata(tag.getInt()));
 	}
 
 	public SpellModifiers getModifiers() {
@@ -859,13 +868,11 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 
 			for (int i = 1; i < this.inventory.getSizeInventory(); i++) {
 				ItemStack stack = this.inventory.getStackInSlot(i).copy();
-				if (stack.getItem() instanceof ItemPotion && PotionUtils.getEffectsFromStack(stack).stream().map(PotionEffect::getPotion)
-						.anyMatch(potionsToWishFor::contains)) {
+				if (stack.getItem() instanceof ItemPotion && PotionUtils.getEffectsFromStack(stack).stream().map(PotionEffect::getPotion).anyMatch(potionsToWishFor::contains)) {
 					if (stack.getItem() == Items.SPLASH_POTION) {
 						EntityPotion entitypotion = new EntityPotion(this.world, this, stack);
 						entitypotion.setPosition(this.posX, this.posY + getEyeHeight(), this.posZ);
-						this.world.playSound(null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_SPLASH_POTION_THROW, this.getSoundCategory(),
-								1.0F, 0.8F + this.rand.nextFloat() * 0.4F);
+						this.world.playSound(null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_SPLASH_POTION_THROW, this.getSoundCategory(), 1.0F, 0.8F + this.rand.nextFloat() * 0.4F);
 						this.setHeldItem(EnumHand.MAIN_HAND, ItemStack.EMPTY);
 						this.world.spawnEntity(entitypotion);
 						this.inventory.getStackInSlot(i).shrink(1);
@@ -998,7 +1005,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 				return true;
 			} else {
 				// reached apprentice cap
-				Utils.sendMessage(player, "info.arcaneapprentices:reached_apprentice_cap", false,  this.getName());
+				Utils.sendMessage(player, "info.arcaneapprentices:reached_apprentice_cap", false, this.getName());
 				return false;
 			}
 
@@ -1023,8 +1030,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 
 	@Override
 	public void onDeath(DamageSource cause) {
-		if (!world.isRemote && (Settings.generalSettings.APPRENTICES_CAN_BE_RESURRECTED ||
-				Settings.generalSettings.APPRENTICES_RESPAWN_AT_PLAYER_SPAWNPOINT) && this.hasOwner()) {
+		if (!world.isRemote && (Settings.generalSettings.APPRENTICES_CAN_BE_RESURRECTED || Settings.generalSettings.APPRENTICES_RESPAWN_AT_PLAYER_SPAWNPOINT) && this.hasOwner()) {
 			if (this.getOwner() instanceof EntityPlayer) {
 				this.heal(10);
 				PlayerData.storeDeadApprentice((EntityPlayer) this.getOwner(), this);
@@ -1269,9 +1275,15 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 
 		if (inventory.getStackInSlot(0).getItem() instanceof ItemSword) {
 			this.tasks.removeTask(spellCastingAI);
+			this.tasks.removeTask(bowAI);
 			this.tasks.addTask(3, meleeAI);
+		} else if (inventory.getStackInSlot(0).getItem() instanceof ItemBow) {
+			this.tasks.removeTask(meleeAI);
+			this.tasks.removeTask(spellCastingAI);
+			this.tasks.addTask(3, bowAI);
 		} else {
 			this.tasks.removeTask(meleeAI);
+			this.tasks.removeTask(bowAI);
 			this.tasks.addTask(3, spellCastingAI);
 		}
 	}
@@ -1483,9 +1495,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	public void setLevel(int level) {
 		this.dataManager.set(LEVEL, level);
 		double currentMaxHP = this.getMaxHealth();
-		double newMaxHP = Math.min(
-				Settings.generalSettings.WIZARD_MAX_HEALTH_CAP,
-				Settings.generalSettings.WIZARD_HP_GAIN_PER_LEVEL * level + Settings.generalSettings.WIZARD_MINIMUM_HP);
+		double newMaxHP = Math.min(Settings.generalSettings.WIZARD_MAX_HEALTH_CAP, Settings.generalSettings.WIZARD_HP_GAIN_PER_LEVEL * level + Settings.generalSettings.WIZARD_MINIMUM_HP);
 		float healAmount = (float) (newMaxHP - currentMaxHP);
 		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(newMaxHP);
 		// also grant the newly gained health points
@@ -1524,8 +1534,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	@Override
 	public ITextComponent getDisplayName() {
 		if (getOwnerId() != null && getOwner() != null) {
-			return new TextComponentTranslation("entity.arcaneapprentices:owned_wizard.nameplate", getOwner().getName(),
-					this.hasCustomName() ? super.getDisplayName() : this.getElement().getWizardName());
+			return new TextComponentTranslation("entity.arcaneapprentices:owned_wizard.nameplate", getOwner().getName(), this.hasCustomName() ? super.getDisplayName() : this.getElement().getWizardName());
 		} else {
 			return super.getDisplayName();
 		}
@@ -1577,7 +1586,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 
 	public void returnFromAdventuring() {
 		if (journeyType != JourneyType.NOT_ADVENTURING) {
-				fillWithLoot(LootRegistry.getLootTableFor(journeyType), journeyType.getBonusLootItemCount());
+			fillWithLoot(LootRegistry.getLootTableFor(journeyType), journeyType.getBonusLootItemCount());
 		}
 
 		Speech.WIZARD_RETURNED_FROM_JOURNEY.say(this);
@@ -1602,7 +1611,6 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 				loottable.fillInventory(temporaryInventory, random, lootcontext$builder.build());
 				mergeItemStacks(temporaryInventory);
 				List<ItemStack> itemStackList = new ArrayList<>();
-
 
 				// TODO: artefact that adds more stuff
 				if (isArtefactActive(AAItems.ring_serendipity)) {
@@ -1762,59 +1770,44 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	}
 
 	public enum Task {
-		FOLLOW,
-		STAY,
-		ADVENTURE,
-		GO_HOME,
-		STUDY,
-		TRY_TO_SLEEP,
-		IDENTIFY
+		FOLLOW, STAY, ADVENTURE, GO_HOME, STUDY, TRY_TO_SLEEP, IDENTIFY
 	}
 
-
-	public boolean attackEntityAsMob(Entity entityIn)
-	{
-		float f = (float)this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
+	public boolean attackEntityAsMob(Entity entityIn) {
+		float f = (float) this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
 		int i = 0;
 
-		if (entityIn instanceof EntityLivingBase)
-		{
-			f += EnchantmentHelper.getModifierForCreature(this.getHeldItemMainhand(), ((EntityLivingBase)entityIn).getCreatureAttribute());
+		if (entityIn instanceof EntityLivingBase) {
+			f += EnchantmentHelper.getModifierForCreature(this.getHeldItemMainhand(), ((EntityLivingBase) entityIn).getCreatureAttribute());
 			i += EnchantmentHelper.getKnockbackModifier(this);
 		}
 
 		boolean flag = entityIn.attackEntityFrom(DamageSource.causeMobDamage(this), f);
 
-		if (flag)
-		{
-			if (i > 0 && entityIn instanceof EntityLivingBase)
-			{
-				((EntityLivingBase)entityIn).knockBack(this, (float)i * 0.5F, (double) MathHelper.sin(this.rotationYaw * 0.017453292F), (double)(-MathHelper.cos(this.rotationYaw * 0.017453292F)));
+		if (flag) {
+			if (i > 0 && entityIn instanceof EntityLivingBase) {
+				((EntityLivingBase) entityIn).knockBack(this, (float) i * 0.5F, (double) MathHelper.sin(this.rotationYaw * 0.017453292F), (double) (-MathHelper.cos(this.rotationYaw * 0.017453292F)));
 				this.motionX *= 0.6D;
 				this.motionZ *= 0.6D;
 			}
 
 			int j = EnchantmentHelper.getFireAspectModifier(this);
 
-			if (j > 0)
-			{
+			if (j > 0) {
 				entityIn.setFire(j * 4);
 			}
 
-			if (entityIn instanceof EntityPlayer)
-			{
-				EntityPlayer entityplayer = (EntityPlayer)entityIn;
+			if (entityIn instanceof EntityPlayer) {
+				EntityPlayer entityplayer = (EntityPlayer) entityIn;
 				ItemStack itemstack = this.getHeldItemMainhand();
 				ItemStack itemstack1 = entityplayer.isHandActive() ? entityplayer.getActiveItemStack() : ItemStack.EMPTY;
 
-				if (!itemstack.isEmpty() && !itemstack1.isEmpty() && itemstack.getItem().canDisableShield(itemstack, itemstack1, entityplayer, this) && itemstack1.getItem().isShield(itemstack1, entityplayer))
-				{
-					float f1 = 0.25F + (float)EnchantmentHelper.getEfficiencyModifier(this) * 0.05F;
+				if (!itemstack.isEmpty() && !itemstack1.isEmpty() && itemstack.getItem().canDisableShield(itemstack, itemstack1, entityplayer, this) && itemstack1.getItem().isShield(itemstack1, entityplayer)) {
+					float f1 = 0.25F + (float) EnchantmentHelper.getEfficiencyModifier(this) * 0.05F;
 
-					if (this.rand.nextFloat() < f1)
-					{
+					if (this.rand.nextFloat() < f1) {
 						entityplayer.getCooldownTracker().setCooldown(itemstack1.getItem(), 100);
-						this.world.setEntityState(entityplayer, (byte)30);
+						this.world.setEntityState(entityplayer, (byte) 30);
 					}
 				}
 			}
@@ -1823,6 +1816,52 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		}
 
 		return flag;
+	}
+
+	public void attackEntityWithRangedAttack(EntityLivingBase target, float distanceFactor) {
+		EntityArrow entityarrow = this.getArrow(distanceFactor);
+		if (entityarrow != null) {
+
+			if (this.getHeldItemMainhand().getItem() instanceof net.minecraft.item.ItemBow) {
+				entityarrow = ((net.minecraft.item.ItemBow) this.getHeldItemMainhand().getItem()).customizeArrow(entityarrow);
+			}
+			double d0 = target.posX - this.posX;
+			double d1 = target.getEntityBoundingBox().minY + (double) (target.height / 3.0F) - entityarrow.posY;
+			double d2 = target.posZ - this.posZ;
+			double d3 = (double) MathHelper.sqrt(d0 * d0 + d2 * d2);
+			entityarrow.shoot(d0, d1 + d3 * 0.20000000298023224D, d2, 1.6F, (float) (14 - this.world.getDifficulty().getId() * 4));
+			this.playSound(SoundEvents.ENTITY_SKELETON_SHOOT, 1.0F, 1.0F / (this.getRNG().nextFloat() * 0.4F + 0.8F));
+			this.world.spawnEntity(entityarrow);
+		} else {
+			sayWithoutSpam(new TextComponentTranslation(Speech.WIZARD_NO_ARROWS.getRandom()));
+		}
+	}
+
+	@Override
+	public void setSwingingArms(boolean swingingArms) {
+		this.dataManager.set(SWINGING_ARMS, Boolean.valueOf(swingingArms));
+	}
+
+	protected EntityArrow getArrow(float distanceFactor) {
+		for (int i = 1; i < this.inventory.getSizeInventory(); i++) {
+			if (this.inventory.getStackInSlot(i).getItem() instanceof ItemArrow) {
+				EntityTippedArrow entitytippedarrow = new EntityTippedArrow(this.world, this);
+				entitytippedarrow.pickupStatus = EntityArrow.PickupStatus.ALLOWED;
+				entitytippedarrow.setEnchantmentEffectsFromEntity(this, distanceFactor);
+				this.inventory.getStackInSlot(i).shrink(1);
+				return entitytippedarrow;
+			}
+		}
+		return null;
+	}
+
+	public boolean hasArrow() {
+		for (int i = 1; i < this.inventory.getSizeInventory(); i++) {
+			if (this.inventory.getStackInSlot(i).getItem() instanceof ItemArrow) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
 
