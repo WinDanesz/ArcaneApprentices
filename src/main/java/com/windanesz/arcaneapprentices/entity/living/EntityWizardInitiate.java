@@ -50,6 +50,7 @@ import electroblob.wizardry.util.EntityUtils;
 import electroblob.wizardry.util.InventoryUtils;
 import electroblob.wizardry.util.Location;
 import electroblob.wizardry.util.NBTExtras;
+import electroblob.wizardry.util.ParticleBuilder;
 import electroblob.wizardry.util.SpellModifiers;
 import electroblob.wizardry.util.WandHelper;
 import io.netty.buffer.ByteBuf;
@@ -114,6 +115,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.village.MerchantRecipeList;
@@ -666,7 +668,7 @@ public class EntityWizardInitiate extends EntityCreature
 		this.tasks.addTask(7, new WizardAIWatchClosest2(this, EntityPlayer.class, 3.0F, 1.0F));
 		this.tasks.addTask(7, new WizardAIWander(this, 0.4, 10));
 		this.tasks.addTask(8, new WizardAIWatchClosest(this, EntityLiving.class, 8.0F));
-		this.tasks.addTask(5, new WizardAILookAround(this, 8.0F, 0.1f));
+		this.tasks.addTask(7, new WizardAILookAround(this, 8.0F, 0.1f));
 		this.targetTasks.addTask(1, new WizardAIOwnerHurtByTarget(this));
 		this.targetTasks.addTask(2, new WizardAIOwnerHurtTarget(this));
 		this.targetSelector = (entity) -> {
@@ -976,17 +978,42 @@ public class EntityWizardInitiate extends EntityCreature
 
 	public boolean processInteract(EntityPlayer player, EnumHand hand) {
 
+		if (player == this.getOwner()) {
+			if (!player.getHeldItemMainhand().isEmpty() && player.getHeldItemMainhand().getItem().getRegistryName().toString().equals("ancientspellcraft:amnesia_scroll")) {
+				if (world.isRemote) {
+					Vec3d origin = this.getPositionEyes(1);
+					for (int i = 0; i < 30; i++) {
+						double x = origin.x - 1 + world.rand.nextDouble() * 2;
+						double y = origin.y - 0.25 + world.rand.nextDouble() * 0.5;
+						double z = origin.z - 1 + world.rand.nextDouble() * 2;
+						if (world.rand.nextBoolean()) {
+							ParticleBuilder.create(ParticleBuilder.Type.SPARKLE).pos(x, y, z)
+									.vel(0, 0.1, 0).fade(0, 0, 0).spin(0.3f, 0.03f)
+									.clr(140, 140, 140).spawn(world);
+						} else {
+							ParticleBuilder.create(ParticleBuilder.Type.SPARKLE).pos(x, y, z)
+									.vel(0, 0.1, 0).fade(0, 0, 0).spin(0.3f, 0.03f)
+									.clr(99, 1, 110).spawn(world);
+						}
+					}
+				} else {
+					this.removeAllKnownSpells();
+					player.getHeldItemMainhand().shrink(1);
+				}
+			}
+
+		}
 		if (player.isCreative() && player.isSneaking() && !player.world.isRemote && hand == EnumHand.MAIN_HAND && player.getHeldItemMainhand().getItem() == Items.NETHER_STAR) {
 			this.addExperience(80);
 			this.setOwner(player);
 			return false;
 		}
 
-		if (player.isCreative() && player.isSneaking() && !player.world.isRemote && hand == EnumHand.MAIN_HAND && player.getHeldItemMainhand().getItem() == WizardryItems.ring_condensing) {
-			this.addExperience(80000);
-			this.setOwner(player);
-			return false;
-		}
+//		if (player.isCreative() && player.isSneaking() && !player.world.isRemote && hand == EnumHand.MAIN_HAND && player.getHeldItemMainhand().getItem() == WizardryItems.ring_condensing) {
+//			this.addExperience(80000);
+//			this.setOwner(player);
+//			return false;
+//		}
 
 		if (!player.world.isRemote && !hasOwner() && player.getHeldItemMainhand().getItem() == WizardryItems.wizard_handbook) {
 			Advancement requirement1 = ((WorldServer) world).getAdvancementManager().getAdvancement(new ResourceLocation("ebwizardry:master"));
@@ -1466,7 +1493,7 @@ public class EntityWizardInitiate extends EntityCreature
 		double valuePlusFive = halfOrdinal + 5f;
 
 		// Calculate the study progress using the simplified formula
-		return tickFrequency / (float) Math.pow(valuePlusFive, Settings.generalSettings.NPC_SPELL_STUDY_TIME_MODIFIER);
+		return (tickFrequency / (float) Math.pow(valuePlusFive, Settings.generalSettings.NPC_SPELL_STUDY_TIME_MODIFIER)) * (isArtefactActive(AAItems.head_knowledge) ? 1.33f : 1f);
 	}
 
 	public Task getTask() {
@@ -1511,6 +1538,7 @@ public class EntityWizardInitiate extends EntityCreature
 	}
 
 	public void addExperience(int amount) {
+		System.out.println(getTotalXp());
 		int newAmount = getTotalXp() + amount;
 		int xpForNewLevel = (int) XpProgression.calculateTotalXpRequired(getLevel() + 1);
 
