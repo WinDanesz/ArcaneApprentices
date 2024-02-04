@@ -6,6 +6,7 @@ import com.windanesz.arcaneapprentices.handler.XpProgression;
 import com.windanesz.arcaneapprentices.registry.AAItems;
 import com.windanesz.wizardryutils.item.ItemNewArtefact;
 import electroblob.wizardry.item.ItemArtefact;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.IInventory;
@@ -53,9 +54,6 @@ public class ContainerWizardInitiateInventory extends ContainerWizardBase {
 
 		// offhand
 		this.addSlotToContainer(new Slot(inventory, 1, 44, 64) {
-			//			public boolean isItemValid(ItemStack stack) {
-			//				return !this.getHasStack();
-			//			}
 
 			@SideOnly(Side.CLIENT)
 			public boolean isEnabled() {
@@ -66,25 +64,6 @@ public class ContainerWizardInitiateInventory extends ContainerWizardBase {
 			@SideOnly(Side.CLIENT)
 			public String getSlotTexture() {
 				return "minecraft:items/empty_armor_slot_shield";
-			}
-		});
-
-		// artefact
-		this.addSlotToContainer(new Slot(inventory, 22, 26, 64) {
-
-			public boolean isItemValid(ItemStack stack) {
-				return !this.getHasStack() && (stack.getItem() instanceof ItemArtefact || stack.getItem() instanceof ItemNewArtefact);
-			}
-
-			@SideOnly(Side.CLIENT)
-			public boolean isEnabled() {
-				return true;
-			}
-
-			@Nullable
-			@SideOnly(Side.CLIENT)
-			public String getSlotTexture() {
-				return EMPTY_ARTEFACT_SLOT_BACKGROUND;
 			}
 		});
 
@@ -114,7 +93,7 @@ public class ContainerWizardInitiateInventory extends ContainerWizardBase {
 		for (int k = 0; k < 3; ++k) {
 			// 5 columns
 			for (int l = 0; l < wizard.getInventoryColumns(); ++l) {
-				int index = 7 + l + k * wizard.getInventoryColumns();
+				int index = 6 + l + k * wizard.getInventoryColumns();
 
 				this.addSlotToContainer(new Slot(inventory, index, 80 + l * 18, 28 + k * 18) {
 
@@ -147,6 +126,27 @@ public class ContainerWizardInitiateInventory extends ContainerWizardBase {
 			}
 		}
 
+
+		// artefact
+		this.addSlotToContainer(new Slot(inventory, 21, 26, 64) {
+
+			public boolean isItemValid(ItemStack stack) {
+				return !this.getHasStack() && (stack.getItem() instanceof ItemArtefact || stack.getItem() instanceof ItemNewArtefact);
+			}
+
+			@SideOnly(Side.CLIENT)
+			public boolean isEnabled() {
+				return true;
+			}
+
+			@Nullable
+			@SideOnly(Side.CLIENT)
+			public String getSlotTexture() {
+				return EMPTY_ARTEFACT_SLOT_BACKGROUND;
+			}
+		});
+
+
 		// player's inventory
 		for (int i1 = 0; i1 < 3; ++i1) {
 			for (int k1 = 0; k1 < 9; ++k1) {
@@ -170,28 +170,67 @@ public class ContainerWizardInitiateInventory extends ContainerWizardBase {
 	}
 
 	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {
+		// 0-21 are wizard inventory slots
+		// 22+ are player inventory slots
 		ItemStack itemstack = ItemStack.EMPTY;
 		Slot slot = this.inventorySlots.get(index);
 
 		if (slot != null && slot.getHasStack()) {
 			ItemStack itemstack1 = slot.getStack();
 			itemstack = itemstack1.copy();
+			inventorySlots.stream().forEach(i -> System.out.println("slotindex " + i.getSlotIndex() + " , slotnumber:: "  + i.slotNumber + i.getStack().getDisplayName()));
+
+
+			EntityEquipmentSlot entityequipmentslot = EntityLiving.getSlotForItemStack(itemstack);
+
+			if (entityequipmentslot == EntityEquipmentSlot.HEAD) {
+				if (!inventorySlots.get(2).getHasStack() && this.getSlot(2).isItemValid(itemstack1)) {
+					if (!this.mergeItemStack(itemstack1, 2, 3, false)) {
+						return ItemStack.EMPTY;
+					}
+				}
+			} else if (entityequipmentslot == EntityEquipmentSlot.CHEST) {
+				if (!inventorySlots.get(3).getHasStack() && this.getSlot(3).isItemValid(itemstack1)) {
+					if (!this.mergeItemStack(itemstack1, 3, 4, false)) {
+						return ItemStack.EMPTY;
+					}
+				}
+			} else if (entityequipmentslot == EntityEquipmentSlot.LEGS) {
+				if (!inventorySlots.get(4).getHasStack() && this.getSlot(4).isItemValid(itemstack1)) {
+					if (!this.mergeItemStack(itemstack1, 4, 5, false)) {
+						return ItemStack.EMPTY;
+					}
+				}
+			} else if (entityequipmentslot == EntityEquipmentSlot.FEET) {
+				if (!inventorySlots.get(5).getHasStack() && this.getSlot(5).isItemValid(itemstack1)) {
+					if (!this.mergeItemStack(itemstack1, 5, 6, false)) {
+						return ItemStack.EMPTY;
+					}
+				}
+			}
 
 			if (index < this.wizardInventory.getSizeInventory()) {
 				if (!this.mergeItemStack(itemstack1, this.wizardInventory.getSizeInventory(), this.inventorySlots.size(), true)) {
 					return ItemStack.EMPTY;
 				}
-			} else if (this.getSlot(1).isItemValid(itemstack1) && !this.getSlot(1).getHasStack()) {
-				if (!this.mergeItemStack(itemstack1, 1, 2, false)) {
-					return ItemStack.EMPTY;
+			} else
+
+			if (itemstack1.getItem() instanceof ItemArtefact) {
+				if (!inventorySlots.get(21).getHasStack()) {
+					if (!this.mergeItemStack(itemstack1, 21, 22, false)) {
+						return ItemStack.EMPTY;
+					}
 				}
-			} else if (this.getSlot(0).isItemValid(itemstack1)) {
-				if (!this.mergeItemStack(itemstack1, 0, 1, false)) {
-					return ItemStack.EMPTY;
-				}
-			} else if (this.wizardInventory.getSizeInventory() <= 2 || !this.mergeItemStack(itemstack1, 2, this.wizardInventory.getSizeInventory(), false)) {
-				return ItemStack.EMPTY;
 			}
+
+			if (!this.mergeItemStack(itemstack1, 0, this.wizardInventory.getSizeInventory(), false)) {
+					return ItemStack.EMPTY;
+			}
+			System.out.println();
+				//} else if (this.getSlot(1).isItemValid(itemstack1) && !this.getSlot(1).getHasStack()) {
+				//	if (!this.mergeItemStack(itemstack1, 1, 2, false)) {
+				//	return ItemStack.EMPTY;
+				//	}
 
 			if (itemstack1.isEmpty()) {
 				slot.putStack(ItemStack.EMPTY);

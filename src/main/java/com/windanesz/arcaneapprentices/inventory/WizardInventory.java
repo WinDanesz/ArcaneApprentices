@@ -7,9 +7,9 @@ import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 
-public class ContainerWizardInventory extends InventoryBasic {
+public class WizardInventory extends InventoryBasic {
 
-	public ContainerWizardInventory(String title, boolean customName, int slotCount) {
+	public WizardInventory(String title, boolean customName, int slotCount) {
 		super(title, customName, slotCount);
 	}
 

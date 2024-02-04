@@ -28,7 +28,7 @@ import com.windanesz.arcaneapprentices.entity.ai.WizardAIWatchClosest2;
 import com.windanesz.arcaneapprentices.handler.EventHandler;
 import com.windanesz.arcaneapprentices.handler.XpProgression;
 import com.windanesz.arcaneapprentices.inventory.ContainerWizardInitiateInventory;
-import com.windanesz.arcaneapprentices.inventory.ContainerWizardInventory;
+import com.windanesz.arcaneapprentices.inventory.WizardInventory;
 import com.windanesz.arcaneapprentices.items.ItemArtefactWithSlots;
 import com.windanesz.arcaneapprentices.registry.AAAdvancementTriggers;
 import com.windanesz.arcaneapprentices.registry.AAItems;
@@ -179,10 +179,15 @@ public class EntityWizardInitiate extends EntityCreature
 	private static final DataParameter<NBTTagCompound> SCHEDULED_MESSAGES = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.COMPOUND_TAG);
 	private static final DataParameter<BlockPos> BED_POSITION = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.BLOCK_POS);
 	private static final DataParameter<Boolean> SWINGING_ARMS = EntityDataManager.<Boolean>createKey(EntityWizardInitiate.class, DataSerializers.BOOLEAN);
-	private static final int MAINHAND = 0;
+	public static final int FEET_INDEX = 5;
+	public static final int LEGS_INDEX = 4;
+	public static final int CHEST_INDEX = 3;
+	public static final int HEAD_INDEX = 2;
+	public static final int OFFHAND_INDEX = 1;
+	public static final int MAINHAND_INDEX = 0;
 	public int textureIndex = 0;
 	public int adventureRemainingDuration = -1;
-	public ContainerWizardInventory inventory;
+	public WizardInventory inventory;
 	public BlockPos currentStayPos = new BlockPos(0, 0, 0);
 	protected Predicate<Entity> targetSelector;
 	List<MessageEntry> scheduledMessages = new ArrayList<>();
@@ -858,7 +863,7 @@ public class EntityWizardInitiate extends EntityCreature
 						// first slot item goes to i (food slot)...
 						this.inventory.setInventorySlotContents(i, oldFirstItem);
 						// then the food goes to the mainhand
-						inventory.setInventorySlotContents(MAINHAND, stack);
+						inventory.setInventorySlotContents(MAINHAND_INDEX, stack);
 						// then the old held item goes to the first slot
 						inventory.setInventorySlotContents(7, oldHeldItem);
 						isEating = true;
@@ -909,7 +914,7 @@ public class EntityWizardInitiate extends EntityCreature
 					// first slot item goes to i (food slot)...
 					this.inventory.setInventorySlotContents(i, oldFirstItem);
 					// then the food goes to the mainhand
-					inventory.setInventorySlotContents(MAINHAND, stack);
+					inventory.setInventorySlotContents(MAINHAND_INDEX, stack);
 					// then the old held item goes to the first slot
 					inventory.setInventorySlotContents(7, oldHeldItem);
 					this.setActiveHand(EnumHand.MAIN_HAND);
@@ -986,10 +991,10 @@ public class EntityWizardInitiate extends EntityCreature
 
 		super.onItemUseFinish();
 		if (mainHand && getHeldItemMainhand().isEmpty()) {
-			inventory.setInventorySlotContents(MAINHAND, inventory.getStackInSlot(7));
+			inventory.setInventorySlotContents(MAINHAND_INDEX, inventory.getStackInSlot(7));
 		} else if (mainHand) {
 			ItemStack backup = this.getHeldItemMainhand().copy();
-			inventory.setInventorySlotContents(MAINHAND, inventory.getStackInSlot(7));
+			inventory.setInventorySlotContents(MAINHAND_INDEX, inventory.getStackInSlot(7));
 			inventory.setInventorySlotContents(7, backup);
 		}
 
@@ -1197,8 +1202,8 @@ public class EntityWizardInitiate extends EntityCreature
 	}
 
 	protected void initInventory() {
-		ContainerWizardInventory wizardInventory = this.inventory;
-		this.inventory = new ContainerWizardInventory("WizardInventory", false, this.getInventorySize());
+		WizardInventory wizardInventory = this.inventory;
+		this.inventory = new WizardInventory("WizardInventory", false, this.getInventorySize());
 		this.inventory.setCustomName(this.getName());
 
 		if (wizardInventory != null) {
@@ -1320,24 +1325,24 @@ public class EntityWizardInitiate extends EntityCreature
 	//	@Override
 	public void onInventoryChanged(IInventory inventory) {
 		ItemStack oldItem = this.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND);
-		ItemStack newItem = this.inventory.getStackInSlot(0);
+		ItemStack newItem = this.inventory.getStackInSlot(MAINHAND_INDEX);
 		if (ItemStack.areItemStacksEqual(oldItem, newItem)) {
-	//		this.resetStudyProgress();
+			//		this.resetStudyProgress();
 		}
 
 		//		setHeldItem(EnumHand.MAIN_HAND, inventory.getStackInSlot(0));
-		this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, inventory.getStackInSlot(0));
-		this.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, inventory.getStackInSlot(1));
-		this.setItemStackToSlot(EntityEquipmentSlot.HEAD, inventory.getStackInSlot(2));
-		this.setItemStackToSlot(EntityEquipmentSlot.CHEST, inventory.getStackInSlot(3));
-		this.setItemStackToSlot(EntityEquipmentSlot.LEGS, inventory.getStackInSlot(4));
-		this.setItemStackToSlot(EntityEquipmentSlot.FEET, inventory.getStackInSlot(5));
+		this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, inventory.getStackInSlot(MAINHAND_INDEX));
+		this.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, inventory.getStackInSlot(OFFHAND_INDEX));
+		this.setItemStackToSlot(EntityEquipmentSlot.HEAD, inventory.getStackInSlot(HEAD_INDEX));
+		this.setItemStackToSlot(EntityEquipmentSlot.CHEST, inventory.getStackInSlot(CHEST_INDEX));
+		this.setItemStackToSlot(EntityEquipmentSlot.LEGS, inventory.getStackInSlot(LEGS_INDEX));
+		this.setItemStackToSlot(EntityEquipmentSlot.FEET, inventory.getStackInSlot(FEET_INDEX));
 
-		if (inventory.getStackInSlot(0).getItem() instanceof ItemSword) {
+		if (inventory.getStackInSlot(MAINHAND_INDEX).getItem() instanceof ItemSword) {
 			this.tasks.removeTask(spellCastingAI);
 			this.tasks.removeTask(bowAI);
 			this.tasks.addTask(3, meleeAI);
-		} else if (inventory.getStackInSlot(0).getItem() instanceof ItemBow) {
+		} else if (inventory.getStackInSlot(MAINHAND_INDEX).getItem() instanceof ItemBow) {
 			this.tasks.removeTask(meleeAI);
 			this.tasks.removeTask(spellCastingAI);
 			this.tasks.addTask(3, bowAI);
@@ -1621,7 +1626,7 @@ public class EntityWizardInitiate extends EntityCreature
 
 	public List<ItemStack> getHeldItems() {
 		List<ItemStack> list = new ArrayList<>();
-		list.add(inventory.getStackInSlot(MAINHAND));
+		list.add(inventory.getStackInSlot(MAINHAND_INDEX));
 		list.add(inventory.getStackInSlot(OFF_HAND_SLOT));
 		return list;
 	}
@@ -1633,10 +1638,10 @@ public class EntityWizardInitiate extends EntityCreature
 	@Override
 	public Iterable<ItemStack> getArmorInventoryList() {
 		NonNullList<ItemStack> inventoryArmor = NonNullList.<ItemStack>withSize(4, ItemStack.EMPTY);
-		inventoryArmor.set(0, inventory.getStackInSlot(2));
-		inventoryArmor.set(0, inventory.getStackInSlot(3));
-		inventoryArmor.set(0, inventory.getStackInSlot(4));
-		inventoryArmor.set(0, inventory.getStackInSlot(5));
+		inventoryArmor.set(0, inventory.getStackInSlot(HEAD_INDEX));
+		inventoryArmor.set(0, inventory.getStackInSlot(CHEST_INDEX));
+		inventoryArmor.set(0, inventory.getStackInSlot(LEGS_INDEX));
+		inventoryArmor.set(0, inventory.getStackInSlot(FEET_INDEX));
 		return inventoryArmor;
 	}
 
@@ -1667,7 +1672,7 @@ public class EntityWizardInitiate extends EntityCreature
 
 				LootContext.Builder lootcontext$builder = new LootContext.Builder((WorldServer) this.world);
 				lootcontext$builder.withLuck(player.getLuck()).withPlayer(player); // Forge: add player to LootContext
-				ContainerWizardInventory temporaryInventory = new ContainerWizardInventory("WizardInventory", false, 64);
+				WizardInventory temporaryInventory = new WizardInventory("WizardInventory", false, 64);
 				loottable.fillInventory(temporaryInventory, random, lootcontext$builder.build());
 				mergeItemStacks(temporaryInventory);
 				List<ItemStack> itemStackList = new ArrayList<>();
@@ -1680,7 +1685,7 @@ public class EntityWizardInitiate extends EntityCreature
 					LootTable extraItems = this.world.getLootTableManager().getLootTableFromLocation(LootRegistry.STRUCTURES);
 					LootContext.Builder lootcontext$builder2 = new LootContext.Builder((WorldServer) this.world);
 					lootcontext$builder2.withLuck(player.getLuck()).withPlayer(player); // Forge: add player to LootContext
-					ContainerWizardInventory fewItemContainer = new ContainerWizardInventory("WizardInventory", false, 64);
+					WizardInventory fewItemContainer = new WizardInventory("WizardInventory", false, 64);
 					extraItems.fillInventory(fewItemContainer, random, lootcontext$builder2.build());
 					mergeItemStacks(fewItemContainer);
 
