@@ -1026,7 +1026,7 @@ public class EntityWizardInitiate extends EntityCreature
 				sayImmediately(player, new TextComponentTranslation(Speech.PLAYER_GIVES_HANDBOOK.getRandom(), player.getDisplayName()));
 				this.setOwner(player);
 				this.setHome(new Location(this.getPos(), this.dimension));
-				WizardryUtilsTools.sendMessage(player, "message.arcaneapprentices:apprentice_taken", false);
+				WizardryUtilsTools.sendMessage(player, "message.arcaneapprentices:apprentice_taken", false, this.getName());
 				setTask(Task.FOLLOW);
 				//	AAAdvancementTriggers.take_apprentice.triggerFor(player);
 				return true;
@@ -1538,7 +1538,6 @@ public class EntityWizardInitiate extends EntityCreature
 	}
 
 	public void addExperience(int amount) {
-		System.out.println(getTotalXp());
 		int newAmount = getTotalXp() + amount;
 		int xpForNewLevel = (int) XpProgression.calculateTotalXpRequired(getLevel() + 1);
 
