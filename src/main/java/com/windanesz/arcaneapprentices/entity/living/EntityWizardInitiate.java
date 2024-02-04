@@ -1872,11 +1872,11 @@ public class EntityWizardInitiate extends EntityCreature
 	protected EntityArrow getArrow(float distanceFactor) {
 		for (int i = 1; i < this.inventory.getSizeInventory(); i++) {
 			if (this.inventory.getStackInSlot(i).getItem() instanceof ItemArrow) {
-				EntityTippedArrow entitytippedarrow = new EntityTippedArrow(this.world, this);
-				entitytippedarrow.pickupStatus = EntityArrow.PickupStatus.ALLOWED;
-				entitytippedarrow.setEnchantmentEffectsFromEntity(this, distanceFactor);
+				EntityArrow arrow = ((ItemArrow) this.inventory.getStackInSlot(i).getItem()).createArrow(world, this.inventory.getStackInSlot(i).copy(), this);
+				arrow.pickupStatus = EntityArrow.PickupStatus.ALLOWED;
+				arrow.setEnchantmentEffectsFromEntity(this, distanceFactor);
 				this.inventory.getStackInSlot(i).shrink(1);
-				return entitytippedarrow;
+				return arrow;
 			}
 		}
 		return null;
