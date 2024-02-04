@@ -99,7 +99,7 @@ public class WizardAIStudy extends WizardAILecternBase {
 							this.wizard.getLectern().getZ() + 0.5f, (float) this.wizard.getHorizontalFaceSpeed(), (float) this.wizard.getVerticalFaceSpeed());
 					if (this.wizard.ticksExisted % 30 == 0 && this.wizard.getHeldItem(EnumHand.OFF_HAND).getItem() instanceof ItemSpellBook) {
 						Spell spell = Spell.byMetadata(this.wizard.getHeldItem(EnumHand.OFF_HAND).getItemDamage());
-						this.wizard.addStudyProgress(this.wizard.getStudyProgressForSpell(spell, 30));
+						this.wizard.addStudyProgress(this.wizard.getStudyProgressForSpell(spell, 30), this.wizard.getHeldItem(EnumHand.OFF_HAND));
 						if (this.wizard.isStudyComplete()) {
 							if (spell.getTier().ordinal() > 0) {
 								if (!this.wizard.isArtefactActive(AAItems.charm_eternal_grimoire) && !this.wizard.consumeArcaneTome(spell.getTier())) {

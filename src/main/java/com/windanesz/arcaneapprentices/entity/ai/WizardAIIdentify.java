@@ -107,7 +107,7 @@ public class WizardAIIdentify extends WizardAILecternBase {
 							this.wizard.getHeldItem(EnumHand.OFF_HAND).getItem() instanceof ItemScroll)) {
 						Spell spell = Spell.byMetadata(this.wizard.getHeldItem(EnumHand.OFF_HAND).getItemDamage());
 						this.wizard.addStudyProgress((this.wizard.getStudyProgressForSpell(spell, 30) / Settings.generalSettings.IDENTIFYING_SPELL_DURATION_MULTIPLIER_COMPARED_TO_LEARNING)
-								* (wizard.isArtefactActive(WizardryItems.amulet_wisdom) ? 1.15f : 1f));
+								* (wizard.isArtefactActive(WizardryItems.amulet_wisdom) ? 1.15f : 1f), this.wizard.getHeldItemOffhand());
 
 						if (this.wizard.isStudyComplete()) {
 							if (this.wizard.getOwner() instanceof EntityPlayer) {

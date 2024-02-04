@@ -66,7 +66,7 @@ public class PacketControlInput implements IMessageHandler<PacketControlInput.Me
 
 						if (player.openContainer instanceof ContainerWizardBase) {
 							((ContainerWizardBase) player.openContainer).getWizard().setTask(EntityWizardInitiate.Task.STUDY);
-							((ContainerWizardBase) player.openContainer).getWizard().resetStudyProgress();
+						//	((ContainerWizardBase) player.openContainer).getWizard().resetStudyProgress();
 							((ContainerWizardBase) player.openContainer).getWizard().sayImmediately(
 									new TextComponentTranslation(Speech.WIZARD_PLAYER_CLICK_STUDY_BUTTON.getRandom()));
 							player.closeScreen();

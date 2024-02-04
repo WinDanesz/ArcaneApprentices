@@ -170,6 +170,7 @@ public class EntityWizardInitiate extends EntityCreature
 	private static final DataParameter<Float> FOOD_LEVEL = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.FLOAT);
 	private static final DataParameter<Float> FOOD_SATURATION = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.FLOAT);
 	private static final DataParameter<Float> STUDY_PROGRESS = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.FLOAT);
+	private static final DataParameter<NBTTagCompound> STUDIED_ITEM = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.COMPOUND_TAG);
 	private static final DataParameter<Boolean> IS_CHILD = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.BOOLEAN);
 	private static final DataParameter<Boolean> IS_SLEEPING = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.BOOLEAN);
 	private static final DataParameter<NBTTagCompound> KNOWN_SPELLS = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.COMPOUND_TAG);
@@ -241,6 +242,7 @@ public class EntityWizardInitiate extends EntityCreature
 		this.dataManager.register(SCHEDULED_MESSAGES, new NBTTagCompound());
 		this.dataManager.register(OWNER_UNIQUE_ID, Optional.absent());
 		this.dataManager.register(SWINGING_ARMS, Boolean.valueOf(false));
+		this.dataManager.register(STUDIED_ITEM, new NBTTagCompound());
 	}
 
 	protected void initEntityAI() {
@@ -604,6 +606,14 @@ public class EntityWizardInitiate extends EntityCreature
 		return this.getDataManager().get(STUDY_PROGRESS).floatValue();
 	}
 
+	public ItemStack getStudiedItem() {
+		return new ItemStack(this.getDataManager().get(STUDIED_ITEM));
+	}
+
+	public void setStudiedItem(ItemStack stack) {
+		this.getDataManager().set(STUDIED_ITEM, stack.writeToNBT(new NBTTagCompound()));
+	}
+
 	public float getFoodLevel() {
 		return this.getDataManager().get(FOOD_LEVEL);
 	}
@@ -640,10 +650,11 @@ public class EntityWizardInitiate extends EntityCreature
 		this.getDataManager().set(BED_POSITION, pos);
 	}
 
-	public void addStudyProgress(float amount) {
+	public void addStudyProgress(float amount, ItemStack stack) {
 		float oldAmount = getStudyProgress();
 		float newAmount = Math.min(1.0f, oldAmount + amount);
 		this.getDataManager().set(STUDY_PROGRESS, newAmount);
+		this.setStudiedItem(stack);
 	}
 
 	public void resetStudyProgress() {
@@ -1296,12 +1307,22 @@ public class EntityWizardInitiate extends EntityCreature
 		return super.attackEntityFrom(source, damage);
 	}
 
+	@Override
+	public void setItemStackToSlot(EntityEquipmentSlot slotIn, ItemStack stack) {
+		super.setItemStackToSlot(slotIn, stack);
+		if (slotIn == EntityEquipmentSlot.OFFHAND && (getTask() == Task.STUDY || getTask() == Task.IDENTIFY)) {
+			if (!getStudiedItem().isItemEqual(stack)) {
+				resetStudyProgress();
+			}
+		}
+	}
+
 	//	@Override
 	public void onInventoryChanged(IInventory inventory) {
 		ItemStack oldItem = this.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND);
 		ItemStack newItem = this.inventory.getStackInSlot(0);
 		if (ItemStack.areItemStacksEqual(oldItem, newItem)) {
-			this.resetStudyProgress();
+	//		this.resetStudyProgress();
 		}
 
 		//		setHeldItem(EnumHand.MAIN_HAND, inventory.getStackInSlot(0));

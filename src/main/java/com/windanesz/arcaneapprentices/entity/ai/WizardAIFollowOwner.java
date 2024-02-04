@@ -175,7 +175,7 @@ public class WizardAIFollowOwner extends EntityAIBase {
 
 			if (!this.petPathfinder.tryMoveToEntityLiving(this.owner, this.followSpeed)) {
 				if (!this.wizard.getLeashed() && !this.wizard.isRiding()) {
-					if (this.wizard.getDistanceSq(this.owner) >= 144.0D) {
+					if (this.wizard.getDistanceSq(this.owner) >= 256.0D) {
 						int i = MathHelper.floor(this.owner.posX) - 2;
 						int j = MathHelper.floor(this.owner.posZ) - 2;
 						int k = MathHelper.floor(this.owner.getEntityBoundingBox().minY);

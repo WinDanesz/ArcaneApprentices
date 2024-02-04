@@ -18,8 +18,10 @@ public class WizardAIAttackMelee extends EntityAIAttackMelee {
 			if (owner instanceof EntityPlayer) {
 				if (owner.getDistance(this.attacker) > 10) {
 					this.attacker.getNavigator().clearPath();
-					this.attacker.getNavigator().tryMoveToEntityLiving(owner, 0.8);
+					this.attacker.getNavigator().tryMoveToEntityLiving(owner, 1);
 					this.attacker.getLookHelper().setLookPositionWithEntity(owner, 30.0F, 30.0F);
+					this.attacker.setAttackTarget(null);
+					((EntityWizardInitiate) this.attacker).resetChatCooldown();
 					return false;
 				}
 			}
