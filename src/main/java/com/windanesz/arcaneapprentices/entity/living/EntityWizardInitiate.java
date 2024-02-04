@@ -37,6 +37,7 @@ import com.windanesz.wizardryutils.tools.WizardryUtilsTools;
 import electroblob.wizardry.Wizardry;
 import electroblob.wizardry.constants.Element;
 import electroblob.wizardry.constants.Tier;
+import electroblob.wizardry.entity.living.EntitySpiritWolf;
 import electroblob.wizardry.entity.living.ISpellCaster;
 import electroblob.wizardry.entity.living.ISummonedCreature;
 import electroblob.wizardry.item.ItemSpellBook;
@@ -76,6 +77,7 @@ import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 import net.minecraft.entity.ai.EntityAIOpenDoor;
 import net.minecraft.entity.ai.EntityAIRestrictOpenDoor;
 import net.minecraft.entity.ai.EntityAISwimming;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -1758,6 +1760,11 @@ public class EntityWizardInitiate extends EntityCreature
 								break;
 							}
 						}
+						if (this.inventory.getStackInSlot(ARTEFACT_SLOT).getItem() == AAItems.charm_bag_9) {
+							this.inventory.setInventorySlotContents(ARTEFACT_SLOT, bag);
+						} else if (this.inventory.getStackInSlot(OFF_HAND_SLOT).getItem() == AAItems.charm_bag_9) {
+							this.inventory.setInventorySlotContents(OFF_HAND_SLOT, bag);
+						}
 						this.inventory.setInventorySlotContents(ARTEFACT_SLOT, bag);
 					} else if (flag && isArtefactActive(AAItems.charm_bag_27)) {
 						ItemStack bag = inventory.getStackInSlot(ARTEFACT_SLOT).copy();
@@ -1768,6 +1775,11 @@ public class EntityWizardInitiate extends EntityCreature
 								listIterator.remove();
 								break;
 							}
+						}
+						if (this.inventory.getStackInSlot(ARTEFACT_SLOT).getItem() == AAItems.charm_bag_27) {
+							this.inventory.setInventorySlotContents(ARTEFACT_SLOT, bag);
+						} else if (this.inventory.getStackInSlot(OFF_HAND_SLOT).getItem() == AAItems.charm_bag_27) {
+							this.inventory.setInventorySlotContents(OFF_HAND_SLOT, bag);
 						}
 						this.inventory.setInventorySlotContents(ARTEFACT_SLOT, bag);
 					}
