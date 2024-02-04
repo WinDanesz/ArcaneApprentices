@@ -143,7 +143,7 @@ public class EntityWizardInitiate extends EntityCreature
 
 	public static final float RARE_EVENT_CHANCE = 0.05f;
 	public static final int OFF_HAND_SLOT = 1;
-	public static final int ARTEFACT_SLOT = 22;
+	public static final int ARTEFACT_SLOT = 21;
 	/**
 	 * The increase in progression for casting spells of the matching element.
 	 */
