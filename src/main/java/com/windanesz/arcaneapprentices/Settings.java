@@ -397,6 +397,7 @@ public class Settings {
 				"ebwizardry:charm_golden_lure",
 				"ebwizardry:ring_siphoning",
 				"ebwizardry:amulet_survival_chance",
+				"apprenticearcana:head_knowledge",
 		};
 
 		@Config.Name("Minimum NPC Level for Identifying Spells")

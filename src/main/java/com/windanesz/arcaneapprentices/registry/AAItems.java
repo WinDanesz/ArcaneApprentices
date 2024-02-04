@@ -35,6 +35,7 @@ public final class AAItems {
 	public static final Item charm_itinerary = placeholder();
 	public static final Item ring_serendipity = placeholder();
 	public static final Item amulet_survival_chance = placeholder();
+	public static final Item head_knowledge = placeholder();
 
 	@SubscribeEvent
 	public static void register(RegistryEvent.Register<Item> event) {
@@ -53,6 +54,7 @@ public final class AAItems {
 		ItemRegistry.registerItemArtefact(registry, "charm_golden_lure", ArcaneApprentices.MODID, new ItemArtefact(EnumRarity.RARE, ItemArtefact.Type.CHARM));
 		ItemRegistry.registerItemArtefact(registry, "ring_serendipity", ArcaneApprentices.MODID, new ItemArtefact(EnumRarity.RARE, ItemArtefact.Type.RING));
 		ItemRegistry.registerItemArtefact(registry, "amulet_survival_chance", ArcaneApprentices.MODID, new ItemArtefact(EnumRarity.RARE, ItemArtefact.Type.AMULET));
+		ItemRegistry.registerItemArtefact(registry, "head_knowledge", ArcaneApprentices.MODID, new ItemArtefact(EnumRarity.RARE, ItemArtefact.Type.HEAD));
 	}
 
 	@Nonnull

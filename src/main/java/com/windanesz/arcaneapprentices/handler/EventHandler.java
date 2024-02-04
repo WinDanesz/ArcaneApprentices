@@ -584,11 +584,12 @@ public final class EventHandler {
 
 		if (event.getEntity() instanceof EntityLivingBase && event.getSource().getTrueSource() instanceof EntityWizardInitiate) {
 			EntityWizardInitiate wizard = (EntityWizardInitiate) event.getSource().getTrueSource();
-			// TODO: artefact that improves xp gain on kills
+
 			wizard.addExperience(XpProgression.getXpGainPerKill());
 			if (wizard.world.rand.nextFloat() < Settings.generalSettings.KILL_MESSAGE_CHANCE) {
 				wizard.sayImmediately(new TextComponentTranslation(Speech.WIZARD_SLAY_ENEMY.getRandom(), event.getEntity().getDisplayName()));
 			}
+			wizard.resetChatCooldown();
 		}
 
 		if (event.getSource().getTrueSource() instanceof EntityWizardInitiate) {
