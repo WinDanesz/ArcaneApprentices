@@ -1,9 +1,11 @@
 package com.windanesz.arcaneapprentices.entity.ai;
 
 import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.ai.EntityAIBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBow;
 import net.minecraft.util.EnumHand;
 
@@ -17,6 +19,7 @@ public class WizardAIAttackRangedBow<T extends EntityWizardInitiate> extends Ent
 	private boolean strafingClockwise;
 	private boolean strafingBackwards;
 	private int strafingTime = -1;
+	private int ticksForRegroup = 0;
 
 	public WizardAIAttackRangedBow(T wizard, double moveSpeedAmpIn, int attackCooldownIn, float maxAttackDistanceIn) {
 		this.wizard = wizard;
@@ -39,6 +42,16 @@ public class WizardAIAttackRangedBow<T extends EntityWizardInitiate> extends Ent
 	}
 
 	public boolean shouldContinueExecuting() {
+
+		Entity owner = this.wizard.getOwner();
+		if (owner instanceof EntityPlayer) {
+			if (owner.getDistance(this.wizard) > 10) {
+				this.wizard.getNavigator().clearPath();
+				this.wizard.getNavigator().tryMoveToEntityLiving(this.wizard.getOwner(), 0.6);
+				this.wizard.getLookHelper().setLookPositionWithEntity(this.wizard.getOwner(), 30.0F, 30.0F);
+				return false;
+			}
+		}
 		return (this.shouldExecute() || !this.wizard.getNavigator().noPath()) && this.isBowInMainhand();
 	}
 
@@ -62,8 +75,13 @@ public class WizardAIAttackRangedBow<T extends EntityWizardInitiate> extends Ent
 
 
 		EntityLivingBase target = this.wizard.getAttackTarget();
+		boolean regrouping = false;
+		if (this.wizard.getTask() == EntityWizardInitiate.Task.FOLLOW) {
 
-		if (target != null) {
+		}
+
+
+		if (target != null && !regrouping) {
 			double d0 = this.wizard.getDistanceSq(target.posX, target.getEntityBoundingBox().minY, target.posZ);
 			boolean flag = this.wizard.getEntitySenses().canSee(target);
 			boolean flag1 = this.seeTime > 0;

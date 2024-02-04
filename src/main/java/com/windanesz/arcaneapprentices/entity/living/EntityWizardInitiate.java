@@ -11,6 +11,7 @@ import com.windanesz.arcaneapprentices.data.JourneyType;
 import com.windanesz.arcaneapprentices.data.PlayerData;
 import com.windanesz.arcaneapprentices.data.Speech;
 import com.windanesz.arcaneapprentices.entity.MessageEntry;
+import com.windanesz.arcaneapprentices.entity.ai.WizardAIAttackMelee;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIAttackRangedBow;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIAttackSpellWithCost;
 import com.windanesz.arcaneapprentices.entity.ai.WizardAIFollowOwner;
@@ -69,21 +70,18 @@ import net.minecraft.entity.IEntityOwnable;
 import net.minecraft.entity.INpc;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.EntityAIAttackMelee;
-import net.minecraft.entity.ai.EntityAIAttackRangedBow;
 import net.minecraft.entity.ai.EntityAIHurtByTarget;
 import net.minecraft.entity.ai.EntityAIMoveTowardsRestriction;
 import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 import net.minecraft.entity.ai.EntityAIOpenDoor;
 import net.minecraft.entity.ai.EntityAIRestrictOpenDoor;
 import net.minecraft.entity.ai.EntityAISwimming;
-import net.minecraft.entity.monster.AbstractSkeleton;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityPotion;
-import net.minecraft.entity.projectile.EntityTippedArrow;
+import net.minecraft.init.Enchantments;
 import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
 import net.minecraft.init.SoundEvents;
@@ -144,6 +142,8 @@ public class EntityWizardInitiate extends EntityCreature
 		implements INpc, ISpellCaster, IEntityAdditionalSpawnData, IInventoryChangedListener, IEntityOwnable, IRangedAttackMob {
 
 	public static final float RARE_EVENT_CHANCE = 0.05f;
+	public static final int OFF_HAND_SLOT = 1;
+	public static final int ARTEFACT_SLOT = 22;
 	/**
 	 * The increase in progression for casting spells of the matching element.
 	 */
@@ -178,12 +178,178 @@ public class EntityWizardInitiate extends EntityCreature
 	private static final DataParameter<NBTTagCompound> SCHEDULED_MESSAGES = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.COMPOUND_TAG);
 	private static final DataParameter<BlockPos> BED_POSITION = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.BLOCK_POS);
 	private static final DataParameter<Boolean> SWINGING_ARMS = EntityDataManager.<Boolean>createKey(EntityWizardInitiate.class, DataSerializers.BOOLEAN);
-
 	private static final int MAINHAND = 0;
-	public static final int OFF_HAND_SLOT = 1;
-	public static final int ARTEFACT_SLOT = 22;
 	public int textureIndex = 0;
 	public int adventureRemainingDuration = -1;
+	public ContainerWizardInventory inventory;
+	public BlockPos currentStayPos = new BlockPos(0, 0, 0);
+	protected Predicate<Entity> targetSelector;
+	List<MessageEntry> scheduledMessages = new ArrayList<>();
+	private JourneyType journeyType = JourneyType.NOT_ADVENTURING;
+	private WizardAIAttackSpellWithCost spellCastingAI = new WizardAIAttackSpellWithCost(this, 0.5, 14.0F, 30, 50, false);
+	private WizardAIAttackMelee meleeAI = new WizardAIAttackMelee(this, 0.5D, false);
+	private WizardAIAttackRangedBow<EntityWizardInitiate> bowAI = new WizardAIAttackRangedBow<>(this, 0.5D, 25, 15.0F);
+	private MerchantRecipeList trades;
+	private BlockPos lectern;
+	private boolean isEating = false;
+	// This variable is used when foodLevel either exceeds 17 or is at zero. Increases in each tick up to 80, then it either heals or deals a half heart damage (starving) then resets to 0
+	private int foodTickTimer = 0;
+	private Location home = new Location(BlockPos.ORIGIN, 0);
+	/**
+	 * The fraction of progression lost when all recently-cast spells are the same as the one being cast.
+	 */
+	@Nullable
+	private EntityPlayer customer;
+	private int timeUntilReset;
+	private boolean updateRecipes;
+	// FORGE
+	private net.minecraftforge.items.IItemHandler itemHandler = null;
+	private Set<BlockPos> towerBlocks;
+	private float wizardWidth = -1.0F;
+	private float wizardHeight;
+	private int chatCooldown = 0;
+	private int rareEventCooldown = 0;
+	private int rareEventMaxCooldown = 6000;
+
+	public EntityWizardInitiate(World world) {
+		super(world);
+		this.tasks.addTask(3, this.spellCastingAI);
+		this.setSize(0.6F, 1.95F);
+		initInventory();
+	}
+
+	protected void entityInit() {
+		super.entityInit();
+		this.dataManager.register(HEAL_COOLDOWN, -1);
+		this.dataManager.register(ELEMENT, 0);
+		this.dataManager.register(CONTINUOUS_SPELL, "ebwizardry:none");
+		this.dataManager.register(CURRENT_SPELL, "ebwizardry:none");
+		this.dataManager.register(SPELL_COUNTER, 0);
+		this.dataManager.register(LEVEL, 1);
+		this.dataManager.register(CURRENT_TASK, 0);
+		this.dataManager.register(PREVIOUS_TASK_BEFORE_SLEEPING, 0);
+		this.dataManager.register(XP, 0);
+		this.dataManager.register(TIME_TILL_NEXT_SCHEDULED_MESSAGE, 0);
+		this.dataManager.register(FOOD_LEVEL, 20f);
+		this.dataManager.register(FOOD_SATURATION, 5f);
+		this.dataManager.register(IS_CHILD, false);
+		this.dataManager.register(BED_POSITION, BlockPos.ORIGIN);
+		this.dataManager.register(IS_SLEEPING, false);
+		this.dataManager.register(STUDY_PROGRESS, 0f);
+		this.dataManager.register(KNOWN_SPELLS, new NBTTagCompound());
+		this.dataManager.register(DISABLED_SPELLS, new NBTTagCompound());
+		this.dataManager.register(SCHEDULED_MESSAGES, new NBTTagCompound());
+		this.dataManager.register(OWNER_UNIQUE_ID, Optional.absent());
+		this.dataManager.register(SWINGING_ARMS, Boolean.valueOf(false));
+	}
+
+	protected void initEntityAI() {
+		this.tasks.addTask(0, new EntityAISwimming(this));
+		this.tasks.addTask(1, new WizardAIPanicAtLowHP(this, 1.15D));
+		this.tasks.addTask(4, new EntityAIRestrictOpenDoor(this));
+		this.tasks.addTask(5, new WizardAIFollowOwner(this, 0.70D, 10.0F, 2.0F));
+		this.tasks.addTask(5, new WizardAIGoHome(this, 0.70D, 20));
+		this.tasks.addTask(5, new EntityAIOpenDoor(this, true));
+		this.tasks.addTask(6, new EntityAIMoveTowardsRestriction(this, 0.6));
+		this.tasks.addTask(6, new WizardAIStudy(this, 10, 1));
+		this.tasks.addTask(6, new WizardAIIdentify(this, 10, 1));
+		//		this.tasks.addTask(6, new EntityAIWatchClosestLectern(this,  3));
+		this.tasks.addTask(7, new WizardAIWatchClosest2(this, EntityPlayer.class, 3.0F, 1.0F));
+		this.tasks.addTask(7, new WizardAIWander(this, 0.4, 10));
+		this.tasks.addTask(8, new WizardAIWatchClosest(this, EntityLiving.class, 8.0F));
+		this.tasks.addTask(7, new WizardAILookAround(this, 8.0F, 0.1f));
+		this.targetTasks.addTask(1, new WizardAIOwnerHurtByTarget(this));
+		this.targetTasks.addTask(2, new WizardAIOwnerHurtTarget(this));
+		this.targetSelector = (entity) -> {
+			return entity != null && !entity.isInvisible() && entity != getOwner() && AllyDesignationSystem.isValidTarget(this, entity) && (entity instanceof IMob || entity instanceof ISummonedCreature || Arrays.asList(Wizardry.settings.summonedCreatureTargetsWhitelist).contains(EntityList.getKey(entity.getClass()))) && !Arrays.asList(Wizardry.settings.summonedCreatureTargetsBlacklist).contains(EntityList.getKey(entity.getClass()));
+		};
+		this.targetTasks.addTask(1, new EntityAIHurtByTarget(this, false, new Class[0]));
+		this.targetTasks.addTask(0, new EntityAINearestAttackableTarget(this, EntityLiving.class, 0, false, true, this.targetSelector));
+	}
+
+	protected void applyEntityAttributes() {
+		super.applyEntityAttributes();
+		this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(1.0D);
+		this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5);
+		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(30.0);
+	}
+
+	// This is now public because artefacts use it
+	public static SpellModifiers calculateModifiers(ItemStack stack, EntityWizardInitiate npc, Spell spell) {
+
+		SpellModifiers modifiers = new SpellModifiers();
+
+		// Now we only need to add multipliers if they are not 1.
+		int level = WandHelper.getUpgradeLevel(stack, WizardryItems.range_upgrade);
+		if (level > 0) {modifiers.set(WizardryItems.range_upgrade, 1.0f + level * electroblob.wizardry.constants.Constants.RANGE_INCREASE_PER_LEVEL, true);}
+
+		level = WandHelper.getUpgradeLevel(stack, WizardryItems.duration_upgrade);
+		if (level > 0) {
+			modifiers.set(WizardryItems.duration_upgrade, 1.0f + level * electroblob.wizardry.constants.Constants.DURATION_INCREASE_PER_LEVEL, false);
+		}
+
+		level = WandHelper.getUpgradeLevel(stack, WizardryItems.blast_upgrade);
+		if (level > 0) {
+			modifiers.set(WizardryItems.blast_upgrade, 1.0f + level * electroblob.wizardry.constants.Constants.BLAST_RADIUS_INCREASE_PER_LEVEL, true);
+		}
+
+		level = WandHelper.getUpgradeLevel(stack, WizardryItems.cooldown_upgrade);
+		if (level > 0) {
+			modifiers.set(WizardryItems.cooldown_upgrade, 1.0f - level * electroblob.wizardry.constants.Constants.COOLDOWN_REDUCTION_PER_LEVEL, true);
+		}
+
+		float progressionModifier = 1.0f - MAX_PROGRESSION_REDUCTION;
+
+		if (stack.getItem() instanceof ItemWand) {
+			if (((ItemWand) stack.getItem()).element == spell.getElement()) {
+				modifiers.set(SpellModifiers.POTENCY, 1.0f + (((ItemWand) stack.getItem()).tier.level + 1) * electroblob.wizardry.constants.Constants.POTENCY_INCREASE_PER_TIER, true);
+				progressionModifier *= ELEMENTAL_PROGRESSION_MODIFIER;
+			}
+		}
+
+		modifiers.set(SpellModifiers.PROGRESSION, progressionModifier, false);
+
+		return modifiers;
+	}
+
+	public static void mergeItemStacks(IInventory inventory) {
+		int slots = inventory.getSizeInventory();
+		boolean merged;
+
+		do {
+			merged = false;
+			for (int i = 0; i < slots - 1; i++) {
+				ItemStack currentStack = inventory.getStackInSlot(i);
+
+				if (!currentStack.isEmpty() && currentStack.getCount() < currentStack.getMaxStackSize()) {
+					for (int j = i + 1; j < slots; j++) {
+						ItemStack targetStack = inventory.getStackInSlot(j);
+
+						if (areStacksCompatible(currentStack, targetStack)) {
+							int spaceInStack = currentStack.getMaxStackSize() - currentStack.getCount();
+							int transferAmount = Math.min(spaceInStack, targetStack.getCount());
+							currentStack.grow(transferAmount);
+							targetStack.shrink(transferAmount);
+
+							if (targetStack.isEmpty()) {
+								inventory.setInventorySlotContents(j, ItemStack.EMPTY);
+							}
+
+							merged = true;
+
+							if (currentStack.getCount() >= currentStack.getMaxStackSize()) {
+								break;
+							}
+						}
+					}
+				}
+			}
+		} while (merged);
+	}
+
+	private static boolean areStacksCompatible(ItemStack stack1, ItemStack stack2) {
+		return ItemStack.areItemsEqual(stack1, stack2) && ItemStack.areItemStackTagsEqual(stack1, stack2);
+	}
 
 	public JourneyType getJourneyType() {
 		return journeyType;
@@ -271,94 +437,12 @@ public class EntityWizardInitiate extends EntityCreature
 		}
 	}
 
-	private JourneyType journeyType = JourneyType.NOT_ADVENTURING;
-	public ContainerWizardInventory inventory;
-	public BlockPos currentStayPos = new BlockPos(0, 0, 0);
-	protected Predicate<Entity> targetSelector;
-	List<MessageEntry> scheduledMessages = new ArrayList<>();
-	//	private EntityAIAttackSpell<EntityWizardInitiate> spellCastingAI = new EntityAIAttackSpell(this, 0.5, 14.0F, 30, 50);
-	private WizardAIAttackSpellWithCost spellCastingAI = new WizardAIAttackSpellWithCost(this, 0.5, 14.0F, 30, 50, false);
-	private EntityAIAttackMelee meleeAI = new EntityAIAttackMelee(this, 0.5D, false);
-	private WizardAIAttackRangedBow<EntityWizardInitiate> bowAI = new WizardAIAttackRangedBow<>(this, 0.5D, 25, 15.0F);
-
-	private MerchantRecipeList trades;
-	private BlockPos lectern;
-	private boolean isEating = false;
-	// This variable is used when foodLevel either exceeds 17 or is at zero. Increases in each tick up to 80, then it either heals or deals a half heart damage (starving) then resets to 0
-	private int foodTickTimer = 0;
-
 	public Location getHome() {
 		return home;
 	}
 
 	public void setHome(Location home) {
 		this.home = home;
-	}
-
-	private Location home = new Location(BlockPos.ORIGIN, 0);
-	/**
-	 * The fraction of progression lost when all recently-cast spells are the same as the one being cast.
-	 */
-	@Nullable
-	private EntityPlayer customer;
-	private int timeUntilReset;
-	private boolean updateRecipes;
-	// FORGE
-	private net.minecraftforge.items.IItemHandler itemHandler = null;
-	private Set<BlockPos> towerBlocks;
-	private float wizardWidth = -1.0F;
-	private float wizardHeight;
-	private int chatCooldown = 0;
-	private int rareEventCooldown = 0;
-	private int rareEventMaxCooldown = 6000;
-
-	public EntityWizardInitiate(World world) {
-		super(world);
-		this.tasks.addTask(3, this.spellCastingAI);
-		this.setSize(0.6F, 1.95F);
-		initInventory();
-	}
-
-	public static String getRandomTranslationKey(String baseKey, int maxVariations) {
-		return baseKey + "_" + ArcaneApprentices.rand.nextInt(maxVariations);
-	}
-
-	// This is now public because artefacts use it
-	public static SpellModifiers calculateModifiers(ItemStack stack, EntityWizardInitiate npc, Spell spell) {
-
-		SpellModifiers modifiers = new SpellModifiers();
-
-		// Now we only need to add multipliers if they are not 1.
-		int level = WandHelper.getUpgradeLevel(stack, WizardryItems.range_upgrade);
-		if (level > 0) {modifiers.set(WizardryItems.range_upgrade, 1.0f + level * electroblob.wizardry.constants.Constants.RANGE_INCREASE_PER_LEVEL, true);}
-
-		level = WandHelper.getUpgradeLevel(stack, WizardryItems.duration_upgrade);
-		if (level > 0) {
-			modifiers.set(WizardryItems.duration_upgrade, 1.0f + level * electroblob.wizardry.constants.Constants.DURATION_INCREASE_PER_LEVEL, false);
-		}
-
-		level = WandHelper.getUpgradeLevel(stack, WizardryItems.blast_upgrade);
-		if (level > 0) {
-			modifiers.set(WizardryItems.blast_upgrade, 1.0f + level * electroblob.wizardry.constants.Constants.BLAST_RADIUS_INCREASE_PER_LEVEL, true);
-		}
-
-		level = WandHelper.getUpgradeLevel(stack, WizardryItems.cooldown_upgrade);
-		if (level > 0) {
-			modifiers.set(WizardryItems.cooldown_upgrade, 1.0f - level * electroblob.wizardry.constants.Constants.COOLDOWN_REDUCTION_PER_LEVEL, true);
-		}
-
-		float progressionModifier = 1.0f - MAX_PROGRESSION_REDUCTION;
-
-		if (stack.getItem() instanceof ItemWand) {
-			if (((ItemWand) stack.getItem()).element == spell.getElement()) {
-				modifiers.set(SpellModifiers.POTENCY, 1.0f + (((ItemWand) stack.getItem()).tier.level + 1) * electroblob.wizardry.constants.Constants.POTENCY_INCREASE_PER_TIER, true);
-				progressionModifier *= ELEMENTAL_PROGRESSION_MODIFIER;
-			}
-		}
-
-		modifiers.set(SpellModifiers.PROGRESSION, progressionModifier, false);
-
-		return modifiers;
 	}
 
 	private void resetTimeTillNextScheduledMessage() {
@@ -404,13 +488,6 @@ public class EntityWizardInitiate extends EntityCreature
 		}
 	}
 
-	public void sayWithoutSpam(String message) {
-		if (chatCooldown == 0) {
-			WizardryUtilsTools.sendMessage(this.getOwner(), "message.arcaneapprentices:wizard_chat_message", false, getChatPrefix(), message);
-			resetChatCooldown();
-		}
-	}
-
 	public void scheduleNextMessage() {
 		MessageEntry entry = MessageEntry.peekNextMessage(MessageEntry.deserializeMessages(getScheduledMessagesCompound()));
 		if (entry != null) {
@@ -432,11 +509,16 @@ public class EntityWizardInitiate extends EntityCreature
 		}
 	}
 
-	public void sayWithoutSpam(TextComponentTranslation message) {
-		if (chatCooldown == 0 && this.getOwner() != null && this.getDistance(this.getOwner()) < 20) {
+	public void sayWithoutSpam(String message) {
+		if (chatCooldown == 0) {
 			WizardryUtilsTools.sendMessage(this.getOwner(), "message.arcaneapprentices:wizard_chat_message", false, getChatPrefix(), message);
-			this.faceEntity(this.getOwner(), 30.0F, 30.0F);
 			resetChatCooldown();
+		}
+	}
+
+	public void sayWithoutSpam(TextComponentTranslation message) {
+		if (this.getOwner() != null) {
+			sayWithoutSpam((EntityPlayer) this.getOwner(), message);
 		}
 	}
 
@@ -449,10 +531,8 @@ public class EntityWizardInitiate extends EntityCreature
 	}
 
 	public void sayImmediately(TextComponentTranslation message) {
-		if (this.getOwner() != null && this.getDistance(this.getOwner()) < 20) {
-			this.faceEntity(this.getOwner(), 30.0F, 30.0F);
-			WizardryUtilsTools.sendMessage(this.getOwner(), "message.arcaneapprentices:wizard_chat_message", false, getChatPrefix(), message);
-			resetChatCooldown();
+		if (this.getOwner() != null) {
+			sayImmediately((EntityPlayer) this.getOwner(), message);
 		}
 	}
 
@@ -484,31 +564,6 @@ public class EntityWizardInitiate extends EntityCreature
 		this.rareEventCooldown = (int) (rareEventMaxCooldown * totalPercent);
 	}
 
-	protected void entityInit() {
-		super.entityInit();
-		this.dataManager.register(HEAL_COOLDOWN, -1);
-		this.dataManager.register(ELEMENT, 0);
-		this.dataManager.register(CONTINUOUS_SPELL, "ebwizardry:none");
-		this.dataManager.register(CURRENT_SPELL, "ebwizardry:none");
-		this.dataManager.register(SPELL_COUNTER, 0);
-		this.dataManager.register(LEVEL, 1);
-		this.dataManager.register(CURRENT_TASK, 0);
-		this.dataManager.register(PREVIOUS_TASK_BEFORE_SLEEPING, 0);
-		this.dataManager.register(XP, 0);
-		this.dataManager.register(TIME_TILL_NEXT_SCHEDULED_MESSAGE, 0);
-		this.dataManager.register(FOOD_LEVEL, 20f);
-		this.dataManager.register(FOOD_SATURATION, 5f);
-		this.dataManager.register(IS_CHILD, false);
-		this.dataManager.register(BED_POSITION, BlockPos.ORIGIN);
-		this.dataManager.register(IS_SLEEPING, false);
-		this.dataManager.register(STUDY_PROGRESS, 0f);
-		this.dataManager.register(KNOWN_SPELLS, new NBTTagCompound());
-		this.dataManager.register(DISABLED_SPELLS, new NBTTagCompound());
-		this.dataManager.register(SCHEDULED_MESSAGES, new NBTTagCompound());
-		this.dataManager.register(OWNER_UNIQUE_ID, Optional.absent());
-		this.dataManager.register(SWINGING_ARMS, Boolean.valueOf(false));
-	}
-
 	protected final void setSize(float width, float height) {
 		boolean flag = this.wizardWidth > 0.0F && this.wizardHeight > 0.0F;
 		this.wizardWidth = width;
@@ -532,17 +587,17 @@ public class EntityWizardInitiate extends EntityCreature
 		//return this.getDataManager().get(IS_CHILD).booleanValue();
 	}
 
+	public void setChild(boolean isChild) {
+		this.getDataManager().set(IS_CHILD, Boolean.valueOf(isChild));
+		this.setChildSize(isChild);
+	}
+
 	public boolean isLyingInBed() {
 		return this.getDataManager().get(IS_SLEEPING);
 	}
 
 	public void setLyingInBed(boolean sleep) {
 		this.getDataManager().set(IS_SLEEPING, sleep);
-	}
-
-	public void setChild(boolean isChild) {
-		this.getDataManager().set(IS_CHILD, Boolean.valueOf(isChild));
-		this.setChildSize(isChild);
 	}
 
 	public float getStudyProgress() {
@@ -603,13 +658,13 @@ public class EntityWizardInitiate extends EntityCreature
 		return this.dataManager.get(KNOWN_SPELLS);
 	}
 
+	protected void setSpellCompound(NBTTagCompound tag) {
+		this.dataManager.set(KNOWN_SPELLS, tag);
+	}
+
 	public void removeAllKnownSpells() {
 		this.dataManager.set(KNOWN_SPELLS, new NBTTagCompound());
 		this.dataManager.set(DISABLED_SPELLS, new NBTTagCompound());
-	}
-
-	protected void setSpellCompound(NBTTagCompound tag) {
-		this.dataManager.set(KNOWN_SPELLS, tag);
 	}
 
 	private NBTTagCompound getDisabledSpellCompound() {
@@ -652,37 +707,6 @@ public class EntityWizardInitiate extends EntityCreature
 
 	public void setChildSize(boolean isChild) {
 		this.multiplySize(isChild ? 0.5F : 1.0F);
-	}
-
-	protected void initEntityAI() {
-		this.tasks.addTask(0, new EntityAISwimming(this));
-		this.tasks.addTask(1, new WizardAIPanicAtLowHP(this, 1.15D));
-		this.tasks.addTask(4, new EntityAIRestrictOpenDoor(this));
-		this.tasks.addTask(5, new WizardAIFollowOwner(this, 0.70D, 10.0F, 2.0F));
-		this.tasks.addTask(5, new WizardAIGoHome(this, 0.70D, 20));
-		this.tasks.addTask(5, new EntityAIOpenDoor(this, true));
-		this.tasks.addTask(6, new EntityAIMoveTowardsRestriction(this, 0.6));
-		this.tasks.addTask(6, new WizardAIStudy(this, 10, 1));
-		this.tasks.addTask(6, new WizardAIIdentify(this, 10, 1));
-		//		this.tasks.addTask(6, new EntityAIWatchClosestLectern(this,  3));
-		this.tasks.addTask(7, new WizardAIWatchClosest2(this, EntityPlayer.class, 3.0F, 1.0F));
-		this.tasks.addTask(7, new WizardAIWander(this, 0.4, 10));
-		this.tasks.addTask(8, new WizardAIWatchClosest(this, EntityLiving.class, 8.0F));
-		this.tasks.addTask(7, new WizardAILookAround(this, 8.0F, 0.1f));
-		this.targetTasks.addTask(1, new WizardAIOwnerHurtByTarget(this));
-		this.targetTasks.addTask(2, new WizardAIOwnerHurtTarget(this));
-		this.targetSelector = (entity) -> {
-			return entity != null && !entity.isInvisible() && entity != getOwner() && AllyDesignationSystem.isValidTarget(this, entity) && (entity instanceof IMob || entity instanceof ISummonedCreature || Arrays.asList(Wizardry.settings.summonedCreatureTargetsWhitelist).contains(EntityList.getKey(entity.getClass()))) && !Arrays.asList(Wizardry.settings.summonedCreatureTargetsBlacklist).contains(EntityList.getKey(entity.getClass()));
-		};
-		this.targetTasks.addTask(1, new EntityAIHurtByTarget(this, false, new Class[0]));
-		this.targetTasks.addTask(0, new EntityAINearestAttackableTarget(this, EntityLiving.class, 0, false, true, this.targetSelector));
-	}
-
-	protected void applyEntityAttributes() {
-		super.applyEntityAttributes();
-		this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(1.0D);
-		this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5);
-		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(30.0);
 	}
 
 	private int getHealCooldown() {
@@ -774,18 +798,6 @@ public class EntityWizardInitiate extends EntityCreature
 	protected SoundEvent getDeathSound() {
 		return WizardrySounds.ENTITY_WIZARD_DEATH;
 	}
-
-	//	@Override
-	//	public void setItemStackToSlot(EntityEquipmentSlot slotIn, ItemStack stack) {
-	//		switch (slotIn.getSlotType())
-	//		{
-	//			case HAND:
-	//				this.inventory.setInventorySlotContents(slotIn.getIndex(), stack);
-	//				break;
-	//			case ARMOR:
-	//				this.inventory.setInventorySlotContents(1, stack);
-	//		}
-	//	}
 
 	public void onLivingUpdate() {
 		super.onLivingUpdate();
@@ -1009,11 +1021,11 @@ public class EntityWizardInitiate extends EntityCreature
 			return false;
 		}
 
-//		if (player.isCreative() && player.isSneaking() && !player.world.isRemote && hand == EnumHand.MAIN_HAND && player.getHeldItemMainhand().getItem() == WizardryItems.ring_condensing) {
-//			this.addExperience(80000);
-//			this.setOwner(player);
-//			return false;
-//		}
+		//		if (player.isCreative() && player.isSneaking() && !player.world.isRemote && hand == EnumHand.MAIN_HAND && player.getHeldItemMainhand().getItem() == WizardryItems.ring_condensing) {
+		//			this.addExperience(80000);
+		//			this.setOwner(player);
+		//			return false;
+		//		}
 
 		if (!player.world.isRemote && !hasOwner() && player.getHeldItemMainhand().getItem() == WizardryItems.wizard_handbook) {
 			Advancement requirement1 = ((WorldServer) world).getAdvancementManager().getAdvancement(new ResourceLocation("ebwizardry:master"));
@@ -1507,12 +1519,12 @@ public class EntityWizardInitiate extends EntityCreature
 		this.dataManager.set(CURRENT_TASK, task.ordinal());
 	}
 
-	public void setPreviousTaskBeforeSleeping(Task task) {
-		this.dataManager.set(PREVIOUS_TASK_BEFORE_SLEEPING, task.ordinal());
-	}
-
 	public Task getPreviousTaskBeforeSleeping() {
 		return Task.values()[this.dataManager.get(PREVIOUS_TASK_BEFORE_SLEEPING)];
+	}
+
+	public void setPreviousTaskBeforeSleeping(Task task) {
+		this.dataManager.set(PREVIOUS_TASK_BEFORE_SLEEPING, task.ordinal());
 	}
 
 	public int getLevel() {
@@ -1744,45 +1756,6 @@ public class EntityWizardInitiate extends EntityCreature
 		}
 	}
 
-	public static void mergeItemStacks(IInventory inventory) {
-		int slots = inventory.getSizeInventory();
-		boolean merged;
-
-		do {
-			merged = false;
-			for (int i = 0; i < slots - 1; i++) {
-				ItemStack currentStack = inventory.getStackInSlot(i);
-
-				if (!currentStack.isEmpty() && currentStack.getCount() < currentStack.getMaxStackSize()) {
-					for (int j = i + 1; j < slots; j++) {
-						ItemStack targetStack = inventory.getStackInSlot(j);
-
-						if (areStacksCompatible(currentStack, targetStack)) {
-							int spaceInStack = currentStack.getMaxStackSize() - currentStack.getCount();
-							int transferAmount = Math.min(spaceInStack, targetStack.getCount());
-							currentStack.grow(transferAmount);
-							targetStack.shrink(transferAmount);
-
-							if (targetStack.isEmpty()) {
-								inventory.setInventorySlotContents(j, ItemStack.EMPTY);
-							}
-
-							merged = true;
-
-							if (currentStack.getCount() >= currentStack.getMaxStackSize()) {
-								break;
-							}
-						}
-					}
-				}
-			}
-		} while (merged);
-	}
-
-	private static boolean areStacksCompatible(ItemStack stack1, ItemStack stack2) {
-		return ItemStack.areItemsEqual(stack1, stack2) && ItemStack.areItemStackTagsEqual(stack1, stack2);
-	}
-
 	private List<Integer> getEmptySlotsRandomized() {
 		List<Integer> list = Lists.<Integer>newArrayList();
 
@@ -1794,10 +1767,6 @@ public class EntityWizardInitiate extends EntityCreature
 
 		Collections.shuffle(list, rand);
 		return list;
-	}
-
-	public enum Task {
-		FOLLOW, STAY, ADVENTURE, GO_HOME, STUDY, TRY_TO_SLEEP, IDENTIFY
 	}
 
 	public boolean attackEntityAsMob(Entity entityIn) {
@@ -1847,6 +1816,13 @@ public class EntityWizardInitiate extends EntityCreature
 
 	public void attackEntityWithRangedAttack(EntityLivingBase target, float distanceFactor) {
 		EntityArrow entityarrow = this.getArrow(distanceFactor);
+		if (this.getHeldItemMainhand().getItem() instanceof net.minecraft.item.ItemBow) {
+			if (entityarrow == null && EnchantmentHelper.getEnchantmentLevel(Enchantments.INFINITY, this.getHeldItemMainhand()) > 0) {
+				ItemStack arrow = new ItemStack(Items.ARROW);
+				entityarrow = ((ItemArrow) arrow.getItem()).createArrow(world, arrow, this);
+			}
+		}
+
 		if (entityarrow != null) {
 
 			if (this.getHeldItemMainhand().getItem() instanceof net.minecraft.item.ItemBow) {
@@ -1888,8 +1864,11 @@ public class EntityWizardInitiate extends EntityCreature
 				return true;
 			}
 		}
-		return false;
+
+		return this.getHeldItemMainhand().getItem() instanceof net.minecraft.item.ItemBow && EnchantmentHelper.getEnchantmentLevel(Enchantments.INFINITY, this.getHeldItemMainhand()) > 0;
+	}
+
+	public enum Task {
+		FOLLOW, STAY, ADVENTURE, GO_HOME, STUDY, TRY_TO_SLEEP, IDENTIFY
 	}
 }
-
-
