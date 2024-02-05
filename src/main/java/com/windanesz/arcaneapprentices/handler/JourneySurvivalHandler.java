@@ -7,9 +7,15 @@ import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
 import com.windanesz.arcaneapprentices.registry.AAItems;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
+import net.minecraft.init.MobEffects;
+import net.minecraft.item.ItemPotion;
+import net.minecraft.item.ItemStack;
+import net.minecraft.potion.PotionEffect;
+import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.math.MathHelper;
 
 public class JourneySurvivalHandler {
+	private int healingPotions = 0;
 	private int armour;
 	private int armourToughness;
 	private int level;
@@ -31,6 +37,12 @@ public class JourneySurvivalHandler {
 		this.maxHealth = wizard.getMaxHealth();
 		this.journey = journey;
 		this.wizard = wizard;
+		for (int i = 0; i < wizard.inventory.getSizeInventory(); i++) {
+			ItemStack stack = wizard.inventory.getStackInSlot(i).copy();
+			if (stack.getItem() instanceof ItemPotion && PotionUtils.getEffectsFromStack(stack).stream().map(PotionEffect::getPotion).anyMatch(p -> p == MobEffects.INSTANT_HEALTH)) {
+				healingPotions++;
+			}
+		}
 	}
 
 	public float calculateSurvivalChance() {
@@ -49,16 +61,13 @@ public class JourneySurvivalHandler {
 		survivalChance += ((float) numKnownSpells / Settings.generalSettings.MAX_WIZARD_SPELL_SLOTS) * 0.08;
 		survivalChance += ((currentHealthPercent) * 0.8) * 0.15;
 		survivalChance += ((maxHealth) * 0.3) * 0.01;
+		survivalChance += 0.03f * healingPotions;
 		if (wizard.isArtefactActive(AAItems.amulet_survival_chance)) {
 			survivalChance *= 1.15f;
 		}
 
 		// Cap survivalChance between 0 and 1
 		survivalChance = (float) Math.max(0.0, Math.min(1.0, survivalChance));
-
-		// Generate a random number to compare with survivalChance
-	//	Random random = new Random();
-	//	double randomValue = random.nextDouble();
 
 		// Return true if the random value is less than survivalChance, indicating survival
 		return survivalChance;
