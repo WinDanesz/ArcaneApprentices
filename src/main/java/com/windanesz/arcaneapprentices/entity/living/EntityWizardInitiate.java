@@ -1071,7 +1071,7 @@ public class EntityWizardInitiate extends EntityCreature
 				}
 				break;
 			case EMPOWERING_RESONANCE:
-				if (!world.isRemote && this.ticksExisted % 100 == 0) {
+				if (this.ticksExisted % 100 == 0) {
 					addPotionEffect(new PotionEffect(WizardryPotions.empowerment, 100));
 					if (this.getHeldItemMainhand().getItem() instanceof ItemWand) {
 						Element elm = ((ItemWand) this.getHeldItemMainhand().getItem()).element;

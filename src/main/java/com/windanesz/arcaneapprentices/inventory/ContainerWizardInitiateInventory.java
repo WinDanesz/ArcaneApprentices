@@ -173,7 +173,6 @@ public class ContainerWizardInitiateInventory extends ContainerWizardBase {
 		if (slot != null && slot.getHasStack()) {
 			ItemStack itemstack1 = slot.getStack();
 			itemstack = itemstack1.copy();
-			inventorySlots.stream().forEach(i -> System.out.println("slotindex " + i.getSlotIndex() + " , slotnumber:: "  + i.slotNumber + i.getStack().getDisplayName()));
 
 
 			EntityEquipmentSlot entityequipmentslot = EntityLiving.getSlotForItemStack(itemstack);
@@ -221,12 +220,6 @@ public class ContainerWizardInitiateInventory extends ContainerWizardBase {
 			if (!this.mergeItemStack(itemstack1, 0, this.wizardInventory.getSizeInventory(), false)) {
 					return ItemStack.EMPTY;
 			}
-			System.out.println();
-				//} else if (this.getSlot(1).isItemValid(itemstack1) && !this.getSlot(1).getHasStack()) {
-				//	if (!this.mergeItemStack(itemstack1, 1, 2, false)) {
-				//	return ItemStack.EMPTY;
-				//	}
-
 			if (itemstack1.isEmpty()) {
 				slot.putStack(ItemStack.EMPTY);
 			} else {
