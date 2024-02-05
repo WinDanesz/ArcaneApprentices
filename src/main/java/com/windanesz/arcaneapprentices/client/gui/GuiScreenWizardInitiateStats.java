@@ -26,7 +26,9 @@ import java.util.List;
 @SideOnly(Side.CLIENT)
 public class GuiScreenWizardInitiateStats extends GuiContainer {
 	private static final ResourceLocation GUI_BACKGROUND = new ResourceLocation(ArcaneApprentices.MODID, "textures/gui/wizard_stats.png");
+	private static final ResourceLocation LOCKED_SLOT = new ResourceLocation(ArcaneApprentices.MODID, "textures/gui/locked_slot.png");
 	private final EntityWizardInitiate wizard;
+	private ResourceLocation TALENT_ICON;
 
 	public GuiScreenWizardInitiateStats(EntityWizardInitiate wizard) {
 		super(new ContainerWizardInfo(wizard, Minecraft.getMinecraft().player));
@@ -34,6 +36,7 @@ public class GuiScreenWizardInitiateStats extends GuiContainer {
 		this.allowUserInput = false;
 		this.xSize = 176;
 		this.ySize = 196;
+		this.TALENT_ICON = new ResourceLocation(ArcaneApprentices.MODID, "textures/gui/talent_" + this.wizard.getTalent().name().toLowerCase() + ".png");
 	}
 
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
@@ -41,6 +44,17 @@ public class GuiScreenWizardInitiateStats extends GuiContainer {
 		this.fontRenderer.drawString(I18n.format("gui.arcaneapprentices:wizard_level", this.wizard.getLevel(), this.wizard.getTotalXp(),
 				(int) XpProgression.calculateTotalXpRequired(this.wizard.getLevel() + 1)), 5, 13 + 12, 4210752);
 		this.fontRenderer.drawString(I18n.format("gui.arcaneapprentices:spell_slots"), 5, 13 + 24, 4210752);
+
+		if (!this.wizard.isChild()) {
+			//			//GlStateManager.pushMatrix();
+			//			this.mc.getTextureManager().bindTexture(new ResourceLocation(ArcaneApprentices.MODID, "textures/gui/talent_" + this.wizard.getTalent().name().toLowerCase() + ".png"));
+			//			//	int k = (this.width - this.xSize) / 2;
+			//			//	int l = (this.height - this.ySize) / 2;
+			//			this.drawTexturedModalRect( + 5,  5, 0, 0, 32, 16);
+			//			//GlStateManager.popMatrix();
+			//
+			//		}}
+		}
 	}
 
 	@Override
@@ -104,10 +118,16 @@ public class GuiScreenWizardInitiateStats extends GuiContainer {
 
 		this.fontRenderer.drawString(I18n.format("gui.apprenticearcana.talent"), left + 5, top + 103, 4210752);
 		if (this.wizard.isChild()) {
-			this.fontRenderer.drawSplitString(I18n.format("gui.apprenticearcana.talent_locked",this.wizard.getName(), XpProgression.getMaxLevel() / 2), left + 5, top + 113, 167, 4210752);
+			this.fontRenderer.drawSplitString(I18n.format("gui.apprenticearcana.talent_locked", this.wizard.getName(), XpProgression.getMaxLevel() / 2), left + 5, top + 124, 167, 4210752);
+			this.mc.getTextureManager().bindTexture(LOCKED_SLOT);
+			DrawingUtils.drawTexturedRect(left + 152, top + 106, 16, 16);
 		} else {
-			this.fontRenderer.drawString(this.wizard.getTalent().getDisplayName(), left + 5, top + 113, 4210752);
-			this.fontRenderer.drawSplitString(I18n.format("talent." + this.wizard.getTalent().name().toLowerCase() + ".desc",this.wizard.getName()),left + 5, top + 123, 167, 4210752);
+			this.fontRenderer.drawString(this.wizard.getTalent().getDisplayName(), left + 5, top + 114, 4210752);
+			this.fontRenderer.drawSplitString(I18n.format("talent." + this.wizard.getTalent().name().toLowerCase() + ".desc", this.wizard.getName()), left + 5, top + 123, 167, 4210752);
+			if (TALENT_ICON != null) {
+				this.mc.getTextureManager().bindTexture(TALENT_ICON);
+				DrawingUtils.drawTexturedRect(left + 152, top + 106, 16, 16);
+			}
 		}
 
 	}
@@ -116,15 +136,7 @@ public class GuiScreenWizardInitiateStats extends GuiContainer {
 		this.drawDefaultBackground();
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		this.renderHoveredToolTip(mouseX, mouseY);
-	}
 
-	private static class GuiButtonSpellToggle extends GuiButton {
-
-		public GuiButtonSpellToggle(int id, int x, int y) {
-			super(id, x, y, 16, 16, I18n.format("gui.arcaneapprentices:spell_toggle_button"));
-		}
-
-		public void drawButton(Minecraft minecraft, int mouseX, int mouseY, float partialTicks) {}
 	}
 
 	public void drawHealthBar() {
@@ -206,27 +218,31 @@ public class GuiScreenWizardInitiateStats extends GuiContainer {
 		}
 	}
 
-	@SideOnly(Side.CLIENT)
-	static class NextPageButton extends GuiButton
-	{
+	private static class GuiButtonSpellToggle extends GuiButton {
 
-		public NextPageButton(int buttonId, int x, int y)
-		{
+		public GuiButtonSpellToggle(int id, int x, int y) {
+			super(id, x, y, 16, 16, I18n.format("gui.arcaneapprentices:spell_toggle_button"));
+		}
+
+		public void drawButton(Minecraft minecraft, int mouseX, int mouseY, float partialTicks) {}
+	}
+
+	@SideOnly(Side.CLIENT)
+	static class NextPageButton extends GuiButton {
+
+		public NextPageButton(int buttonId, int x, int y) {
 			super(buttonId, x, y, 23, 13, "");
 		}
 
-		public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
-		{
-			if (this.visible)
-			{
+		public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+			if (this.visible) {
 				boolean flag = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 				mc.getTextureManager().bindTexture(new ResourceLocation("textures/gui/book.png"));
 				int i = 0;
 				int j = 192;
 
-				if (flag)
-				{
+				if (flag) {
 					i += 23;
 				}
 
