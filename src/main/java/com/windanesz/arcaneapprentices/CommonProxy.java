@@ -24,4 +24,6 @@ public class CommonProxy {
 			PotionCoreCompat.setPotionCoreHealthSetting();
 		}
 	}
+
+	public void registerExtraHandbookContent() {}
 }

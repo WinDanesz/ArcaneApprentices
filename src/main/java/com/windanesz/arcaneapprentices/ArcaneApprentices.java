@@ -49,6 +49,7 @@ public class ArcaneApprentices {
 		WizardryEnumHelper.addSpellType("NPCSPELL", "npcspell");
 		logger = event.getModLog();
 		proxy.registerRenderers();
+		proxy.registerExtraHandbookContent();
 		LootRegistry.preInit();
 		AAAdvancementTriggers.register();
 	}

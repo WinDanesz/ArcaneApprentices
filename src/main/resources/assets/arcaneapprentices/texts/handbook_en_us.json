@@ -1,0 +1,110 @@
+{
+	"bookmark_start_section": "arcane_apprentices",
+	"colours": {
+		"text": "#000000",
+		"caption": "#666666",
+		"hyperlink": "#601ba0",
+		"highlight": "#dd4c1d",
+		"new_section": "#aaaaaa"
+	},
+	"images": {
+	},
+	"recipes": {
+
+	},
+	"sections": {
+		"arcane_apprentices": {
+			"title": "Arcane Apprentices",
+			"include_in_contents": "main_contents",
+			"contents": {
+				"id": "arcane_apprentices",
+				"hyperlinks": true,
+				"page_numbers": true,
+				"separator": "."
+			},
+			"triggers": [
+				"ebwizardry:on_subsection_unlock"
+			]
+		},
+		"apprentices": {
+			"title": "Apprentices",
+			"include_in_contents": "arcane_apprentices",
+			"triggers": [
+				"ancientspellcraft:relics"
+			],
+			"text": [
+				"Embarking on the journey of a wizard is not necessarily a solitary endeavor. In this mystical world, you may come across young souls with untapped magical potential - apprentices. These magical prodigies can be found as children in the world, awaiting someone to guide them on the path of wizardry.",
+				"As a seasoned wizard, you have the opportunity to take on apprentices and train them in the arcane arts. However, this privilege comes with prerequisites. To accept an apprentice, you must first achieve two significant milestones: wield a wand of master tier and cast a master-level spell at least once. Only then can you share your wisdom and legacy with the next generation of magic wielders.",
+				"To formalize the apprenticeship, provide each chosen apprentice with a Wizard's Handbook. This ancient tome will serve as their guide through the realms of magical knowledge.",
+				"Your apprentices can become valuable allies in various ways. They are not mere bystanders but active participants in your magical endeavors. They can aid you in combat, carry items, identify spells, and embark on gathering journeys to bring back resources for your magical exploits.",
+				"Apprentices, like any adventurers, need sustenance. Make sure to provide them with food to keep their hunger at bay, ensuring they remain ready for the challenges that lie ahead.",
+				"You can set their home position and after that, you're able to send them to home from anywhere. If they are far away, they'll only return to their home position if you are near to it.",
+				"Apprentices can also use most artefacts, in their dedicated artefact slot or off-hand slot."
+			]
+		},
+		"apprentice_levels": {
+			"title": "Apprentice Leveling",
+			"include_in_contents": "arcane_apprentices",
+			"text": [
+				"As your apprentices accompany you on your magical journeys, they gain experience. This experience is earned through combat, following you, or dedicating time to study spells. As they level up, apprentices unlock additional spell slots, gradually expanding their magical repertoire.",
+				"Spell slots can be filled by instructing apprentices to study Spell Books at a nearby Lectern. This process unlocks new spells for them to cast. The current level of an apprentice determines the maximum tier of spells they can learn, ranging from Novice to Master. Ensure they have an appropriate wand to cast these spells, allowing them to unleash their newfound magical prowess on the world.",
+				"You can temporarily disable a spell by clicking on its spell slot.",
+				"But there's more to apprentices than meets the eye. Each apprentice possesses a hidden Talent, a unique ability that remains dormant until later levels. Uncover and harness these talents to unlock even greater potential in your magical protégés.",
+				"In the magical realm where knowledge and power intertwine, your apprentices are not just followers but comrades on your enchanting journey. Guide them well, and together, you may uncover the secrets that the arcane world has hidden for eons."
+			]
+		},
+		"apprentice_combat": {
+			"title": "Apprentice Combat",
+			"include_in_contents": "arcane_apprentices",
+			"text": [
+				"As your apprentices delve into the world of combat, they showcase their magical prowess by utilizing wands, swords, and bows to contribute to your adventures.",
+				"If an apprentice's current level permits, they can effectively wield wands of appropriate tiers. This enables them to cast spells and unleash magical attacks upon your foes. Ensure that your apprentices have a suitable wand in their main hand, granting them access to their known spells.",
+				"The wand does not need to have the apprentice's spells bound to it.",
+				"If you prefer, you can also hand your apprentice a sword to showcase their swordsmanship by engaging foes with melee attacks.",
+				"You can also equip your apprentice with a bow for a ranged encounter and provide them with a steady supply of arrows. This allows them to unleash a barrage of projectiles, supporting you from a distance and providing valuable assistance in battles against formidable adversaries.",
+				"Empower your apprentices with the tools they need for combat. Generally, magic is a lot more versatile than these mundane weapons, and apprentices tend to fall easier with a close-combat weapon."
+			]
+		},
+		"apprentice_journey": {
+			"title": "Journeys",
+			"include_in_contents": "arcane_apprentices",
+			"text": [
+				"As your apprentices advance in proficiency, they gain the capability to embark on journeys, expanding their horizons beyond the confines of your immediate surroundings.",
+				"To send an apprentice on a journey, ensure that their level meets the required threshold. Once this condition is met, you can entrust them with specific goals and durations for their expedition.",
+				"Keep in mind that apprentices always return to their designated home position, but only when you are nearby. To assist you in tracking their journeys, a specialized artifact known as the Enchanted Itinerary can reveal precise information about their return timing and location.",
+				"Journeys come in varying lengths, with short, medium, and long expeditions available. Each duration necessitates increased provisions, including more food and a wand with sufficient mana to sustain the apprentice throughout the journey.",
+				"Different journey types cater to diverse goals. Your apprentices may embark on Gathering journeys to collect resources, Mob Slaying journeys to combat hostile creatures, or Adventuring journeys to explore uncharted territories and structures. Tailor their goals based on your needs and the apprentice's capabilities.",
+				"Survival chances during journeys hinge on factors such as length and type, the current level of your apprentice, the number of spells they know, their current health, and most importantly their armor or robe. Be cautious, as longer and more perilous expeditions may pose a greater risk to your apprentice's well-being. Some journeys may result in unfortunate outcomes, with apprentices not surviving the challenges they encounter.",
+				"Upon their return, apprentices bring back a bounty of plundered items acquired during their journey. The nature and quantity of these items depend on the specific goals and challenges they faced. Ensure that your apprentices are well-prepared before sending them on daring adventures, and revel in the rewards they bring back to aid your magical endeavors."
+			]
+		},
+		"gathering": {
+			"title": "Gathering",
+			"include_in_contents": "arcane_apprentices",
+			"text": [
+				"The Gathering journey type focuses on your apprentice collecting valuable resources such as wood, ores, and plants from the world around them.",
+				"To direct your apprentice towards a specific goal during a gathering journey, equip them with a specialized tool in their off-hand. Hand them an axe for wood, a pickaxe for ores, or shears for plant gathering. The tool you provide determines the type of resources they prioritize collecting.",
+				"If you opt not to provide a specific tool, your apprentice will embark on a more general gathering mission, collecting a variety of randomly found resources during their expedition.",
+				"Ensure your apprentice is well-equipped for their gathering journey, and watch as they return with a plentiful haul of resources that can be utilized in your magical pursuits. Tailoring their tools to specific resource types allows for a more targeted and efficient resource gathering experience."
+			]
+		},
+		"mob_slaying": {
+			"title": "Mob Slaying",
+			"include_in_contents": "arcane_apprentices",
+			"text": [
+				"The Mob Slaying journey type immerses your apprentice in perilous encounters with various hostile creatures and mobs, providing a challenging yet rewarding experience.",
+				"As your apprentice embarks on these dangerous missions, they confront hostile entities, battling them to collect valuable loot and drops. This journey type is ideal for those seeking to bolster their resources through the spoils of combat, as the apprentice returns with a bounty of items acquired from defeated foes.",
+				"Equip your apprentice with suitable weaponry and armor to enhance their combat capabilities during 'Mob Slaying' journeys. The rewards garnered from these ventures can range from rare materials to enchanted items, contributing significantly to your magical endeavors and ensuring your apprentice emerges victorious in the face of adversity."
+			]
+		},
+		"adventuring": {
+			"title": "Adventuring",
+			"include_in_contents": "arcane_apprentices",
+			"text": [
+				"The Adventuring journey type thrusts your apprentice into more perilous situations, guiding them towards exploring mysterious structures such as Obelisks, Shrines, Desert Temples, and other enigmatic landmarks scattered throughout the world.",
+				"During these daring expeditions, apprentices have the opportunity to unearth valuable magical items, ranging from spells and scrolls to artifacts. The risks are higher, but so are the potential rewards, making Adventuring journeys a thrilling and potentially lucrative endeavor for your magically-inclined proteges.",
+				"Equip your apprentice with the necessary weapon and supplies, ensuring they are well-prepared for the challenges that await them. As they navigate through the unknown, the treasures they uncover may prove to be instrumental in enhancing your magical arsenal."
+			]
+		}
+	}
+}

@@ -504,6 +504,8 @@ commands.arcaneapprentices:resetapprenticedata=/resetapprenticedata [player]
 gui.apprenticearcana.talent=Talent
 gui.apprenticearcana.talent_locked=%1$s haven't unlocked his hidden talent yet (unlocks at level %2$s)
 
+talent.none=No talent
+talent.none.desc=Just like a nitwit, %s has no special skills.
 talent.researcher=Researcher
 talent.researcher.desc=%s can identify spells as quickly as he learns them. Typically, it takes approximately 2.5 times longer to identify a spell than to learn it. Additionally, he has the ability to identify Master-tier spells.
 talent.conduit=Conduit
@@ -530,7 +532,5 @@ talent.treasure_hunter=Treasure Hunter
 talent.treasure_hunter.desc=%s is adept at finding hidden treasures, increasing the likelihood of discovering valuable loot if he travels with you.
 talent.remnant_tamer=Remnant Tamer
 talent.remnant_tamer.desc=%s can summon a remnant that follows him.
-talent.none=No talent
 talent.artifice_master=Artifice Master
 talent.artifice_master.desc=%s can use two more artefacts in the top left first two slots of this inventory. Not every artefact works from those slots (incl. the bag artefacts).
-talent.none.desc=Just like a nitwit, %s has no special skills.

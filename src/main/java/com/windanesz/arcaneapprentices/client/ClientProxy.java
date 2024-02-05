@@ -1,8 +1,10 @@
 package com.windanesz.arcaneapprentices.client;
 
+import com.windanesz.arcaneapprentices.ArcaneApprentices;
 import com.windanesz.arcaneapprentices.CommonProxy;
 import com.windanesz.arcaneapprentices.client.render.RenderWizardInitiate;
 import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
+import electroblob.wizardry.client.gui.handbook.GuiWizardHandbook;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
@@ -33,5 +35,10 @@ public class ClientProxy extends CommonProxy {
 		// Initializing
 //		KEY_ACTIVATE_MORPH_ABILITY = new KeyBinding("key.arcaneapprentices.activate_morph_ability", Keyboard.KEY_K, "key.arcaneapprentices.category");
 //		ClientRegistry.registerKeyBinding(KEY_ACTIVATE_MORPH_ABILITY);
+	}
+
+	@Override
+	public void registerExtraHandbookContent() {
+		GuiWizardHandbook.registerAddonHandbookContent(ArcaneApprentices.MODID);
 	}
 }
