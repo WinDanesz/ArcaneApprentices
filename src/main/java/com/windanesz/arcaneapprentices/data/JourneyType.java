@@ -59,6 +59,9 @@ public enum JourneyType {
 
 	public int getRandomAdventureDuration(EntityWizardInitiate wizardInitiate) {
 		float modifier = wizardInitiate.isArtefactActive(AAItems.belt_explorer) ? Settings.journeySettings.EXPLORERS_BELT_JOURNEY_TIME_MODIFIER : 1.0f;
+		if (wizardInitiate.getTalent() == Talent.SWIFT_VOYAGE && wizardInitiate.hasTalentUnlocked()) {
+			modifier *= 0.5f;
+		}
 		int min, max;
 
 		switch (duration) {

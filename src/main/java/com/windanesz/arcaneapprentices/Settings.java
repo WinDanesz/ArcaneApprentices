@@ -92,6 +92,26 @@ public class Settings {
 
 	public static class GeneralSettings {
 
+
+		@Config.Name("Apprentice Talents")
+		@Config.Comment("Enables or disables apprentice talents")
+		public String[] APPRENTICE_TALENTS = {
+				"researcher:true",
+				"conduit:true",
+				"empowering_resonance:true",
+				"spell_tinkerer:true",
+				"phaser:true",
+				"survivor:true",
+				"apparel_expert:true",
+				"swift_voyage:true",
+				"healer:true",
+				"alchemy_adept:true",
+				"animal_whisperer:true",
+				"treasure_hunter:true",
+				"remnant_tamer:true",
+				"artifice_master:true",
+		};
+
 		@Config.Name("PotionCore Compat Fix")
 		@Config.Comment("The PotionCore mod has a setting named 'Fix Effects When Changing Dimensions'. This is known to cause issues with modded entities,"
 				+ " and if it is set to true, respawning apprentices will instantly die. When this 'PotionCore Compat Fix' setting is set to true, it will force the mentioned"

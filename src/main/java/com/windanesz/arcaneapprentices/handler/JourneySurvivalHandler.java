@@ -2,6 +2,7 @@ package com.windanesz.arcaneapprentices.handler;
 
 import com.windanesz.arcaneapprentices.Settings;
 import com.windanesz.arcaneapprentices.data.JourneyType;
+import com.windanesz.arcaneapprentices.data.Talent;
 import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
 import com.windanesz.arcaneapprentices.registry.AAItems;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -33,6 +34,10 @@ public class JourneySurvivalHandler {
 	}
 
 	public float calculateSurvivalChance() {
+		if (!wizard.isChild() && wizard.getTalent() == Talent.SURVIVOR && Talent.SURVIVOR.isEnabled()) {
+			return 1.0f;
+		}
+
 		float survivalChance = 0.3f;
 
 		survivalChance -= 1 - journey.getSurvivalModifier();

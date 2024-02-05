@@ -60,7 +60,7 @@ public class GuiScreenWizardInitiateInventory extends GuiContainer {
 		int slotIndex = getSlotUnderMouse() != null ? getSlotUnderMouse().slotNumber : -1;
 		if (slotIndex != -1 && !inventorySlots.getSlot(slotIndex).getHasStack()) {
 
-			if (slotIndex == 2) {
+			if (slotIndex == 21) {
 				drawHoveringText(I18n.format("gui.arcaneapprentices:artefact_slot"), mouseX, mouseY);
 			}
 			if (slotIndex == EntityWizardInitiate.OFF_HAND_SLOT) {

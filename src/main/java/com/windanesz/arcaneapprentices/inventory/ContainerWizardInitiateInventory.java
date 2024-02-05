@@ -1,6 +1,7 @@
 package com.windanesz.arcaneapprentices.inventory;
 
 import com.windanesz.arcaneapprentices.ArcaneApprentices;
+import com.windanesz.arcaneapprentices.data.Talent;
 import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
 import com.windanesz.arcaneapprentices.handler.XpProgression;
 import com.windanesz.arcaneapprentices.registry.AAItems;
@@ -108,20 +109,14 @@ public class ContainerWizardInitiateInventory extends ContainerWizardBase {
 					@Nullable
 					@SideOnly(Side.CLIENT)
 					public String getSlotTexture() {
+						if ((slotNumber == 6 || slotNumber == 7) && wizard.hasTalentUnlocked() && wizard.getTalent() == Talent.ARTIFICE_MASTER) {
+							return EMPTY_ARTEFACT_SLOT_BACKGROUND;
+						}
 						if (isSlotUnlocked(this.slotNumber, wizard)) {
 							return super.getSlotTexture();
 						}
 						return LOCKED_SLOT;
 					}
-
-					//					@Nullable
-					//					@SideOnly(Side.CLIENT)
-					//					public String getSlotTexture() {
-					//						if (!this.isEnabled()) {
-					//							System.out.println("stop");
-					//						}
-					//						return this.isEnabled() ? super.getSlotTexture() : EMPTY_ARTEFACT_SLOT_BACKGROUND;
-					//					}
 				});
 			}
 		}

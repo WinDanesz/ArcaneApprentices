@@ -413,7 +413,7 @@ public class WizardAIAttackSpellWithCost extends EntityAIBase {
 	/**
 	 * Attempts to cast the given spell (including event firing) and returns true if it succeeded.
 	 */
-	private boolean attemptCastSpell(Spell spell, SpellModifiers modifiers) {
+	public boolean attemptCastSpell(Spell spell, SpellModifiers modifiers) {
 
 		// If anything stops the spell working at this point, nothing else happens.
 		if (MinecraftForge.EVENT_BUS.post(new SpellCastEvent.Pre(Source.NPC, spell, npc, modifiers))) {

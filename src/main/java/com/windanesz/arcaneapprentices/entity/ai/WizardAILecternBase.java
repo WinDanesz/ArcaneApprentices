@@ -1,5 +1,7 @@
 package com.windanesz.arcaneapprentices.entity.ai;
 
+import com.windanesz.arcaneapprentices.data.Talent;
+import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
 import electroblob.wizardry.block.BlockLectern;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.util.math.BlockPos;
@@ -29,5 +31,9 @@ public abstract class WizardAILecternBase extends EntityAIBase {
 		}
 
 		return null;
+	}
+
+	public static boolean hasStudyTalent(EntityWizardInitiate wizard) {
+		return wizard.hasTalentUnlocked() && wizard.getTalent() == Talent.RESEARCHER;
 	}
 }

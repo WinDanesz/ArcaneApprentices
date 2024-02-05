@@ -47,7 +47,7 @@ public class WizardAIIdentify extends WizardAILecternBase {
 					Spell spell = Spell.byMetadata(this.wizard.getHeldItem(EnumHand.OFF_HAND).getItemDamage());
 
 					if (!WizardData.get(player).hasSpellBeenDiscovered(spell)) {
-						if (spell.getTier().ordinal() <= this.wizard.getCurrentTierCap() && spell.getTier().ordinal() <= Settings.generalSettings.MAX_TIER_FOR_IDENTIFYING_SPELLS) {
+						if (hasStudyTalent(this.wizard) || spell.getTier().ordinal() <= this.wizard.getCurrentTierCap() && spell.getTier().ordinal() <= Settings.generalSettings.MAX_TIER_FOR_IDENTIFYING_SPELLS) {
 							BlockPos lectern = findNearbyLectern(this.wizard.world, this.wizard.getPosition());
 							if (lectern != null) {
 								this.wizard.setLectern(lectern);
@@ -60,9 +60,6 @@ public class WizardAIIdentify extends WizardAILecternBase {
 						}
 
 					}
-					//else if (this.wizard.ticksExisted % 200 == 0) {
-					//	this.wizard.sayWithoutSpam(new TextComponentTranslation(Speech.WIZARD_HOLDS_KNOWN_SPELL.getRandom(), spell.getDisplayName()));
-					//	}
 				} else if (this.wizard.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSpellBook ||
 						this.wizard.getHeldItem(EnumHand.OFF_HAND).getItem() instanceof ItemScroll) {
 					ItemStack offhand = this.wizard.getHeldItem(EnumHand.OFF_HAND).copy();
@@ -70,9 +67,6 @@ public class WizardAIIdentify extends WizardAILecternBase {
 					this.wizard.setHeldItem(EnumHand.MAIN_HAND, offhand);
 					this.wizard.setHeldItem(EnumHand.OFF_HAND, mainhand);
 				}
-				//else if (this.wizard.ticksExisted % 200 == 0) {
-				//		this.wizard.sayWithoutSpam(new TextComponentTranslation(Speech.WIZARD_NOTHING_TO_LEARN.getRandom()));
-				//	}
 			}
 		}
 		return false;
@@ -106,8 +100,14 @@ public class WizardAIIdentify extends WizardAILecternBase {
 					if (this.wizard.ticksExisted % 30 == 0 && (this.wizard.getHeldItem(EnumHand.OFF_HAND).getItem() instanceof ItemSpellBook ||
 							this.wizard.getHeldItem(EnumHand.OFF_HAND).getItem() instanceof ItemScroll)) {
 						Spell spell = Spell.byMetadata(this.wizard.getHeldItem(EnumHand.OFF_HAND).getItemDamage());
-						this.wizard.addStudyProgress((this.wizard.getStudyProgressForSpell(spell, 30) / Settings.generalSettings.IDENTIFYING_SPELL_DURATION_MULTIPLIER_COMPARED_TO_LEARNING)
-								* (wizard.isArtefactActive(WizardryItems.amulet_wisdom) ? 1.15f : 1f), this.wizard.getHeldItemOffhand());
+
+						if (hasStudyTalent(this.wizard)) {
+							this.wizard.addStudyProgress(this.wizard.getStudyProgressForSpell(spell, 30)
+									* (wizard.isArtefactActive(WizardryItems.amulet_wisdom) ? 1.15f : 1f), this.wizard.getHeldItem(EnumHand.OFF_HAND));
+						} else {
+							this.wizard.addStudyProgress((this.wizard.getStudyProgressForSpell(spell, 30) / Settings.generalSettings.IDENTIFYING_SPELL_DURATION_MULTIPLIER_COMPARED_TO_LEARNING)
+									* (wizard.isArtefactActive(WizardryItems.amulet_wisdom) ? 1.15f : 1f), this.wizard.getHeldItemOffhand());
+						}
 
 						if (this.wizard.isStudyComplete()) {
 							if (this.wizard.getOwner() instanceof EntityPlayer) {
@@ -130,7 +130,5 @@ public class WizardAIIdentify extends WizardAILecternBase {
 			}
 		}
 	}
-
-
 }
 

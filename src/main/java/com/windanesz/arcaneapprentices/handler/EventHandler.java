@@ -6,7 +6,10 @@ import com.windanesz.arcaneapprentices.Utils;
 import com.windanesz.arcaneapprentices.data.PlayerData;
 import com.windanesz.arcaneapprentices.data.Speech;
 import com.windanesz.arcaneapprentices.data.StoredEntity;
+import com.windanesz.arcaneapprentices.data.Talent;
 import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
+import electroblob.wizardry.Wizardry;
+import electroblob.wizardry.block.BlockReceptacle;
 import electroblob.wizardry.constants.Constants;
 import electroblob.wizardry.constants.Element;
 import electroblob.wizardry.data.WizardData;
@@ -38,6 +41,7 @@ import electroblob.wizardry.spell.LifeDrain;
 import electroblob.wizardry.spell.Spell;
 import electroblob.wizardry.spell.SpellConjuration;
 import electroblob.wizardry.spell.SpellMinion;
+import electroblob.wizardry.tileentity.TileEntityReceptacle;
 import electroblob.wizardry.util.AllyDesignationSystem;
 import electroblob.wizardry.util.BlockUtils;
 import electroblob.wizardry.util.EntityUtils;
@@ -57,6 +61,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
@@ -174,6 +179,12 @@ public final class EventHandler {
 			EntityWizardInitiate npc = (EntityWizardInitiate) event.getCaster();
 			SpellModifiers modifiers = event.getModifiers();
 
+			if (npc.getTalent() == Talent.SPELL_TINKERER && npc.hasTalentUnlocked() && AllyDesignationSystem.isAllied(event.getCaster(), npc)) {
+				event.getModifiers().set(WizardryItems.duration_upgrade, event.getModifiers().get(WizardryItems.duration_upgrade) * 1.5f, false);
+				event.getModifiers().set(WizardryItems.blast_upgrade, event.getModifiers().get(WizardryItems.duration_upgrade) * 1.5f, true);
+				event.getModifiers().set(WizardryItems.range_upgrade, event.getModifiers().get(WizardryItems.duration_upgrade) * 1.5f, true);
+			}
+
 			for (ItemStack artefactStack : npc.getActiveArtefacts()) {
 				Item artefact = artefactStack.getItem();
 
@@ -250,6 +261,31 @@ public final class EventHandler {
 				}
 			}
 		}
+		if (event.getCaster() != null) {
+			for (EntityWizardInitiate initiate : EntityUtils.getEntitiesWithinRadius(16, event.getCaster().posX, event.getCaster().posY, event.getCaster().posZ, event.getWorld(), EntityWizardInitiate.class)) {
+				if (initiate.getTalent() == Talent.SPELL_TINKERER && initiate.hasTalentUnlocked() && AllyDesignationSystem.isAllied(event.getCaster(), initiate)) {
+					if (initiate.getHeldItemMainhand().getItem() instanceof ItemWand) {
+						Element elm = ((ItemWand) initiate.getHeldItemMainhand().getItem()).element;
+						if (AllyDesignationSystem.isAllied(initiate, event.getCaster()) && event.getCaster().getHeldItemMainhand().getItem()
+								instanceof ItemWand && ((ItemWand) event.getCaster().getHeldItemMainhand().getItem()).element == elm) {
+							event.getModifiers().set(WizardryItems.duration_upgrade, event.getModifiers().get(WizardryItems.duration_upgrade) * 1.25f, false);
+							event.getModifiers().set(WizardryItems.blast_upgrade, event.getModifiers().get(WizardryItems.blast_upgrade) * 1.25f, true);
+							event.getModifiers().set(WizardryItems.range_upgrade, event.getModifiers().get(WizardryItems.range_upgrade) * 1.25f, true);
+							if (event.getWorld().isRemote) {
+								ParticleBuilder.create(ParticleBuilder.Type.BEAM).clr(BlockReceptacle.PARTICLE_COLOURS.get(elm)[0]).time(20)
+										.pos(initiate.posX, initiate.posY + initiate.height / 2, initiate.posZ)
+										.target(event.getCaster()).spawn(event.getWorld());
+								ParticleBuilder.create(ParticleBuilder.Type.BEAM).clr(BlockReceptacle.PARTICLE_COLOURS.get(elm)[0]).time(10)
+										.scale(2)
+										.pos(initiate.posX, initiate.posY + initiate.height / 2, initiate.posZ)
+										.target(event.getCaster()).spawn(event.getWorld());
+							}
+						}
+					}
+				}
+			}
+		}
+
 	}
 
 	@SubscribeEvent

@@ -38,24 +38,9 @@ public class GuiScreenWizardInitiateStats extends GuiContainer {
 
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 		this.fontRenderer.drawString(this.wizard.getDisplayNameWithoutOwner().getUnformattedText(), 5, 13, 4210752);
-		//		this.fontRenderer.drawString(I18n.format("gui.arcaneapprentices:wizard_level", this.wizard.getLevel(), this.wizard.getTotalXp(),
-		//				(int) XpProgression.calculateTotalXpRequired(this.wizard.getLevel() + 1)), 5, 13 + 12, 4210752);
 		this.fontRenderer.drawString(I18n.format("gui.arcaneapprentices:wizard_level", this.wizard.getLevel(), this.wizard.getTotalXp(),
 				(int) XpProgression.calculateTotalXpRequired(this.wizard.getLevel() + 1)), 5, 13 + 12, 4210752);
 		this.fontRenderer.drawString(I18n.format("gui.arcaneapprentices:spell_slots"), 5, 13 + 24, 4210752);
-		List<Spell> spells = this.wizard.getSpells();
-		int i = 0;
-		//		for (Spell spell : spells) {
-		//			// Draws spell illustration on opposite page, underneath the book so it shows through the hole.
-		//			Minecraft.getMinecraft().renderEngine.bindTexture(spell.getIcon());
-		//			//  : Spells.none.getIcon()
-		//			int left = this.width/2 - xSize/2;
-		//			int top = this.height/2 - this.ySize/2;
-		//			DrawingUtils.drawTexturedRect(left + 146 + (i * 74), top + 40, 0, 0, 128, 128, 64, 64);
-		//			i++;
-		//		}
-		//	this.fontRenderer.drawString(this.playerInventory.getDisplayName().getUnformattedText(), 8, this.ySize - 96 + 2, 4210752);
-		//	this.fontRenderer.drawString(this.playerInventory.getDisplayName().getUnformattedText(), 8, this.ySize - 96 + 2, 4210752);
 	}
 
 	@Override
@@ -77,8 +62,6 @@ public class GuiScreenWizardInitiateStats extends GuiContainer {
 
 	@Override
 	protected void actionPerformed(GuiButton button) throws IOException {
-		//if (button.enabled) {
-		//if (button == this.applyBtn) {
 		List<Spell> spells = this.wizard.getSpells();
 		if (button.id <= spells.size() - 1) {
 			IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.SPELL_TOGGLE_BUTTON, spells.get(button.id));
@@ -89,33 +72,12 @@ public class GuiScreenWizardInitiateStats extends GuiContainer {
 			IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.OPEN_WIZARD_INVENTORY_BUTTON);
 			AAPacketHandler.net.sendToServer(msg);
 		}
-		//if (button instanceof GuiButtonSpellSort) {
-		//	this.arcaneWorkbenchContainer.setSortType(((GuiButtonSpellSort)button).sortType);
-		//}
-		//}
+
 	}
 
 	@Override
 	public void drawHoveringText(String text, int x, int y) {
 		super.drawHoveringText(text, x, y);
-		//
-		//		List<Spell> spells = this.wizard.getSpells();
-		//		int k = 0;
-		//		for (Spell spell : spells) {
-		//			TextComponentString spellName = new TextComponentString(spell.getDisplayName());
-		//			HoverEvent hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, spellName);
-		//			ITextComponent component = new TextComponentString("Spell: " + spell.getDisplayName());
-		//			component.getStyle().setHoverEvent(hoverEvent);
-		//			String displayText = component.getFormattedText();
-		//			// Draws spell illustration on opposite page, underneath the book so it shows through the hole.
-		//			Minecraft.getMinecraft().renderEngine.bindTexture(spell.getIcon());
-		//			//  : Spells.none.getIcon()
-		//			int left = this.width/2 - xSize/2;
-		//			int top = this.height/2 - this.ySize/2;
-		//			DrawingUtils.drawTexturedRect(left + 5+ (k * 74), top + 50, 0, 0, 16, 16, 16, 16);
-		//			drawHoveringText(displayText, x, y);
-		//			k++;
-		//		}
 	}
 
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
@@ -139,6 +101,14 @@ public class GuiScreenWizardInitiateStats extends GuiContainer {
 		int top = this.height / 2 - this.ySize / 2;
 		this.fontRenderer.drawString(I18n.format("gui.arcaneapprentices:food_level", Math.round(this.wizard.getFoodLevel() / 20 * 100)), left + 5, top + 82, 4210752);
 		this.fontRenderer.drawString(I18n.format("gui.arcaneapprentices:saturation", Math.round(this.wizard.getSaturation() / 20 * 100)), left + 5, top + 92, 4210752);
+
+		this.fontRenderer.drawString(I18n.format("gui.apprenticearcana.talent"), left + 5, top + 103, 4210752);
+		if (this.wizard.isChild()) {
+			this.fontRenderer.drawSplitString(I18n.format("gui.apprenticearcana.talent_locked",this.wizard.getName(), XpProgression.getMaxLevel() / 2), left + 5, top + 113, 167, 4210752);
+		} else {
+			this.fontRenderer.drawString(this.wizard.getTalent().getDisplayName(), left + 5, top + 113, 4210752);
+			this.fontRenderer.drawSplitString(I18n.format("talent." + this.wizard.getTalent().name().toLowerCase() + ".desc",this.wizard.getName()),left + 5, top + 123, 167, 4210752);
+		}
 
 	}
 

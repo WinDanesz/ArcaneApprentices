@@ -153,7 +153,6 @@ public class PacketControlInput implements IMessageHandler<PacketControlInput.Me
 							EntityWizardInitiate wizard = ((ContainerWizardBase) player.openContainer).getWizard();
 							if (!wizard.verifyWandManaRequirementForJourney(message.journeyType)) {
 								wizard.sayImmediately(new TextComponentTranslation("message.arcaneapprentices:no_wand_with_mana_for_journey"));
-								System.out.println("Survival chance: " + JourneySurvivalHandler.calculateSurvivalChance(wizard, message.journeyType));
 							} else {
 								wizard.setJourneyType(message.journeyType);
 								wizard.goOnJourney();

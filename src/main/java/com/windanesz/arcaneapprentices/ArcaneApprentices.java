@@ -3,6 +3,7 @@ package com.windanesz.arcaneapprentices;
 import com.windanesz.arcaneapprentices.client.gui.AAGuiHandler;
 import com.windanesz.arcaneapprentices.command.CommandResetApprenticeData;
 import com.windanesz.arcaneapprentices.data.PlayerData;
+import com.windanesz.arcaneapprentices.data.Talent;
 import com.windanesz.arcaneapprentices.packet.AAPacketHandler;
 import com.windanesz.arcaneapprentices.registry.AAAdvancementTriggers;
 import com.windanesz.arcaneapprentices.registry.BlockRegistry;
@@ -69,7 +70,7 @@ public class ArcaneApprentices {
 		BlockRegistry.registerOreDictionaryEntries();
 		PlayerData.init();
 		proxy.postInit();
-
+		Talent.TalentSettings.init();
 	}
 
 	@EventHandler
