@@ -33,6 +33,7 @@ public final class AAItems {
 	public static final Item charm_withering_atlas = placeholder();
 	public static final Item charm_golden_lure = placeholder();
 	public static final Item charm_itinerary = placeholder();
+	public static final Item charm_seal_of_fate = placeholder();
 	public static final Item ring_serendipity = placeholder();
 	public static final Item amulet_survival_chance = placeholder();
 	public static final Item head_knowledge = placeholder();
@@ -48,7 +49,8 @@ public final class AAItems {
 		ItemRegistry.registerItemArtefact(registry, "charm_eternal_grimoire", ArcaneApprentices.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
 		ItemRegistry.registerItemArtefact(registry, "charm_spell_compass", ArcaneApprentices.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
 		ItemRegistry.registerItemArtefact(registry, "charm_itinerary", ArcaneApprentices.MODID, new ItemCharmItinerary(EnumRarity.UNCOMMON, ItemArtefact.Type.CHARM));
-//		ItemRegistry.registerItemArtefact(registry, "charm_talent_detector", ApprenticeArcana.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
+		ItemRegistry.registerItemArtefact(registry, "charm_seal_of_fate", ArcaneApprentices.MODID, new ItemCharmItinerary(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
+		ItemRegistry.registerItemArtefact(registry, "charm_talent_detector", ArcaneApprentices.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
 //		ItemRegistry.registerItemArtefact(registry, "charm_treasure_map", ApprenticeArcana.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
 		ItemRegistry.registerItemArtefact(registry, "charm_withering_atlas", ArcaneApprentices.MODID, new ItemArtefact(EnumRarity.EPIC, ItemArtefact.Type.CHARM));
 		ItemRegistry.registerItemArtefact(registry, "charm_golden_lure", ArcaneApprentices.MODID, new ItemArtefact(EnumRarity.RARE, ItemArtefact.Type.CHARM));
