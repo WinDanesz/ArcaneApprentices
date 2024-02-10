@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [v1.2.1] - 2024-02-10
+### :bug: Bug Fixes
+- [`21710eb`](https://github.com/WinDanesz/ArcaneApprentices/commit/21710ebc6135614b2ac76cc01c8fd2fd371c0873) - Fix apprentices disappearing when burning *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+
+
 ## [v1.2.0] - 2024-02-05
 ### :sparkles: New Features
 - [`62f1265`](https://github.com/WinDanesz/ArcaneApprentices/commit/62f126523ff469ecc54177fe93ed60d34ab49dad) - This mod now forces the 'Fix Effects When Changing Dimensions' setting of the PotionCore mod to be false, if PotionCore is installed (although this can also be disabled, but not recommended). This fixes the issue with respawning apprentices instantly dying. *(commit by [@WinDanesz](https://github.com/WinDanesz))*
@@ -56,3 +61,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.1.0]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.0.2...v1.1.0
 [v1.1.1]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.1.0...v1.1.1
 [v1.2.0]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.1.1...v1.2.0
+[v1.2.1]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.2.0...v1.2.1
