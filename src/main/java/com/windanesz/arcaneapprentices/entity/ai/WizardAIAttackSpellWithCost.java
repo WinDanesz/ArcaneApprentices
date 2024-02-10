@@ -245,7 +245,7 @@ public class WizardAIAttackSpellWithCost extends EntityAIBase {
 								}
 								// prioritize not dying from fire...
 							} else if (this.npc.isBurning()) {
-								Spell extinguish = Spell.registry.getValue(new ResourceLocation("ancientspellcraft:extinguish"));
+								Spell extinguish = Spell.registry.getValue(new ResourceLocation("ancientspellcraft:extinguish"));			
 								List<Spell> fireCounters = Arrays.asList(Spells.fire_resistance, Spells.blink);
 								if (extinguish != null) {
 									fireCounters.add(extinguish);
