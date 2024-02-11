@@ -52,7 +52,6 @@ public class GuiScreenWizardInitiateJourney extends GuiContainer {
 	private GuiButtonWithDescription netherAdventureButton;
 	private GuiButtonWithDescription oceanAdventureButton;
 
-
 	public GuiScreenWizardInitiateJourney(EntityWizardInitiate wizard) {
 		super(new ContainerWizardInititateJourney(wizard, Minecraft.getMinecraft().player));
 		this.wizard = wizard;
@@ -76,8 +75,8 @@ public class GuiScreenWizardInitiateJourney extends GuiContainer {
 		int left = (this.width / 2 - xSize / 2);
 		int top = this.height / 2 - this.ySize / 2;
 
-		this.buttonList.add(this.infoButton = new GuiButtonInfo(0, this.width / 2 - 8, top + 87, I18n.format("gui.arcaneapprentices:confirm_button"), "confirm"));
-		this.buttonList.add(this.confirmButton = new GuiButton(1, left + 100, top + 202, I18n.format("gui.arcaneapprentices:confirm_button")));
+		this.buttonList.add(this.infoButton = new GuiButtonInfo(0, this.width / 2 - 8, top + 87, I18n.format("gui.arcaneapprentices:confirm_button"), "info"));
+		this.buttonList.add(this.confirmButton = new GuiButtonWithDescription(1, left + 100, top + 202, I18n.format("gui.arcaneapprentices:confirm_button"), "confirm"));
 		this.buttonList.add(this.cancelButton = new GuiButton(2, left + 20, top + 202, I18n.format("gui.arcaneapprentices:cancel_button")));
 		int offset = 35;
 		this.buttonList.add(this.shortDuration = new GuiButtonWithDescription(3, left + 26, top + 155 - offset, 40, 20, I18n.format("gui.arcaneapprentices:short"), "short_duration", 1));
@@ -92,14 +91,14 @@ public class GuiScreenWizardInitiateJourney extends GuiContainer {
 		// Fourth button
 		if (wizard.isArtefactActive(AAItems.charm_spell_compass)) {
 			this.buttonList.add(this.spellHuntButton = new GuiButtonWithDescription(9, left + 90, top + 213 - offset, 70, 20, I18n.format("gui.arcaneapprentices:spell_hunt"), "spell_hunt", 2));
-// TODO
+			// TODO
 			//		} else if (wizard.isArtefactActive(AAItems.charm_treasure_map)) {
-//			this.buttonList.add(this.treasureHuntButton = new GuiButtonWithDescription(9, left + 90, top + 213 - offset, 70, 20, I18n.format("gui.arcaneapprentices:treasure_hunt"), "treasure_hunt", 2));
+			//			this.buttonList.add(this.treasureHuntButton = new GuiButtonWithDescription(9, left + 90, top + 213 - offset, 70, 20, I18n.format("gui.arcaneapprentices:treasure_hunt"), "treasure_hunt", 2));
 		} else if (wizard.isArtefactActive(AAItems.charm_withering_atlas)) {
 			this.buttonList.add(this.netherAdventureButton = new GuiButtonWithDescription(9, left + 90, top + 213 - offset, 70, 20, I18n.format("gui.arcaneapprentices:nether_adventure"), "nether_adventure", 2));
 		} else if (wizard.isArtefactActive(AAItems.charm_golden_lure)) {
 			this.buttonList.add(this.oceanAdventureButton = new GuiButtonWithDescription(9, left + 90, top + 213 - offset, 70, 20, I18n.format("gui.arcaneapprentices:ocean_adventure"), "ocean_adventure", 2));
-	    }
+		}
 
 		confirmButton.width = 50;
 		cancelButton.width = 50;
@@ -110,13 +109,6 @@ public class GuiScreenWizardInitiateJourney extends GuiContainer {
 	@Override
 	protected void actionPerformed(GuiButton button) throws IOException {
 		String suffix = "";
-		//	if (button == confirmButton) {
-		//		IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.DISMISS_WIZARD_BUTTON);
-		//		AAPacketHandler.net.sendToServer(msg);
-		//	} else {
-		//		// CLOSE_WINDOW
-		//		Minecraft.getMinecraft().player.closeScreen();
-		//	}
 
 		int selectedCategories = 0;
 		if (button instanceof GuiButtonWithDescription) {
@@ -163,12 +155,11 @@ public class GuiScreenWizardInitiateJourney extends GuiContainer {
 			AAPacketHandler.net.sendToServer(msg);
 
 			if (wizard.verifyWandManaRequirementForJourney(type)) {
-				for(int i = 0; i < 20; i++){
+				for (int i = 0; i < 20; i++) {
 
 					float brightness = wizard.world.rand.nextFloat() * 0.1f + 0.1f;
-					ParticleBuilder.create(ParticleBuilder.Type.CLOUD, wizard.world.rand, wizard.posX +1, wizard.posY, wizard.posZ, 1, false)
+					ParticleBuilder.create(ParticleBuilder.Type.CLOUD, wizard.world.rand, wizard.posX + 1, wizard.posY, wizard.posZ, 1, false)
 							.clr(brightness, brightness, brightness).time(80 + wizard.world.rand.nextInt(12)).shaded(true).spawn(wizard.world);
-
 
 				}
 			}
@@ -205,7 +196,6 @@ public class GuiScreenWizardInitiateJourney extends GuiContainer {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		this.renderHoveredToolTip(mouseX, mouseY);
 
-
 		// render button tooltips
 		for (GuiButton button : buttonList) {
 			if (button instanceof GuiButtonWithDescription && button.isMouseOver()) {
@@ -216,6 +206,11 @@ public class GuiScreenWizardInitiateJourney extends GuiContainer {
 						drawHoveringText(I18n.format("gui.arcaneapprentices:not_enough_food"), tooltipX, tooltipY);
 					} else if (((GuiButtonWithDescription) button).category == 2 && !((GuiButtonWithDescription) button).requirementsMet) {
 						drawHoveringText(I18n.format("gui.arcaneapprentices:too_low_level"), tooltipX, tooltipY);
+					} else if (button == confirmButton) {
+						if (!confirmButton.enabled) {
+							drawHoveringText(I18n.format("gui.arcaneapprentices:wizard_journey_confirm_disabled"), tooltipX, tooltipY);
+						}
+
 					} else {
 						drawHoveringText(I18n.format(((GuiButtonWithDescription) button).getDescriptionLanguageKey()), tooltipX, tooltipY);
 					}
@@ -230,7 +225,7 @@ public class GuiScreenWizardInitiateJourney extends GuiContainer {
 			int top = this.height / 2 - this.ySize / 2;
 			//
 			//
-		//	this.fontRenderer.drawSplitString(I18n.format("TEST"), left + 73, top + 207, 170, 4210752);
+			//	this.fontRenderer.drawSplitString(I18n.format("TEST"), left + 73, top + 207, 170, 4210752);
 
 			String suffix = "";
 			if (getJourneyType().toLowerCase().toString().contains("gather")) {
@@ -246,9 +241,16 @@ public class GuiScreenWizardInitiateJourney extends GuiContainer {
 			JourneyType type = JourneyType.valueOf((getJourneyType() + "_" + getDuration()).toUpperCase() + suffix);
 			float percent = JourneySurvivalHandler.calculateSurvivalChance(wizard, type);
 			NumberFormat percentFormat = NumberFormat.getPercentInstance();
-			percentFormat.setMinimumFractionDigits(1);
+			percentFormat.setMinimumFractionDigits(0);
 			String percentString = percentFormat.format(percent);
 			this.fontRenderer.drawSplitString(percentString, left + 73, top + 207, 170, 4210752);
+
+			if (buttonList.stream().anyMatch(b -> b.enabled && b == confirmButton && b.isMouseOver())) {
+				int tooltipX = mouseX + 12;
+				int tooltipY = mouseY + 12;
+				drawHoveringText(I18n.format("gui.arcaneapprentices:wizard_journey_confirm_info",
+						type.getMinMaxDuration(wizard)[0] / 20 / 60, type.getMinMaxDuration(wizard)[1] / 20 / 60), tooltipX, tooltipY);
+			}
 		}
 	}
 

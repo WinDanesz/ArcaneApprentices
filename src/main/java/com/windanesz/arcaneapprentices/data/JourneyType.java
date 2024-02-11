@@ -88,6 +88,33 @@ public enum JourneyType {
 		return min;
 	}
 
+	public int[] getMinMaxDuration(EntityWizardInitiate wizardInitiate) {
+		float modifier = wizardInitiate.isArtefactActive(AAItems.belt_explorer) ? Settings.journeySettings.EXPLORERS_BELT_JOURNEY_TIME_MODIFIER : 1.0f;
+		if (wizardInitiate.getTalent() == Talent.SWIFT_VOYAGE && wizardInitiate.hasTalentUnlocked()) {
+			modifier *= 0.5f;
+		}
+		int min = 0, max = 0;
+
+		switch (duration) {
+			case "SHORT":
+				min = Settings.generalSettings.MIN_ADVENTURE_DURATION_IN_TICKS_SHORT;
+				max = Settings.generalSettings.MAX_ADVENTURE_DURATION_IN_TICKS_SHORT;
+				break;
+			case "MEDIUM":
+				min = Settings.generalSettings.MIN_ADVENTURE_DURATION_IN_TICKS_MEDIUM;
+				max = Settings.generalSettings.MAX_ADVENTURE_DURATION_IN_TICKS_MEDIUM;
+				break;
+			case "LONG":
+				min = Settings.generalSettings.MIN_ADVENTURE_DURATION_IN_TICKS_LONG;
+				max = Settings.generalSettings.MAX_ADVENTURE_DURATION_IN_TICKS_LONG;
+				break;
+		}
+
+
+
+		return new int[]{min, max};
+	}
+
 	public ResourceLocation getLootTable() {
 		return new ResourceLocation(ArcaneApprentices.MODID, "adventure/" + this.toString().toLowerCase());
 	}
