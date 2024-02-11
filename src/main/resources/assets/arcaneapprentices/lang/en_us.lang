@@ -11,6 +11,7 @@ gui.arcaneapprentices:saturation=Saturation: %s%%
 gui.arcaneapprentices:spell_toggle_button=Toggle Spell
 gui.arcaneapprentices:charm_itinerary_entry=%1$s: returns home in %2$s minutes
 gui.arcaneapprentices:charm_itinerary_entry_with_pos=%1$s: returns home in %2$s minutes to x%3$s y%4$s z%5$s
+gui.arcaneapprentices:charm_itinerary_no_apprentices=You don't have any apprentices that are currently on a journey
 message.arcaneapprentices:wizard_chat_prefix=<%s>
 message.arcaneapprentices:apprentice_taken=%s has became your apprentice!
 message.arcaneapprentices:wizard_chat_message=%1$s %2$s

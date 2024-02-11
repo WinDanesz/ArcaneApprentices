@@ -14,6 +14,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.List;
+
 @SideOnly(Side.CLIENT)
 public class GuiScreenCharmItinerary extends GuiContainer {
 	private static final ResourceLocation GUI_BACKGROUND = new ResourceLocation(ArcaneApprentices.MODID, "textures/gui/charm_itinerary.png");
@@ -30,7 +32,12 @@ public class GuiScreenCharmItinerary extends GuiContainer {
 		if (playerSP != null) {
 			int i = 25;
 			this.fontRenderer.drawString("Apprentices",20, 15, 13);
-			for (StoredEntity entity : PlayerData.getAdventuringApprentices(playerSP)) {
+			List<StoredEntity> entityList = PlayerData.getAdventuringApprentices(playerSP);
+			if (entityList.isEmpty()) {
+				this.fontRenderer.drawSplitString(I18n.format("gui.arcaneapprentices:charm_itinerary_no_apprentices"), 20, i, 105, 1);
+				return;
+			}
+			for (StoredEntity entity : entityList) {
 				if (entity.nbtTagCompound.hasKey("CustomName")) {
 					String name = entity.nbtTagCompound.getString("CustomName");
 					int minutes = entity.nbtTagCompound.getInteger("AdventureRemainingDuration") / 20 / 60;
