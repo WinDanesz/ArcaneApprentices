@@ -1,6 +1,7 @@
 package com.windanesz.arcaneapprentices.entity.ai;
 
 import com.windanesz.arcaneapprentices.Utils;
+import com.windanesz.arcaneapprentices.data.PlayerData;
 import com.windanesz.arcaneapprentices.data.Speech;
 import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
 import electroblob.wizardry.registry.WizardryItems;
@@ -176,6 +177,7 @@ public class WizardAIFollowOwner extends EntityAIBase {
 			if (!this.petPathfinder.tryMoveToEntityLiving(this.owner, this.followSpeed)) {
 				if (!this.wizard.getLeashed() && !this.wizard.isRiding()) {
 					if (this.wizard.getDistanceSq(this.owner) >= 256.0D) {
+						boolean foundPos = false;
 						int i = MathHelper.floor(this.owner.posX) - 2;
 						int j = MathHelper.floor(this.owner.posZ) - 2;
 						int k = MathHelper.floor(this.owner.getEntityBoundingBox().minY);
@@ -185,9 +187,15 @@ public class WizardAIFollowOwner extends EntityAIBase {
 								if ((l < 1 || i1 < 1 || l > 3 || i1 > 3) && this.isTeleportFriendlyBlock(i, j, k, l, i1)) {
 									this.wizard.setLocationAndAngles((double) ((float) (i + l) + 0.5F), (double) k, (double) ((float) (j + i1) + 0.5F), this.wizard.rotationYaw, this.wizard.rotationPitch);
 									this.petPathfinder.clearPath();
-									return;
+									foundPos = true;
 								}
 							}
+						}
+
+						if (!foundPos && this.wizard.getOwner() instanceof EntityPlayer) {
+							// no nearby floor space, store entity
+							PlayerData.storePendingHomeOrFollowingApprentice((EntityPlayer) this.wizard.getOwner(), this.wizard, true);
+							world.removeEntity(this.wizard);
 						}
 					}
 				}

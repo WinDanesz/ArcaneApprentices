@@ -38,7 +38,7 @@ public class WizardAIGoHome extends EntityAIBase {
 				return true;
 			} else if (this.owner instanceof EntityPlayer) {
 				// just disappear
-				PlayerData.storePendingHomeApprentice((EntityPlayer) this.owner, this.wizard);
+				PlayerData.storePendingHomeOrFollowingApprentice((EntityPlayer) this.owner, this.wizard, false);
 				// TODO: say something
 				world.removeEntity(this.wizard);
 			}

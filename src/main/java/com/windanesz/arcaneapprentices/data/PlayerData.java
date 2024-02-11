@@ -193,11 +193,13 @@ public class PlayerData {
 		return false;
 	}
 
-	public static boolean storePendingHomeApprentice(EntityPlayer player, EntityLivingBase entity) {
+	public static boolean storePendingHomeOrFollowingApprentice(EntityPlayer player, EntityLivingBase entity, boolean following) {
 		WizardData data = WizardData.get(player);
 		List<StoredEntity> list = getPendingHomeApprentices(player);
 		StoredEntity entityToStore = new StoredEntity(entity);
-
+		if (following) {
+			entityToStore.nbtTagCompound.setBoolean("Follower", true);
+		}
 		if (!list.contains(entityToStore)) {
 			list.add(entityToStore);
 			data.setVariable(PENDING_HOME_APPRENTICES, list);

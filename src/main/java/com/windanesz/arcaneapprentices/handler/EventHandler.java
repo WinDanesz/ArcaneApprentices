@@ -8,7 +8,6 @@ import com.windanesz.arcaneapprentices.data.Speech;
 import com.windanesz.arcaneapprentices.data.StoredEntity;
 import com.windanesz.arcaneapprentices.data.Talent;
 import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
-import electroblob.wizardry.Wizardry;
 import electroblob.wizardry.block.BlockReceptacle;
 import electroblob.wizardry.constants.Constants;
 import electroblob.wizardry.constants.Element;
@@ -41,7 +40,6 @@ import electroblob.wizardry.spell.LifeDrain;
 import electroblob.wizardry.spell.Spell;
 import electroblob.wizardry.spell.SpellConjuration;
 import electroblob.wizardry.spell.SpellMinion;
-import electroblob.wizardry.tileentity.TileEntityReceptacle;
 import electroblob.wizardry.util.AllyDesignationSystem;
 import electroblob.wizardry.util.BlockUtils;
 import electroblob.wizardry.util.EntityUtils;
@@ -61,7 +59,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
@@ -781,22 +778,36 @@ public final class EventHandler {
 
 				for (StoredEntity entity : list) {
 					World world = event.player.world;
+					BlockPos posToRespawnAt = null;
+					boolean hasHomePos = entity.getNbtTagCompound().hasKey("HomePos");
+					boolean activeFollower = entity.getNbtTagCompound().hasKey("Follower");
+					if (hasHomePos || activeFollower) {
+						if (activeFollower) {
+							// NPC is an active follower
+							posToRespawnAt = BlockUtils.findNearbyFloorSpace(event.player, 4, 4);
+						} else {
+							// just an NPC with a home position, probably on a journey
+							Location homePos = Location.fromNBT(entity.getNbtTagCompound().getCompoundTag("HomePos"));
+							if (event.player.dimension == homePos.dimension && event.player.world.isBlockLoaded(homePos.pos) && event.player.getDistance(homePos.pos.getX(), homePos.pos.getY(), homePos.pos.getZ()) < 12) {
 
-					if (entity.getNbtTagCompound().hasKey("HomePos")) {
-						Location homePos = Location.fromNBT(entity.getNbtTagCompound().getCompoundTag("HomePos"));
-						if (event.player.dimension == homePos.dimension && event.player.world.isBlockLoaded(homePos.pos) && event.player.getDistance(homePos.pos.getX(), homePos.pos.getY(), homePos.pos.getZ()) < 12) {
+								BlockPos tempPos = BlockUtils.findNearbyFloorSpace(event.player.world, homePos.pos, 3, 3);
+								Arrays.asList("CurrentStayPos", "Motion", "Leashed", "ActiveEffects", "FallDistance", "HurtTime", "Fire")
+										.forEach(tag -> entity.getNbtTagCompound().removeTag(tag));
 
-							BlockPos pos = BlockUtils.findNearbyFloorSpace(event.player.world, homePos.pos, 3, 3);
-							Arrays.asList("CurrentStayPos", "Motion", "Leashed", "ActiveEffects", "FallDistance", "HurtTime", "Fire")
-									.forEach(tag -> entity.getNbtTagCompound().removeTag(tag));
+								if (tempPos != null) {
+									posToRespawnAt = tempPos;
+								}
+							}
+						}
 
-							if (pos != null) {
-								Entity mob = EntityList.createEntityFromNBT(entity.getNbtTagCompound(), world);
-								if (mob instanceof EntityLivingBase) {
-									mob.setPosition(pos.getX() + 0.5f, pos.getY(), pos.getZ() + 0.5f);
-									if (world.spawnEntity(mob)) {
-										respawnedEntities.add(mob.getUniqueID());
-									}
+						if (posToRespawnAt != null) {
+							Entity mob = EntityList.createEntityFromNBT(entity.getNbtTagCompound(), world);
+							if (mob instanceof EntityWizardInitiate) {
+								mob.setPosition(posToRespawnAt.getX() + 0.5f, posToRespawnAt.getY(), posToRespawnAt.getZ() + 0.5f);
+								mob.removeTag("Follower");
+								if (world.spawnEntity(mob)) {
+									respawnedEntities.add(mob.getUniqueID());
+									((EntityWizardInitiate) mob).resetChatCooldown();
 								}
 							}
 						}
