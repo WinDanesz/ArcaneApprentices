@@ -550,7 +550,7 @@ public class Settings {
 
 		@Config.Name("Max Adventure Duration In Ticks (medium journeys)")
 		@Config.Comment("Determines the maximum duration an NPC can spend in an adventure before it returns.")
-		public int MAX_ADVENTURE_DURATION_IN_TICKS_MEDIUM = 18000;
+		public int MAX_ADVENTURE_DURATION_IN_TICKS_MEDIUM = 21000;
 
 		@Config.Name("Min Adventure Duration In Ticks (medium journeys)")
 		@Config.Comment("Determines the minimum duration an NPC must spend in an adventure before it returns.")
@@ -558,7 +558,7 @@ public class Settings {
 
 		@Config.Name("Max Adventure Duration In Ticks (long journeys)")
 		@Config.Comment("Determines the maximum duration an NPC can spend in an adventure before it returns.")
-		public int MAX_ADVENTURE_DURATION_IN_TICKS_LONG = 81000;
+		public int MAX_ADVENTURE_DURATION_IN_TICKS_LONG = 75000;
 
 		@Config.Name("Min Adventure Duration In Ticks (long journeys)")
 		@Config.Comment("Determines the minimum duration an NPC must spend in an adventure before it returns.")
