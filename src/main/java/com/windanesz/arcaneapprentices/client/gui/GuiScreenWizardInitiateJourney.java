@@ -5,7 +5,7 @@ import com.windanesz.arcaneapprentices.Settings;
 import com.windanesz.arcaneapprentices.data.JourneyType;
 import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
 import com.windanesz.arcaneapprentices.handler.JourneySurvivalHandler;
-import com.windanesz.arcaneapprentices.inventory.ContainerWizardInititateAdventure;
+import com.windanesz.arcaneapprentices.inventory.ContainerWizardInititateJourney;
 import com.windanesz.arcaneapprentices.packet.AAPacketHandler;
 import com.windanesz.arcaneapprentices.packet.PacketControlInput;
 import com.windanesz.arcaneapprentices.registry.AAItems;
@@ -32,7 +32,7 @@ import java.io.IOException;
 import java.text.NumberFormat;
 
 @SideOnly(Side.CLIENT)
-public class GuiScreenWizardInitiateAdventure extends GuiContainer {
+public class GuiScreenWizardInitiateJourney extends GuiContainer {
 	private static final ResourceLocation GUI_BACKGROUND = new ResourceLocation(ArcaneApprentices.MODID, "textures/gui/wizard_adventuring.png");
 	private static final int TEXTURE_WIDTH = 256;
 	private static final int TEXTURE_HEIGHT = 256;
@@ -53,8 +53,8 @@ public class GuiScreenWizardInitiateAdventure extends GuiContainer {
 	private GuiButtonWithDescription oceanAdventureButton;
 
 
-	public GuiScreenWizardInitiateAdventure(EntityWizardInitiate wizard) {
-		super(new ContainerWizardInititateAdventure(wizard, Minecraft.getMinecraft().player));
+	public GuiScreenWizardInitiateJourney(EntityWizardInitiate wizard) {
+		super(new ContainerWizardInititateJourney(wizard, Minecraft.getMinecraft().player));
 		this.wizard = wizard;
 		this.allowUserInput = true;
 		this.xSize = 176;

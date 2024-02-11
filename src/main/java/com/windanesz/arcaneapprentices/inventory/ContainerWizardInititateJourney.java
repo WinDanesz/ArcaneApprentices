@@ -3,10 +3,10 @@ package com.windanesz.arcaneapprentices.inventory;
 import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
 import net.minecraft.entity.player.EntityPlayer;
 
-public class ContainerWizardInititateAdventure extends ContainerWizardBase {
+public class ContainerWizardInititateJourney extends ContainerWizardBase {
 	public final EntityWizardInitiate wizard;
 
-	public ContainerWizardInititateAdventure(final EntityWizardInitiate wizard, EntityPlayer player) {
+	public ContainerWizardInititateJourney(final EntityWizardInitiate wizard, EntityPlayer player) {
 		this.wizard = wizard;
 	}
 

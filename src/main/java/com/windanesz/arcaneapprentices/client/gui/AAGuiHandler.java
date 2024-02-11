@@ -5,7 +5,7 @@ import com.windanesz.arcaneapprentices.inventory.ContainerCharmItinerary;
 import com.windanesz.arcaneapprentices.inventory.ContainerInventoryInItemStack;
 import com.windanesz.arcaneapprentices.inventory.ContainerWizardInfo;
 import com.windanesz.arcaneapprentices.inventory.ContainerWizardInitiateInventory;
-import com.windanesz.arcaneapprentices.inventory.ContainerWizardInititateAdventure;
+import com.windanesz.arcaneapprentices.inventory.ContainerWizardInititateJourney;
 import com.windanesz.arcaneapprentices.inventory.ContainerWizardInititateDismissal;
 import com.windanesz.arcaneapprentices.inventory.IItemWithSlots;
 import com.windanesz.arcaneapprentices.inventory.InventoryInItemStack;
@@ -54,7 +54,7 @@ public class AAGuiHandler implements IGuiHandler {
 			Entity entity = world.getEntityByID(x);
 			if (entity instanceof EntityWizardInitiate) {
 				EntityWizardInitiate wizard = (EntityWizardInitiate) entity;
-				return new ContainerWizardInititateAdventure(wizard, player);
+				return new ContainerWizardInititateJourney(wizard, player);
 			}
 		} else if (id == ARTEFACT_BAG_GUI) {
 			ItemStack stack = player.getHeldItem(EnumHand.values()[x]);
@@ -89,7 +89,7 @@ public class AAGuiHandler implements IGuiHandler {
 		} else if (id == WIZARD_ADVENTURING_GUI) {
 			Entity entity = world.getEntityByID(x);
 			if (entity instanceof EntityWizardInitiate) {
-				return new GuiScreenWizardInitiateAdventure((EntityWizardInitiate) entity);
+				return new GuiScreenWizardInitiateJourney((EntityWizardInitiate) entity);
 			}
 		} else if (id == ARTEFACT_BAG_GUI) {
 			ItemStack stack = player.getHeldItem(EnumHand.values()[x]);
