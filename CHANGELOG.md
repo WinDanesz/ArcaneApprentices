@@ -5,6 +5,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [v1.2.2] - 2024-02-18
+### :sparkles: New Features
+- [`54ddad6`](https://github.com/WinDanesz/ArcaneApprentices/commit/54ddad64bf107af137d99b01ff51dec281e835fc) - Each Healing Potion (any) in the Apprentice's inventory increases its survival chance in adventure by +3% *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+- [`c176c9a`](https://github.com/WinDanesz/ArcaneApprentices/commit/c176c9a0ff8dcb09bd0eb8b6bcb14515e77fbc33) - **The mod is now documented in the Wizard's Handbook!** *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+- [`b09615d`](https://github.com/WinDanesz/ArcaneApprentices/commit/b09615dedc01537bd20fd446d6b6a66ce0e04d3a) - Added talent icons *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+- [`442f387`](https://github.com/WinDanesz/ArcaneApprentices/commit/442f3874aad5f495878cc7091d6ea8c07e27bb81) - Enchanted Itinerary tooltip update *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+- [`bb800f7`](https://github.com/WinDanesz/ArcaneApprentices/commit/bb800f7bbf9b00f614dd40463ef870055027a799) - Apprentices now disappear if they are following the player and are unable to run to them or teleport to them, and will reappear when there is available floor space nearby. Fixes [#17](https://github.com/WinDanesz/ArcaneApprentices/pull/17) *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+- [`3d8ad48`](https://github.com/WinDanesz/ArcaneApprentices/commit/3d8ad48d95fc59a128b2cd326a9fcb88d42e8e62) - More GUI tooltips, now expected journey time is displayed at the Confirm button *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+- [`45c7ad6`](https://github.com/WinDanesz/ArcaneApprentices/commit/45c7ad61a340ce68fcb64ee430ef0350b1309bb1) - Lowered long journey's max duration, increased medium duration journey's max duration *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+- [`075bdf3`](https://github.com/WinDanesz/ArcaneApprentices/commit/075bdf3abf2fcbfcfdcf914ca4e48171b6e45e38) - NPCs will now try to identify all unknown spell books in their inventory, if they are capable of doing it. *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+- [`f06beb7`](https://github.com/WinDanesz/ArcaneApprentices/commit/f06beb79fd2f6c814cf92bba545c252fdefa7755) - NPC AI improvements (wander AI) *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+
+### :bug: Bug Fixes
+- [`19a9483`](https://github.com/WinDanesz/ArcaneApprentices/commit/19a94834ee5cca7dc7210ac4446322820f7ca8fd) - Removed debug logging *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+- [`dfaa49d`](https://github.com/WinDanesz/ArcaneApprentices/commit/dfaa49d3ff6c19a4f2af953138821cd6402fb627) - Updated the background of the 'Dismiss' screen *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+- [`b2eb4fa`](https://github.com/WinDanesz/ArcaneApprentices/commit/b2eb4fa046709a11586616e2a4a2d2006271187b) - Study progress persistence on world reload *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+
+### :recycle: Refactors
+- [`515cfeb`](https://github.com/WinDanesz/ArcaneApprentices/commit/515cfeba81a88b0eb0b7893b1968e90db6941890) - Class renaming *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+
+### :wrench: Chores
+- [`f9b256a`](https://github.com/WinDanesz/ArcaneApprentices/commit/f9b256af532d9ba8736eee0d569fdc8f9de4c5b2) - update docs *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+
+
 ## [v1.2.1] - 2024-02-10
 ### :bug: Bug Fixes
 - [`21710eb`](https://github.com/WinDanesz/ArcaneApprentices/commit/21710ebc6135614b2ac76cc01c8fd2fd371c0873) - Fix apprentices disappearing when burning *(commit by [@WinDanesz](https://github.com/WinDanesz))*
@@ -62,3 +86,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.1.1]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.1.0...v1.1.1
 [v1.2.0]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.1.1...v1.2.0
 [v1.2.1]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.2.0...v1.2.1
+[v1.2.2]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.2.1...v1.2.2
