@@ -20,34 +20,30 @@ public class WizardAIWander extends EntityAIWander {
 
 	@Override
 	public boolean shouldExecute() {
-		return ((EntityWizardInitiate) entity).getTask() != EntityWizardInitiate.Task.TRY_TO_SLEEP;
+		return super.shouldExecute() && ((EntityWizardInitiate) entity).getTask() != EntityWizardInitiate.Task.TRY_TO_SLEEP;
 	}
 
 	@Override
 	public boolean shouldContinueExecuting() {
-		return entity.getAttackTarget() == null;
+		return entity.getAttackTarget() == null || !this.entity.getNavigator().noPath();
 	}
 
 	@Override
 	public void startExecuting() {
 		super.startExecuting();
-		//if (entity.world.rand.nextInt(20) == 0) {
-		if (entity.getAttackTarget() == null) {
+		if (entity.getAttackTarget() == null && entity.world.rand.nextInt(20) == 0) {
 
 			Speech.WIZARD_IDLING.sayWithoutSpam((EntityWizardInitiate) entity);
 		}
-		//}
-		if (entity.getDistanceSq(((EntityWizardInitiate) entity).currentStayPos) > 12) {
+		if (((EntityWizardInitiate) entity).getTask() == EntityWizardInitiate.Task.STAY && entity.getDistanceSq(((EntityWizardInitiate) entity).currentStayPos) > 12) {
 			this.entity.getNavigator().tryMoveToXYZ(((EntityWizardInitiate) entity).currentStayPos.getX(), ((EntityWizardInitiate) entity).currentStayPos.getY(),
 					((EntityWizardInitiate) entity).currentStayPos.getZ(), speed);
 		}
 	}
 
 	@Nullable
-	protected Vec3d getPosition()
-	{
-		return RandomPositionGenerator.findRandomTarget(this.entity, this.entity.world.rand.nextInt(10), 7);
+	protected Vec3d getPosition() {
+		return RandomPositionGenerator.findRandomTarget(this.entity, this.entity.world.rand.nextInt(5), 5);
 	}
-
 
 }

@@ -1513,7 +1513,7 @@ public class EntityWizardInitiate extends EntityCreature
 	@Override
 	public void setItemStackToSlot(EntityEquipmentSlot slotIn, ItemStack stack) {
 		super.setItemStackToSlot(slotIn, stack);
-		if (slotIn == EntityEquipmentSlot.OFFHAND && (getTask() == Task.STUDY || getTask() == Task.IDENTIFY)) {
+		if (slotIn == EntityEquipmentSlot.OFFHAND && (getTask() == Task.STUDY || getTask() == Task.IDENTIFY) && this.ticksExisted > 20) {
 			if (!getStudiedItem().isItemEqual(stack)) {
 				resetStudyProgress();
 			}
