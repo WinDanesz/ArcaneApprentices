@@ -230,7 +230,7 @@ public class EntityWizardInitiate extends EntityCreature
 	private boolean updateRecipes;
 	// FORGE
 	private net.minecraftforge.items.IItemHandler itemHandler = null;
-	private Set<BlockPos> towerBlocks;
+
 	private float wizardWidth = -1.0F;
 	private float wizardHeight;
 	private int chatCooldown = 0;
@@ -284,8 +284,8 @@ public class EntityWizardInitiate extends EntityCreature
 		//		this.tasks.addTask(6, new EntityAIWatchClosestLectern(this,  3));
 		this.tasks.addTask(7, new WizardAIWatchClosest2(this, EntityPlayer.class, 3.0F, 1.0F));
 		this.tasks.addTask(7, new WizardAIWander(this, 0.4, 10));
-		this.tasks.addTask(8, new WizardAIWatchClosest(this, EntityLiving.class, 8.0F));
 		this.tasks.addTask(7, new WizardAILookAround(this, 8.0F, 0.1f));
+		this.tasks.addTask(8, new WizardAIWatchClosest(this, EntityLiving.class, 8.0F));
 		this.targetTasks.addTask(1, new WizardAIOwnerHurtByTarget(this));
 		this.targetTasks.addTask(2, new WizardAIOwnerHurtTarget(this));
 		this.targetSelector = (entity) -> {
@@ -494,7 +494,7 @@ public class EntityWizardInitiate extends EntityCreature
 	}
 
 	public void resetChatCooldown() {
-		this.chatCooldown = 200 + world.rand.nextInt(100);
+		this.chatCooldown = 300 + world.rand.nextInt(100);
 	}
 
 	public void decrementChatCooldown() {
@@ -546,6 +546,7 @@ public class EntityWizardInitiate extends EntityCreature
 
 	public void sayWithoutSpam(TextComponentTranslation message) {
 		if (this.getOwner() != null) {
+
 			sayWithoutSpam((EntityPlayer) this.getOwner(), message);
 		}
 	}
@@ -1262,10 +1263,6 @@ public class EntityWizardInitiate extends EntityCreature
 		nbt.setInteger("element", element == null ? 0 : element.ordinal());
 		nbt.setInteger("skin", this.textureIndex);
 
-		if (this.towerBlocks != null && this.towerBlocks.size() > 0) {
-			NBTExtras.storeTagSafely(nbt, "towerBlocks", NBTExtras.listToNBT(this.towerBlocks, NBTUtil::createPosTag));
-		}
-
 		nbt.setBoolean("IsChild", isChild());
 		nbt.setInteger("Task", getTask().ordinal());
 		nbt.setInteger("PreviousTaskBeforeSleeping", getPreviousTaskBeforeSleeping().ordinal());
@@ -1281,6 +1278,7 @@ public class EntityWizardInitiate extends EntityCreature
 				nbttaglist.appendTag(nbttagcompound);
 			}
 		}
+		nbt.setFloat("StudyProgress", getStudyProgress());
 		nbt.setTag("Spells", getSpellCompound());
 		nbt.setTag("DisabledSpells", getDisabledSpellCompound());
 		nbt.setTag("Items", nbttaglist);
@@ -1314,7 +1312,10 @@ public class EntityWizardInitiate extends EntityCreature
 			this.setTask(Task.values()[nbt.getInteger("Task")]);
 		}
 		if (nbt.hasKey("PreviousTaskBeforeSleeping")) {
-			this.setTask(Task.values()[nbt.getInteger("PreviousTaskBeforeSleeping")]);
+			this.setPreviousTaskBeforeSleeping(Task.values()[nbt.getInteger("PreviousTaskBeforeSleeping")]);
+		}
+		if (nbt.hasKey("StudyProgress")) {
+			this.addStudyProgress(nbt.getFloat("StudyProgress"), this.getHeldItemOffhand());
 		}
 		this.setSpellCompound(nbt.getCompoundTag("Spells"));
 		this.setDisabledSpellCompound(nbt.getCompoundTag("DisabledSpells"));
