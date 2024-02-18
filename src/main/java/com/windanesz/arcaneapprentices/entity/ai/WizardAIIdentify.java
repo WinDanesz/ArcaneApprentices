@@ -39,14 +39,16 @@ public class WizardAIIdentify extends WizardAILecternBase {
 		}
 		if (this.wizard.getTask() == EntityWizardInitiate.Task.IDENTIFY) {
 			if (this.wizard.getOwner() instanceof EntityPlayer) {
+				EntityPlayer player = (EntityPlayer) this.wizard.getOwner();
+				boolean checkInventory = true;
 
+				// always learn from the offhand
 				if (this.wizard.getHeldItem(EnumHand.OFF_HAND).getItem() instanceof ItemSpellBook ||
 						this.wizard.getHeldItem(EnumHand.OFF_HAND).getItem() instanceof ItemScroll) {
 
-					EntityPlayer player = (EntityPlayer) this.wizard.getOwner();
 					Spell spell = Spell.byMetadata(this.wizard.getHeldItem(EnumHand.OFF_HAND).getItemDamage());
-
 					if (!WizardData.get(player).hasSpellBeenDiscovered(spell)) {
+						checkInventory = false;
 						if (hasStudyTalent(this.wizard) || spell.getTier().ordinal() <= this.wizard.getCurrentTierCap() && spell.getTier().ordinal() <= Settings.generalSettings.MAX_TIER_FOR_IDENTIFYING_SPELLS) {
 							BlockPos lectern = findNearbyLectern(this.wizard.world, this.wizard.getPosition());
 							if (lectern != null) {
@@ -60,13 +62,22 @@ public class WizardAIIdentify extends WizardAILecternBase {
 						}
 
 					}
-				} else if (this.wizard.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSpellBook ||
-						this.wizard.getHeldItem(EnumHand.OFF_HAND).getItem() instanceof ItemScroll) {
+				} if (checkInventory && getSlotOfFirstUnknownSpell() != -1) {
+					// try to find other unidentified items from the inventory
+					// swap it to offhand if found any
+					int i = getSlotOfFirstUnknownSpell();
 					ItemStack offhand = this.wizard.getHeldItem(EnumHand.OFF_HAND).copy();
-					ItemStack mainhand = this.wizard.getHeldItem(EnumHand.MAIN_HAND).copy();
-					this.wizard.setHeldItem(EnumHand.MAIN_HAND, offhand);
-					this.wizard.setHeldItem(EnumHand.OFF_HAND, mainhand);
+					ItemStack unknownItem = this.wizard.inventory.getStackInSlot(i).copy();
+					this.wizard.inventory.setInventorySlotContents(i, offhand);
+					this.wizard.setHeldItem(EnumHand.OFF_HAND, unknownItem);
 				}
+//				} else if (this.wizard.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSpellBook ||
+//						this.wizard.getHeldItem(EnumHand.OFF_HAND).getItem() instanceof ItemScroll) {
+//					ItemStack offhand = this.wizard.getHeldItem(EnumHand.OFF_HAND).copy();
+//					ItemStack mainhand = this.wizard.getHeldItem(EnumHand.MAIN_HAND).copy();
+//					this.wizard.setHeldItem(EnumHand.MAIN_HAND, offhand);
+//					this.wizard.setHeldItem(EnumHand.OFF_HAND, mainhand);
+//				}
 			}
 		}
 		return false;
@@ -130,5 +141,21 @@ public class WizardAIIdentify extends WizardAILecternBase {
 			}
 		}
 	}
+
+	protected int getSlotOfFirstUnknownSpell() {
+		if (this.wizard.getOwner() instanceof EntityPlayer) {
+			for (int i = 1; i < this.wizard.inventory.getSizeInventory(); i++) {
+				if (this.wizard.inventory.getStackInSlot(i).getItem() instanceof ItemSpellBook || this.wizard.inventory.getStackInSlot(i).getItem() instanceof ItemScroll) {
+					Spell spell = Spell.byMetadata(this.wizard.inventory.getStackInSlot(i).getItemDamage());
+					WizardData data = WizardData.get((EntityPlayer) this.wizard.getOwner());
+					if (!data.hasSpellBeenDiscovered(spell)) {
+						return i;
+					}
+				}
+			}
+		}
+		return -1;
+	}
+
 }
 
