@@ -38,7 +38,6 @@ import com.windanesz.wizardryutils.tools.WizardryUtilsTools;
 import electroblob.wizardry.Wizardry;
 import electroblob.wizardry.constants.Element;
 import electroblob.wizardry.constants.Tier;
-import electroblob.wizardry.entity.living.EntitySpiritWolf;
 import electroblob.wizardry.entity.living.ISpellCaster;
 import electroblob.wizardry.entity.living.ISummonedCreature;
 import electroblob.wizardry.item.IManaStoringItem;
@@ -52,9 +51,7 @@ import electroblob.wizardry.registry.WizardryItems;
 import electroblob.wizardry.registry.WizardryPotions;
 import electroblob.wizardry.registry.WizardrySounds;
 import electroblob.wizardry.spell.Banish;
-import electroblob.wizardry.spell.Resurrection;
 import electroblob.wizardry.spell.Spell;
-import electroblob.wizardry.spell.SpellMinion;
 import electroblob.wizardry.util.AllyDesignationSystem;
 import electroblob.wizardry.util.BlockUtils;
 import electroblob.wizardry.util.EntityUtils;
@@ -87,8 +84,6 @@ import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 import net.minecraft.entity.ai.EntityAIOpenDoor;
 import net.minecraft.entity.ai.EntityAIRestrictOpenDoor;
 import net.minecraft.entity.ai.EntityAISwimming;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -139,7 +134,6 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.loot.LootContext;
 import net.minecraft.world.storage.loot.LootTable;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
@@ -147,22 +141,20 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 import java.util.UUID;
 
 public class EntityWizardInitiate extends EntityCreature
 		implements INpc, ISpellCaster, IEntityAdditionalSpawnData, IInventoryChangedListener, IEntityOwnable, IRangedAttackMob {
 
 	public static final float RARE_EVENT_CHANCE = 0.05f;
-	public static final int OFF_HAND_SLOT = 1;
 	public static final int ARTEFACT_SLOT = 21;
+	public static final int FIRST_BACKPACK_SLOT_INDEX = 7;
 	/**
 	 * The increase in progression for casting spells of the matching element.
 	 */
@@ -881,13 +873,13 @@ public class EntityWizardInitiate extends EntityCreature
 					if (stack.getItem() instanceof ItemFood) {
 						ItemStack oldHeldItem = getHeldItemMainhand().copy();
 						// 7 is first inventory slot, 0 is mainhand
-						ItemStack oldFirstItem = inventory.getStackInSlot(7).copy();
+						ItemStack oldFirstItem = inventory.getStackInSlot(FIRST_BACKPACK_SLOT_INDEX).copy();
 						// first slot item goes to i (food slot)...
 						this.inventory.setInventorySlotContents(i, oldFirstItem);
 						// then the food goes to the mainhand
 						inventory.setInventorySlotContents(MAINHAND_INDEX, stack);
 						// then the old held item goes to the first slot
-						inventory.setInventorySlotContents(7, oldHeldItem);
+						inventory.setInventorySlotContents(FIRST_BACKPACK_SLOT_INDEX, oldHeldItem);
 						isEating = true;
 						break;
 					}
@@ -932,13 +924,13 @@ public class EntityWizardInitiate extends EntityCreature
 					}
 					ItemStack oldHeldItem = getHeldItemMainhand().copy();
 					// 7 is first inventory slot, 0 is mainhand
-					ItemStack oldFirstItem = inventory.getStackInSlot(7).copy();
+					ItemStack oldFirstItem = inventory.getStackInSlot(FIRST_BACKPACK_SLOT_INDEX).copy();
 					// first slot item goes to i (food slot)...
 					this.inventory.setInventorySlotContents(i, oldFirstItem);
 					// then the food goes to the mainhand
 					inventory.setInventorySlotContents(MAINHAND_INDEX, stack);
 					// then the old held item goes to the first slot
-					inventory.setInventorySlotContents(7, oldHeldItem);
+					inventory.setInventorySlotContents(FIRST_BACKPACK_SLOT_INDEX, oldHeldItem);
 					this.setActiveHand(EnumHand.MAIN_HAND);
 					break;
 				}
@@ -1118,11 +1110,11 @@ public class EntityWizardInitiate extends EntityCreature
 
 		super.onItemUseFinish();
 		if (mainHand && getHeldItemMainhand().isEmpty()) {
-			inventory.setInventorySlotContents(MAINHAND_INDEX, inventory.getStackInSlot(7));
+			inventory.setInventorySlotContents(MAINHAND_INDEX, inventory.getStackInSlot(FIRST_BACKPACK_SLOT_INDEX));
 		} else if (mainHand) {
 			ItemStack backup = this.getHeldItemMainhand().copy();
-			inventory.setInventorySlotContents(MAINHAND_INDEX, inventory.getStackInSlot(7));
-			inventory.setInventorySlotContents(7, backup);
+			inventory.setInventorySlotContents(MAINHAND_INDEX, inventory.getStackInSlot(FIRST_BACKPACK_SLOT_INDEX));
+			inventory.setInventorySlotContents(FIRST_BACKPACK_SLOT_INDEX, backup);
 		}
 
 	}
@@ -1574,14 +1566,13 @@ public class EntityWizardInitiate extends EntityCreature
 	@Override
 	public void setHeldItem(EnumHand hand, ItemStack stack) {
 		if (hand == EnumHand.MAIN_HAND) {
-			this.inventory.setInventorySlotContents(0, stack);
-			//this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, stack);
+			this.inventory.setInventorySlotContents(MAINHAND_INDEX, stack);
 		} else {
 			if (hand != EnumHand.OFF_HAND) {
 				throw new IllegalArgumentException("Invalid hand " + hand);
 			}
 
-			this.inventory.setInventorySlotContents(1, stack);
+			this.inventory.setInventorySlotContents(OFFHAND_INDEX, stack);
 		}
 	}
 
@@ -1821,16 +1812,16 @@ public class EntityWizardInitiate extends EntityCreature
 			list.add(inventory.getStackInSlot(ARTEFACT_SLOT));
 
 		}
-		if (inventory.getStackInSlot(OFF_HAND_SLOT).getItem() instanceof ItemArtefact) {
-			list.add(inventory.getStackInSlot(OFF_HAND_SLOT));
+		if (inventory.getStackInSlot(MAINHAND_INDEX).getItem() instanceof ItemArtefact) {
+			list.add(inventory.getStackInSlot(MAINHAND_INDEX));
 
 		}
 		if (hasTalentUnlocked() && getTalent() == Talent.ARTIFICE_MASTER) {
 			if (inventory.getStackInSlot(6).getItem() instanceof ItemArtefact) {
 				list.add(inventory.getStackInSlot(6));
 			}
-			if (inventory.getStackInSlot(7).getItem() instanceof ItemArtefact) {
-				list.add(inventory.getStackInSlot(7));
+			if (inventory.getStackInSlot(FIRST_BACKPACK_SLOT_INDEX).getItem() instanceof ItemArtefact) {
+				list.add(inventory.getStackInSlot(FIRST_BACKPACK_SLOT_INDEX));
 			}
 		}
 
@@ -1840,7 +1831,7 @@ public class EntityWizardInitiate extends EntityCreature
 	public List<ItemStack> getHeldItems() {
 		List<ItemStack> list = new ArrayList<>();
 		list.add(inventory.getStackInSlot(MAINHAND_INDEX));
-		list.add(inventory.getStackInSlot(OFF_HAND_SLOT));
+		list.add(inventory.getStackInSlot(MAINHAND_INDEX));
 		return list;
 	}
 
@@ -1973,8 +1964,8 @@ public class EntityWizardInitiate extends EntityCreature
 						}
 						if (this.inventory.getStackInSlot(ARTEFACT_SLOT).getItem() == AAItems.charm_bag_9) {
 							this.inventory.setInventorySlotContents(ARTEFACT_SLOT, bag);
-						} else if (this.inventory.getStackInSlot(OFF_HAND_SLOT).getItem() == AAItems.charm_bag_9) {
-							this.inventory.setInventorySlotContents(OFF_HAND_SLOT, bag);
+						} else if (this.inventory.getStackInSlot(MAINHAND_INDEX).getItem() == AAItems.charm_bag_9) {
+							this.inventory.setInventorySlotContents(MAINHAND_INDEX, bag);
 						}
 						this.inventory.setInventorySlotContents(ARTEFACT_SLOT, bag);
 					} else if (flag && isArtefactActive(AAItems.charm_bag_27)) {
@@ -1989,8 +1980,8 @@ public class EntityWizardInitiate extends EntityCreature
 						}
 						if (this.inventory.getStackInSlot(ARTEFACT_SLOT).getItem() == AAItems.charm_bag_27) {
 							this.inventory.setInventorySlotContents(ARTEFACT_SLOT, bag);
-						} else if (this.inventory.getStackInSlot(OFF_HAND_SLOT).getItem() == AAItems.charm_bag_27) {
-							this.inventory.setInventorySlotContents(OFF_HAND_SLOT, bag);
+						} else if (this.inventory.getStackInSlot(MAINHAND_INDEX).getItem() == AAItems.charm_bag_27) {
+							this.inventory.setInventorySlotContents(MAINHAND_INDEX, bag);
 						}
 						this.inventory.setInventorySlotContents(ARTEFACT_SLOT, bag);
 					}

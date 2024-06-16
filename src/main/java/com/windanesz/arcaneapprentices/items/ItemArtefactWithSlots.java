@@ -53,17 +53,6 @@ public class ItemArtefactWithSlots extends ItemArtefact implements IItemWithSlot
 		ItemStack itemStack = player.getHeldItem(hand);
 
 		player.openGui(ArcaneApprentices.MODID, AAGuiHandler.ARTEFACT_BAG_GUI, world, hand.ordinal(), 0, 0);
-		//
-		//		if (!world.isRemote) {
-		//			InventoryInItemStack inventory = new InventoryInItemStack("test", true, this);
-		//			inventory.readInventoryFromNBT(itemStack.getTag());
-		//
-		//			// Handle interaction with the bag's inventory here (e.g., GUI, adding/removing items)
-		//
-		//			inventory.writeInventoryToNBT(itemStack.getTag());
-		//			player.sendMessage(new StringTextComponent("Bag inventory updated!"), player.getUniqueID());
-		//		}
-		//
 		return new ActionResult<ItemStack>(EnumActionResult.PASS, itemStack);
 	}
 

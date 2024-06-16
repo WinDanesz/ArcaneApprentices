@@ -63,7 +63,7 @@ public class GuiScreenWizardInitiateInventory extends GuiContainer {
 			if (slotIndex == 21) {
 				drawHoveringText(I18n.format("gui.arcaneapprentices:artefact_slot"), mouseX, mouseY);
 			}
-			if (slotIndex == EntityWizardInitiate.OFF_HAND_SLOT) {
+			if (slotIndex == EntityWizardInitiate.OFFHAND_INDEX) {
 				drawHoveringText(I18n.format("gui.arcaneapprentices:apprentice_offhand_slot"), mouseX, mouseY);
 			}
 		}
