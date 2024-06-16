@@ -1,12 +1,10 @@
-<h2>Version v1.2.3 - 6/16/2024</h2>
+<h2>Version v1.2.4 - 6/16/2024</h2>
 <p>&nbsp;</p>
 <h3>What's Changed</h3>
 <p><span style="font-size: 1.2rem;">&nbsp;</span></p>
-<h4><strong>Bug Fixes</strong></h4>
-<p>- Fix crash with dispensers when an apprentice is nearby</p>
-
-<h4><strong>Refactoring</strong></h4>
-<p>- Some refactoring</p>
+<h4><strong>Features</strong></h4>
+<p>- Added a chat message when an apprentice goes on a journey with the return position info, the player now also receives a written paper note with the apprentice's home position to make it easier to remember what it was. Fixes #13</p>
+<p>- Minions summoned by apprentices now directly belong to the minion's owner player. This should solve most friendly fire issues and fights between npcs. Fixes #6</p>
 <p>&nbsp;</p>
 <p>As always, the easiest way to get help or feedback is through the Discord server! Find the link on the CurseForge page.</p>
 <p>&nbsp;</p>

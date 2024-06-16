@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [v1.2.4] - 2024-06-16
+### :sparkles: New Features
+- [`725a27c`](https://github.com/WinDanesz/ArcaneApprentices/commit/725a27ce3b366f29dc2af29e17cf32e82e6d0c8c) - Added a chat message when an apprentice goes on a journey with the return position info, the player now also receives a written paper note with the apprentice's home position to make it easier to remember what it was. Fixes [#13](https://github.com/WinDanesz/ArcaneApprentices/pull/13) *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+- [`e28f95c`](https://github.com/WinDanesz/ArcaneApprentices/commit/e28f95c1f21a64f8f372df804c8ea2ea5592a5f4) - Minions summoned by apprentices now directly belong to the minion's owner player. This should solve most friendly fire issues and fights between npcs. Fixes [#6](https://github.com/WinDanesz/ArcaneApprentices/pull/6) *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+
+
 ## [v1.2.3] - 2024-06-16
 ### :bug: Bug Fixes
 - [`5b05826`](https://github.com/WinDanesz/ArcaneApprentices/commit/5b0582607ee551252d795a2f14276b796404a34e) - Fix crash with dispensers when an apprentice is nearby *(commit by [@WinDanesz](https://github.com/WinDanesz))*
@@ -96,3 +102,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.2.1]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.2.0...v1.2.1
 [v1.2.2]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.2.1...v1.2.2
 [v1.2.3]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.2.2...v1.2.3
+[v1.2.4]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.2.3...v1.2.4
