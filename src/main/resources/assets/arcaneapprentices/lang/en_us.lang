@@ -384,6 +384,8 @@ message.arcaneapprentices:wizard_going_on_journey_1=Wish me good luck, master
 message.arcaneapprentices:wizard_going_on_journey_2=I'll be back in no time, master
 message.arcaneapprentices:no_wand_with_mana_for_journey=I need a wand with enough mana
 
+message.arcaneapprentices:apprentice_going_on_journey=%1$s is embarking on a %2$s journey. Eventually he will return to his home position at %3$s, %4$s, %5$s
+
 tooltip.arcaneapprentices:artefact_usable_by_npcs=Usable by wizard apprentices
 tooltip.arcaneapprentices:wizards_handbook_tooltip=To unlock the path of a wise mentor, give this mystical book to a aspiring kid who dreams of becoming a wizard and he might become your devoted apprentice
 tooltip.arcaneapprentices:artefact_not_usable_by_npcs=Not usable by apprentice wizards

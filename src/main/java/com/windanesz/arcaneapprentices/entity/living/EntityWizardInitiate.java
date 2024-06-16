@@ -107,6 +107,7 @@ import net.minecraft.item.ItemSword;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -126,6 +127,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.EnumDifficulty;
@@ -397,6 +399,9 @@ public class EntityWizardInitiate extends EntityCreature
 			}
 
 			Speech.WIZARD_GOING_ON_JOURNEY.say(this);
+			Utils.sendMessage(getOwner(), "message.arcaneapprentices:apprentice_going_on_journey", false, this.getDisplayName(), getJourneyType().getDuration().toLowerCase(), home.pos.getX(), home.pos.getY(), home.pos.getZ());
+
+			giveNoteToOwnerPlayer();
 			consumeFoodForJourney();
 			consumeManaForJourney();
 			adventureRemainingDuration = journeyType.getRandomAdventureDuration(this);
@@ -405,6 +410,30 @@ public class EntityWizardInitiate extends EntityCreature
 				AAAdvancementTriggers.apprentice_go_on_journey.triggerFor((EntityPlayer) getOwner());
 			}
 		}
+	}
+
+	private void giveNoteToOwnerPlayer() {
+		if (world.isRemote) return;
+		ItemStack paperStack = new ItemStack(Items.PAPER, 1);
+		// Create a new NBT tag compound for the display tag
+		NBTTagCompound nbtTag = new NBTTagCompound();
+		String loreText = this.getName() + " will return to " + home.pos.getX() + ", " + home.pos.getY() + ", " + home.pos.getZ();
+		// Set the custom name in the display tag
+		nbtTag.setString("Name","Note");
+
+		// Create a new NBT tag list for the lore
+		NBTTagList loreList = new NBTTagList();
+
+		// Add the lore text to the lore list
+		loreList.appendTag(new NBTTagString(loreText));
+		// Set the lore in the display tag
+		nbtTag.setTag("Lore", loreList);
+
+		// Set the display tag in the ItemStack's tag compound
+		NBTTagCompound itemTag = new NBTTagCompound();
+		itemTag.setTag("display", nbtTag);
+		paperStack.setTagCompound(itemTag);
+		Utils.giveStackToPlayer((EntityPlayer) getOwner(), paperStack);
 	}
 
 	public void consumeFoodForJourney() {
