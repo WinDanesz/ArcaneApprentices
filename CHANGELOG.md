@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [v1.2.3] - 2024-06-16
+### :bug: Bug Fixes
+- [`5b05826`](https://github.com/WinDanesz/ArcaneApprentices/commit/5b0582607ee551252d795a2f14276b796404a34e) - Fix crash with dispensers when an apprentice is nearby *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+
+### :wrench: Chores
+- [`5c614cd`](https://github.com/WinDanesz/ArcaneApprentices/commit/5c614cdec41881447d03f581d311229804d62f4c) - some refactoring *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+
+
 ## [v1.2.2] - 2024-02-18
 ### :sparkles: New Features
 - [`54ddad6`](https://github.com/WinDanesz/ArcaneApprentices/commit/54ddad64bf107af137d99b01ff51dec281e835fc) - Each Healing Potion (any) in the Apprentice's inventory increases its survival chance in adventure by +3% *(commit by [@WinDanesz](https://github.com/WinDanesz))*
@@ -87,3 +95,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.2.0]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.1.1...v1.2.0
 [v1.2.1]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.2.0...v1.2.1
 [v1.2.2]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.2.1...v1.2.2
+[v1.2.3]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.2.2...v1.2.3
