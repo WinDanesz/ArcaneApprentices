@@ -8,6 +8,7 @@ import com.windanesz.arcaneapprentices.data.Speech;
 import com.windanesz.arcaneapprentices.data.StoredEntity;
 import com.windanesz.arcaneapprentices.data.Talent;
 import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
+import com.windanesz.wizardryutils.capability.SummonedCreatureData;
 import electroblob.wizardry.block.BlockReceptacle;
 import electroblob.wizardry.constants.Constants;
 import electroblob.wizardry.constants.Element;
@@ -63,6 +64,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.BiomeDictionary;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.PotionEvent;
@@ -758,6 +760,31 @@ public final class EventHandler {
 
 				for (UUID uuid : respawnedEntities) {
 					PlayerData.removeDeadApprentice(event.getEntityPlayer(), uuid);
+				}
+			}
+		}
+	}
+
+
+	@SubscribeEvent
+	public static void onEntityJoinWorldEvent(EntityJoinWorldEvent event) {
+		if (!event.getWorld().isRemote && event.getEntity() instanceof EntityLivingBase && event.getEntity() instanceof ISummonedCreature) {
+			if (((ISummonedCreature) event.getEntity()).getCaster() instanceof EntityWizardInitiate) {
+				EntityWizardInitiate npc = (EntityWizardInitiate) ((ISummonedCreature) event.getEntity()).getCaster();
+				// change owner to be the npc's own owner if the npc owner is an EntityPlayer
+				if (npc.getOwner() instanceof EntityPlayer) {
+				((ISummonedCreature) event.getEntity()).setCaster((EntityLivingBase) npc.getOwner());
+				}
+
+
+			} else if (SummonedCreatureData.isSummonedEntity(event.getEntity())) {
+				SummonedCreatureData data = SummonedCreatureData.get((EntityLivingBase) event.getEntity());
+				if (data != null && data.getCaster() instanceof EntityWizardInitiate) {
+					EntityWizardInitiate npc = (EntityWizardInitiate) data.getCaster();
+					// change owner to be the npc's own owner if the npc owner is an EntityPlayer
+					if (npc.getOwner() instanceof EntityPlayer) {
+						data.setCaster((EntityLivingBase) npc.getOwner());
+					}
 				}
 			}
 		}
