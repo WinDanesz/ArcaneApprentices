@@ -1,0 +1,57 @@
+{
+  "settings": {
+    "configNameChance": 0.3
+  },
+  "nameSets": {
+    "light": {
+      "prefixes": ["Al", "El", "Li", "Or", "Va", "Sa", "The", "La", "Sol", "Cel", "Lum"],
+      "middles": ["a", "e", "i", "ar", "el", "il", "an", "or", "in", "il", "am"],
+      "suffixes": ["el", "or", "an", "is", "in", "us", "iel", "ion", "ius"]
+    },
+    "dark": {
+      "prefixes": ["Luc", "Dren", "Sev", "Mal", "Rav", "Cor", "Drav", "Sil", "Thal", "Var", "Shad", "Nyx", "Dusk"],
+      "middles": ["en", "ar", "or", "il", "an", "us", "el", "in", "al", "is", "um", "ow"],
+      "suffixes": ["ius", "ar", "en", "or", "eth", "os", "ian", "as", "ir", "on", "ax", "ath"]
+    },
+    "nature": {
+      "prefixes": ["Syl", "Bri", "Fael", "Thorn", "Leaf", "Gro", "Ver", "Elm", "Oak", "Ivy", "Bram"],
+      "middles": ["an", "or", "il", "el", "ur", "is", "yn", "en", "ar", "ol"],
+      "suffixes": ["wyn", "iel", "orn", "as", "eth", "in", "root", "wood", "oak"]
+    },
+    "fire": {
+      "prefixes": ["Ign", "Pyro", "Flam", "Ash", "Ember", "Sear", "Vol", "Blaz", "Burn", "Char", "Scorch"],
+      "middles": ["or", "ar", "ir", "en", "el", "an", "es", "ol", "az", "ul"],
+      "suffixes": ["os", "ius", "ar", "eth", "en", "ite", "burn", "fire", "spark"]
+    },
+    "ice": {
+      "prefixes": ["Fro", "Glac", "Chill", "Cryo", "Icel", "Frig", "Shiv", "Frost", "Hail", "Snow"],
+      "middles": ["en", "ar", "il", "or", "is", "ur", "iz", "ol", "er", "im"],
+      "suffixes": ["an", "el", "eth", "ius", "orn", "ice", "frost", "chill", "zero"]
+    },
+    "arcane": {
+      "prefixes": ["Xan", "Zar", "Mer", "Kel", "Quo", "Vor", "Ael", "Sor", "Arch", "Mys", "Thau"],
+      "middles": ["a", "e", "o", "il", "an", "ur", "ar", "is", "en", "or"],
+      "suffixes": ["ius", "on", "ar", "en", "eth", "mage", "atum", "ory", "ic"]
+    }
+  },
+  "configNames": [
+    "Aidan", "Alaric", "Alarion", "Aldous", "Alistair", "Alphonse", "Amadeus", 
+    "Ambrose", "Anselm", "Apollo", "Archibald", "Argus", "Armand", "Asher", 
+    "Ashwood", "Astor", "Augustus", "Azriel", "Baldwin", "Balthazar", "Bardo", 
+    "Barnabas", "Bartholomew", "Basil", "Beaumont", "Beauregard", "Belvedere", 
+    "Benedict", "Bertram", "Blackwood", "Blaine", "Blaize", "Caspian", "Cedric",
+    "Cornelius", "Cyrus", "Damien", "Dante", "Darian", "Darien", "Dorian", 
+    "Drake", "Drystan", "Eldrin", "Eldritch", "Emrys", "Ezra", "Faelan", "Felix",
+    "Fenris", "Fitz", "Galen", "Garrick", "Gideon", "Grayson", "Griffith", 
+    "Hadrian", "Halward", "Ignatius", "Isidore", "Isolde", "Jareth", "Jasper",
+    "Lazarus", "Leopold", "Linden", "Lucian", "Magnus", "Malachai", "Malachi", 
+    "Marius", "Maxim", "Merlin", "Morrigan", "Mortimer", "Mycroft", "Nathaniel",
+    "Nicodemus", "Oberon", "Orion", "Oswald", "Peregrine", "Quentin", "Quincy", 
+    "Ragnar", "Ramsay", "Ravenna", "Regis", "Remington", "Roderick", "Rowan", 
+    "Rupert", "Sebastian", "Seraphina", "Silas", "Silvius", "Simeon", "Solomon", 
+    "Thaddeus", "Thane", "Theron", "Thorin", "Tiberius", "Tobias", "Tristan", 
+    "Ulysses", "Valerian", "Valorian", "Varian", "Vesper", "Victor", "Virgil", 
+    "Wilfred", "Winthrop", "Xavier", "Zephyr", "Moreira", "Zacharias", "Zander",
+    "Zephyrine", "Zorion", "Aurelius", "Cassian", "Cassius", "Frederick", "Thalek"
+  ]
+}
