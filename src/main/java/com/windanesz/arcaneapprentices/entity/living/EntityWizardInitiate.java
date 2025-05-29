@@ -615,16 +615,17 @@ public class EntityWizardInitiate extends EntityCreature
 	}
 
 	protected final void setSize(float width, float height) {
-		boolean flag = this.wizardWidth > 0.0F && this.wizardHeight > 0.0F;
+		super.setSize(width, height);
+		boolean child = this.wizardWidth > 0.0F && this.wizardHeight > 0.0F;
 		this.wizardWidth = width;
 		this.wizardHeight = height;
 
-		if (!flag) {
-			this.multiplySize(1.0F);
+		if (!child) {
+			this.setScale(1.0F);
 		}
 	}
 
-	protected final void multiplySize(float size) {
+	protected final void setScale(float size) {
 		super.setSize(this.wizardWidth * size, this.wizardHeight * size);
 	}
 
@@ -633,8 +634,8 @@ public class EntityWizardInitiate extends EntityCreature
 	}
 
 	public boolean isChild() {
-		return ((float) this.getLevel() / XpProgression.getMaxLevel()) <= 0.5f;
-		//return this.getDataManager().get(IS_CHILD).booleanValue();
+		//return ((float) this.getLevel() / XpProgression.getMaxLevel()) <= 0.5f;
+		return this.getDataManager().get(IS_CHILD);
 	}
 
 	public void setChild(boolean isChild) {
@@ -765,7 +766,7 @@ public class EntityWizardInitiate extends EntityCreature
 	}
 
 	public void setChildSize(boolean isChild) {
-		this.multiplySize(isChild ? 0.5F : 1.0F);
+		this.setScale(isChild ? 0.5F : 1.0F);
 	}
 
 	private int getHealCooldown() {
@@ -1777,6 +1778,7 @@ public class EntityWizardInitiate extends EntityCreature
 
 	public void setLevel(int level) {
 		this.dataManager.set(LEVEL, level);
+		setChild((float) this.getLevel() / XpProgression.getMaxLevel() <= 0.5f);
 		double currentMaxHP = this.getMaxHealth();
 		double newMaxHP = Math.min(Settings.generalSettings.WIZARD_MAX_HEALTH_CAP, Settings.generalSettings.WIZARD_HP_GAIN_PER_LEVEL * level + Settings.generalSettings.WIZARD_MINIMUM_HP);
 		float healAmount = (float) (newMaxHP - currentMaxHP);
@@ -2138,7 +2140,7 @@ public class EntityWizardInitiate extends EntityCreature
 		}
 
 		return this.getHeldItemMainhand().getItem() instanceof net.minecraft.item.ItemBow && EnchantmentHelper.getEnchantmentLevel(Enchantments.INFINITY, this.getHeldItemMainhand()) > 0;
-	}
+		}
 
 	public enum Task {
 		FOLLOW, STAY, ADVENTURE, GO_HOME, STUDY, TRY_TO_SLEEP, IDENTIFY
