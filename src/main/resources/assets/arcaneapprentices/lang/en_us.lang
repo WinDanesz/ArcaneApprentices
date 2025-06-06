@@ -506,6 +506,13 @@ gui.arcaneapprentices:artefact_slot=Artefact slot
 gui.arcaneapprentices:apprentice_offhand_slot=Offhand/secondary artefact slot
 gui.arcaneapprentices:locket_spell_slot=Reach higher levels to unlock more spell slots
 commands.arcaneapprentices:resetapprenticedata=/resetapprenticedata [player]
+commands.arcaneapprentices:setapprenticelevel=/setapprenticelevel <apprentice_name> <level>
+commands.arcaneapprentices:setapprenticelevel.usage=/setapprenticelevel <apprentice_name> <level>
+commands.arcaneapprentices:player_only=This command can only be executed by players
+commands.arcaneapprentices:invalid_level=The specified level must be a valid number
+commands.arcaneapprentices:level_out_of_range=The level must be between %1$s and %2$s
+commands.arcaneapprentices:apprentice_not_found=Could not find an apprentice named '%s'
+commands.arcaneapprentices:level_set_success=%1$s's level has been set to %2$s
 
 gui.apprenticearcana.talent=Talent
 gui.apprenticearcana.talent_locked=%1$s haven't unlocked his hidden talent yet (unlocks at level %2$s).

@@ -12,20 +12,7 @@ import com.windanesz.arcaneapprentices.data.PlayerData;
 import com.windanesz.arcaneapprentices.data.Speech;
 import com.windanesz.arcaneapprentices.data.Talent;
 import com.windanesz.arcaneapprentices.entity.MessageEntry;
-import com.windanesz.arcaneapprentices.entity.ai.WizardAIAttackMelee;
-import com.windanesz.arcaneapprentices.entity.ai.WizardAIAttackRangedBow;
-import com.windanesz.arcaneapprentices.entity.ai.WizardAIAttackSpellWithCost;
-import com.windanesz.arcaneapprentices.entity.ai.WizardAIFollowOwner;
-import com.windanesz.arcaneapprentices.entity.ai.WizardAIGoHome;
-import com.windanesz.arcaneapprentices.entity.ai.WizardAIIdentify;
-import com.windanesz.arcaneapprentices.entity.ai.WizardAILookAround;
-import com.windanesz.arcaneapprentices.entity.ai.WizardAIOwnerHurtByTarget;
-import com.windanesz.arcaneapprentices.entity.ai.WizardAIOwnerHurtTarget;
-import com.windanesz.arcaneapprentices.entity.ai.WizardAIPanicAtLowHP;
-import com.windanesz.arcaneapprentices.entity.ai.WizardAIStudy;
-import com.windanesz.arcaneapprentices.entity.ai.WizardAIWander;
-import com.windanesz.arcaneapprentices.entity.ai.WizardAIWatchClosest;
-import com.windanesz.arcaneapprentices.entity.ai.WizardAIWatchClosest2;
+import com.windanesz.arcaneapprentices.entity.ai.*;
 import com.windanesz.arcaneapprentices.handler.EventHandler;
 import com.windanesz.arcaneapprentices.handler.XpProgression;
 import com.windanesz.arcaneapprentices.inventory.ContainerWizardInitiateInventory;
@@ -40,11 +27,7 @@ import electroblob.wizardry.constants.Element;
 import electroblob.wizardry.constants.Tier;
 import electroblob.wizardry.entity.living.ISpellCaster;
 import electroblob.wizardry.entity.living.ISummonedCreature;
-import electroblob.wizardry.item.IManaStoringItem;
-import electroblob.wizardry.item.ISpellCastingItem;
-import electroblob.wizardry.item.ItemArtefact;
-import electroblob.wizardry.item.ItemSpellBook;
-import electroblob.wizardry.item.ItemWand;
+import electroblob.wizardry.item.*;
 import electroblob.wizardry.misc.WildcardTradeList;
 import electroblob.wizardry.registry.Spells;
 import electroblob.wizardry.registry.WizardryItems;
@@ -52,15 +35,7 @@ import electroblob.wizardry.registry.WizardryPotions;
 import electroblob.wizardry.registry.WizardrySounds;
 import electroblob.wizardry.spell.Banish;
 import electroblob.wizardry.spell.Spell;
-import electroblob.wizardry.util.AllyDesignationSystem;
-import electroblob.wizardry.util.BlockUtils;
-import electroblob.wizardry.util.EntityUtils;
-import electroblob.wizardry.util.InventoryUtils;
-import electroblob.wizardry.util.Location;
-import electroblob.wizardry.util.NBTExtras;
-import electroblob.wizardry.util.ParticleBuilder;
-import electroblob.wizardry.util.SpellModifiers;
-import electroblob.wizardry.util.WandHelper;
+import electroblob.wizardry.util.*;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.PlayerAdvancements;
@@ -68,47 +43,19 @@ import net.minecraft.block.BlockBed;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityCreature;
-import net.minecraft.entity.EntityList;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.IEntityLivingData;
-import net.minecraft.entity.IEntityOwnable;
-import net.minecraft.entity.INpc;
-import net.minecraft.entity.IRangedAttackMob;
-import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.EntityAIHurtByTarget;
-import net.minecraft.entity.ai.EntityAIMoveTowardsRestriction;
-import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
-import net.minecraft.entity.ai.EntityAIOpenDoor;
-import net.minecraft.entity.ai.EntityAIRestrictOpenDoor;
-import net.minecraft.entity.ai.EntityAISwimming;
+import net.minecraft.entity.*;
+import net.minecraft.entity.ai.*;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityPotion;
-import net.minecraft.init.Enchantments;
-import net.minecraft.init.Items;
-import net.minecraft.init.MobEffects;
-import net.minecraft.init.PotionTypes;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.init.*;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.IInventoryChangedListener;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemArrow;
-import net.minecraft.item.ItemBow;
-import net.minecraft.item.ItemFood;
-import net.minecraft.item.ItemPotion;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemSword;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagInt;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
-import net.minecraft.nbt.NBTUtil;
+import net.minecraft.item.*;
+import net.minecraft.nbt.*;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -116,18 +63,12 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.potion.PotionType;
 import net.minecraft.potion.PotionUtils;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.EnumDifficulty;
@@ -143,16 +84,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
-public class EntityWizardInitiate extends EntityCreature
-		implements INpc, ISpellCaster, IEntityAdditionalSpawnData, IInventoryChangedListener, IEntityOwnable, IRangedAttackMob {
+public class EntityWizardInitiate extends EntityCreature implements INpc, ISpellCaster, IEntityAdditionalSpawnData, IInventoryChangedListener, IEntityOwnable, IRangedAttackMob {
 
 	public static final float RARE_EVENT_CHANCE = 0.05f;
 	public static final int ARTEFACT_SLOT = 21;
@@ -303,7 +237,9 @@ public class EntityWizardInitiate extends EntityCreature
 
 		// Now we only need to add multipliers if they are not 1.
 		int level = WandHelper.getUpgradeLevel(stack, WizardryItems.range_upgrade);
-		if (level > 0) {modifiers.set(WizardryItems.range_upgrade, 1.0f + level * electroblob.wizardry.constants.Constants.RANGE_INCREASE_PER_LEVEL, true);}
+		if (level > 0) {
+			modifiers.set(WizardryItems.range_upgrade, 1.0f + level * electroblob.wizardry.constants.Constants.RANGE_INCREASE_PER_LEVEL, true);
+		}
 
 		level = WandHelper.getUpgradeLevel(stack, WizardryItems.duration_upgrade);
 		if (level > 0) {
@@ -900,7 +836,7 @@ public class EntityWizardInitiate extends EntityCreature
 
 			if (this.getAttackTarget() == null && getFoodLevel() / 20 < 0.85f) {
 				// starting from inventory index 1 to skip mainhand
-				for (int i = 1; i < this.inventory.getSizeInventory(); i++) {
+				for (int i = 0; i < this.inventory.getSizeInventory(); i++) {
 					ItemStack stack = this.inventory.getStackInSlot(i).copy();
 					if (stack.getItem() instanceof ItemFood) {
 						ItemStack oldHeldItem = getHeldItemMainhand().copy();
@@ -988,7 +924,9 @@ public class EntityWizardInitiate extends EntityCreature
 
 				if (!(world.getBlockState(getBedPos()).getBlock() instanceof BlockBed)) {
 					BlockPos bedPos = findBed();
-					if (bedPos != null) {setBedPos(bedPos);}
+					if (bedPos != null) {
+						setBedPos(bedPos);
+					}
 				}
 
 				if (!this.getPos().equals(getBedPos())) {
@@ -1117,12 +1055,10 @@ public class EntityWizardInitiate extends EntityCreature
 					}
 					if (getOwner() instanceof EntityPlayer && getOwner().getDistance(this) < 12) {
 						EntityPlayer player = (EntityPlayer) getOwner();
-						if (player.getHeldItemMainhand().getItem() instanceof ISpellCastingItem && player.getHeldItemMainhand().getItem() instanceof IManaStoringItem &&
-								((IManaStoringItem) player.getHeldItemMainhand().getItem()).getFullness(player.getHeldItemMainhand()) < 0.15f) {
+						if (player.getHeldItemMainhand().getItem() instanceof ISpellCastingItem && player.getHeldItemMainhand().getItem() instanceof IManaStoringItem && ((IManaStoringItem) player.getHeldItemMainhand().getItem()).getFullness(player.getHeldItemMainhand()) < 0.15f) {
 							((IManaStoringItem) player.getHeldItemMainhand().getItem()).rechargeMana(player.getHeldItemMainhand(), 4);
 						}
-						if (player.getHeldItemOffhand().getItem() instanceof ISpellCastingItem && player.getHeldItemOffhand().getItem() instanceof IManaStoringItem &&
-								((IManaStoringItem) player.getHeldItemOffhand().getItem()).getFullness(player.getHeldItemOffhand()) < 0.15f) {
+						if (player.getHeldItemOffhand().getItem() instanceof ISpellCastingItem && player.getHeldItemOffhand().getItem() instanceof IManaStoringItem && ((IManaStoringItem) player.getHeldItemOffhand().getItem()).getFullness(player.getHeldItemOffhand()) < 0.15f) {
 							((IManaStoringItem) player.getHeldItemOffhand().getItem()).rechargeMana(player.getHeldItemOffhand(), 4);
 						}
 					}
@@ -1134,8 +1070,7 @@ public class EntityWizardInitiate extends EntityCreature
 					if (this.getHeldItemMainhand().getItem() instanceof ItemWand) {
 						Element elm = ((ItemWand) this.getHeldItemMainhand().getItem()).element;
 						for (EntityLivingBase nearbyMob : EntityUtils.getEntitiesWithinRadius(12, this.posX, this.posY, this.posZ, world, EntityLivingBase.class)) {
-							if (AllyDesignationSystem.isAllied(this, nearbyMob) && nearbyMob.getHeldItemMainhand().getItem()
-									instanceof ItemWand && ((ItemWand) nearbyMob.getHeldItemMainhand().getItem()).element == elm) {
+							if (AllyDesignationSystem.isAllied(this, nearbyMob) && nearbyMob.getHeldItemMainhand().getItem() instanceof ItemWand && ((ItemWand) nearbyMob.getHeldItemMainhand().getItem()).element == elm) {
 								addPotionEffect(new PotionEffect(WizardryPotions.empowerment, 100));
 							}
 						}
@@ -1541,12 +1476,7 @@ public class EntityWizardInitiate extends EntityCreature
 
 		if (f && source.getTrueSource() != null && hasTalentUnlocked() && getTalent() == Talent.ANIMAL_WHISPERER && rand.nextInt(5) == 0) {
 			if (!world.isRemote) {
-				List<ResourceLocation> entities = Arrays.asList(
-						new ResourceLocation("ancientspellcraft:fire_ant"),
-						new ResourceLocation("ancientspellcraft:ordinary_spider_minion"),
-						new ResourceLocation("ancientspellcraft:wolf_minion"),
-						new ResourceLocation("ebwizardry:silverfish_minion"),
-						new ResourceLocation("ebwizardry:spider_minion"));
+				List<ResourceLocation> entities = Arrays.asList(new ResourceLocation("ancientspellcraft:fire_ant"), new ResourceLocation("ancientspellcraft:ordinary_spider_minion"), new ResourceLocation("ancientspellcraft:wolf_minion"), new ResourceLocation("ebwizardry:silverfish_minion"), new ResourceLocation("ebwizardry:spider_minion"));
 				EntityEntry entry = ForgeRegistries.ENTITIES.getValue(entities.get(world.rand.nextInt(entities.size())));
 				BlockPos pos = BlockUtils.findNearbyFloorSpace(this, 2, 2);
 				if (entry != null && pos != null) {

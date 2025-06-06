@@ -27,7 +27,7 @@ public final class Utils {
 	}
 
 	public static String generateWizardName(World world) {
-		return (Arrays.asList(Settings.generalSettings.WIZARD_NAMES)).get(world.rand.nextInt(Arrays.asList(Settings.generalSettings.WIZARD_NAMES).size()));
+		return NameGenerator.getRandomWizardName(world);
 	}
 
 	/**

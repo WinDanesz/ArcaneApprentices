@@ -2,6 +2,7 @@ package com.windanesz.arcaneapprentices;
 
 import com.windanesz.arcaneapprentices.client.gui.AAGuiHandler;
 import com.windanesz.arcaneapprentices.command.CommandResetApprenticeData;
+import com.windanesz.arcaneapprentices.command.CommandSetApprenticeLevel;
 import com.windanesz.arcaneapprentices.data.PlayerData;
 import com.windanesz.arcaneapprentices.data.Talent;
 import com.windanesz.arcaneapprentices.packet.AAPacketHandler;
