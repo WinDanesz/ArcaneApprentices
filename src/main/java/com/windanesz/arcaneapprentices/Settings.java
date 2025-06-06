@@ -90,6 +90,18 @@ public class Settings {
 
 	public static class GeneralSettings {
 
+		@Config.Name("Cook Talent Food List")
+		@Config.Comment("List of food items the apprentice can create with the COOK talent. Format: modid:itemname:metadata:count_min:count_max:nbt:nbt_stuff_goes_here. nbt is optional. Example: minecraft:bread:0:1:2")
+		public String[] APPRENTICE_COOK_FOOD_LIST = {
+			"minecraft:bread:0:1:2",
+			"minecraft:cooked_beef:0:1:2",
+			"minecraft:cooked_porkchop:0:1:2",
+			"minecraft:cooked_chicken:0:1:2",
+			"minecraft:apple:0:1:2",
+			"minecraft:carrot:0:1:2",
+			"minecraft:baked_potato:0:1:2"
+		};
+
 
 		@Config.Name("Apprentice Talents")
 		@Config.Comment("Enables or disables apprentice talents")

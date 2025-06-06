@@ -24,6 +24,8 @@ public enum Talent {
 	ALCHEMY_ADEPT(true, "alchemy_adept"),
 	ARTIFICE_MASTER(true, "artifice_master"),
 	ANIMAL_WHISPERER(true, "animal_whisperer"),
+	COOK(true, "cook"), // Periodically creates food
+
 
 	// TODO:
 	REMNANT_TAMER(false, "remnant_tamer"),

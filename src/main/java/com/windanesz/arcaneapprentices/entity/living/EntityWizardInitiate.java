@@ -419,7 +419,7 @@ public class EntityWizardInitiate extends EntityCreature
 		NBTTagCompound nbtTag = new NBTTagCompound();
 		String loreText = this.getName() + " will return to " + home.pos.getX() + ", " + home.pos.getY() + ", " + home.pos.getZ();
 		// Set the custom name in the display tag
-		nbtTag.setString("Name","Note");
+		nbtTag.setString("Name", "Note");
 
 		// Create a new NBT tag list for the lore
 		NBTTagList loreList = new NBTTagList();
@@ -459,7 +459,9 @@ public class EntityWizardInitiate extends EntityCreature
 				for (int j = 0; j < count; j++) {
 					stack.shrink(1);
 					cost -= healAmount;
-					if (cost < 0) {break;}
+					if (cost < 0) {
+						break;
+					}
 				}
 			}
 		}
@@ -938,7 +940,9 @@ public class EntityWizardInitiate extends EntityCreature
 					potionsToWishFor.add(MobEffects.INVISIBILITY);
 				}
 			}
-			if (potionsToWishFor.isEmpty()) {return;}
+			if (potionsToWishFor.isEmpty()) {
+				return;
+			}
 
 			for (int i = 1; i < this.inventory.getSizeInventory(); i++) {
 				ItemStack stack = this.inventory.getStackInSlot(i).copy();
@@ -1032,6 +1036,35 @@ public class EntityWizardInitiate extends EntityCreature
 				}
 				break;
 
+			case COOK:
+				// Every 60 seconds (1200 ticks), 50% chance to create food if there is an empty slot
+				if (!world.isRemote && this.ticksExisted % 1200 == 0) {
+					if (this.rand.nextFloat() < 0.5f) {
+						String[] foodList = com.windanesz.arcaneapprentices.Settings.generalSettings.APPRENTICE_COOK_FOOD_LIST;
+						if (foodList != null && foodList.length > 0) {
+							String foodString = foodList[this.rand.nextInt(foodList.length)];
+							net.minecraft.item.ItemStack food = com.windanesz.arcaneapprentices.Settings.getItemFromString(foodString, this.world);
+							if (!food.isEmpty()) {
+								// If the config entry doesn't randomize count, randomize 1-2
+								if (food.getCount() <= 1) {
+									food.setCount(1 + this.rand.nextInt(2));
+								}
+								for (int i = 6; i < inventory.getSizeInventory(); i++) {
+									if (inventory.getStackInSlot(i).isEmpty()) {
+										inventory.setInventorySlotContents(i, food.copy());
+										if (getOwner() instanceof EntityPlayer) {
+											String foodName = food.getDisplayName();
+											this.sayWithoutSpam((EntityPlayer) getOwner(), new net.minecraft.util.text.TextComponentTranslation("message.arcaneapprentices:apprentice_cook_food", this.getDisplayName(), food.getCount(), foodName));
+										}
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+				break;
+
 			case ALCHEMY_ADEPT:
 				if (!world.isRemote && rareEventReady() && rand.nextInt(600) == 0) {
 					{
@@ -1070,7 +1103,9 @@ public class EntityWizardInitiate extends EntityCreature
 				if (this.ticksExisted % 100 == 0) {
 					for (ItemStack stack : this.getArmorInventoryList()) {
 						// IManaStoringItem is sufficient, since anything in the armour slots is probably armour
-						if (stack.getItem() instanceof IManaStoringItem) {((IManaStoringItem) stack.getItem()).rechargeMana(stack, 1);}
+						if (stack.getItem() instanceof IManaStoringItem) {
+							((IManaStoringItem) stack.getItem()).rechargeMana(stack, 1);
+						}
 					}
 				}
 				break;
@@ -1130,23 +1165,15 @@ public class EntityWizardInitiate extends EntityCreature
 	protected void onItemUseFinish() {
 		boolean mainHand = ItemStack.areItemStacksEqual(this.activeItemStack, getHeldItemMainhand());
 		if (!this.activeItemStack.isEmpty() && this.isHandActive() && this.activeItemStack.getItem() instanceof ItemFood) {
-			ItemFood food = (ItemFood) this.getHeldItemMainhand().getItem();
-			float foodHealAmount = food.getHealAmount(this.getHeldItemMainhand());
-			float saturation = food.getSaturationModifier(this.getHeldItemMainhand());
+			ItemFood food = (ItemFood) this.activeItemStack.getItem();
+			float foodHealAmount = food.getHealAmount(this.activeItemStack);
+			float saturation = food.getSaturationModifier(this.activeItemStack);
 			modifyFoodLevel(foodHealAmount);
 			modifySaturation(saturation * 4);
 			this.isEating = false;
 		}
-
 		super.onItemUseFinish();
-		if (mainHand && getHeldItemMainhand().isEmpty()) {
-			inventory.setInventorySlotContents(MAINHAND_INDEX, inventory.getStackInSlot(FIRST_BACKPACK_SLOT_INDEX));
-		} else if (mainHand) {
-			ItemStack backup = this.getHeldItemMainhand().copy();
-			inventory.setInventorySlotContents(MAINHAND_INDEX, inventory.getStackInSlot(FIRST_BACKPACK_SLOT_INDEX));
-			inventory.setInventorySlotContents(FIRST_BACKPACK_SLOT_INDEX, backup);
-		}
-
+		// Fix for item duplication - no need to swap with backpack slot
 	}
 
 	public boolean hasOwner() {
@@ -1486,7 +1513,9 @@ public class EntityWizardInitiate extends EntityCreature
 		// We're on the client side here, so we can safely use Minecraft.getMinecraft().world via proxies.
 		if (id > -1) {
 			Entity entity = Wizardry.proxy.getTheWorld().getEntityByID(id);
-			if (entity instanceof EntityLivingBase) {setOwner((EntityLivingBase) entity);} else {
+			if (entity instanceof EntityLivingBase) {
+				setOwner((EntityLivingBase) entity);
+			} else {
 				Wizardry.logger.warn("Received a spawn packet for entity {}, but no living entity matched the supplied ID", this);
 			}
 		}
@@ -1606,13 +1635,17 @@ public class EntityWizardInitiate extends EntityCreature
 		}
 	}
 
-	public int getInventoryColumns() {return 5;}
+	public int getInventoryColumns() {
+		return 5;
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	@Nullable
 	public <T> T getCapability(net.minecraftforge.common.capabilities.Capability<T> capability, @Nullable net.minecraft.util.EnumFacing facing) {
-		if (capability == net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {return (T) itemHandler;}
+		if (capability == net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+			return (T) itemHandler;
+		}
 		return super.getCapability(capability, facing);
 	}
 
@@ -2140,7 +2173,7 @@ public class EntityWizardInitiate extends EntityCreature
 		}
 
 		return this.getHeldItemMainhand().getItem() instanceof net.minecraft.item.ItemBow && EnchantmentHelper.getEnchantmentLevel(Enchantments.INFINITY, this.getHeldItemMainhand()) > 0;
-		}
+	}
 
 	public enum Task {
 		FOLLOW, STAY, ADVENTURE, GO_HOME, STUDY, TRY_TO_SLEEP, IDENTIFY

@@ -540,3 +540,5 @@ talent.remnant_tamer=Remnant Tamer
 talent.remnant_tamer.desc=%s can summon a remnant that follows him.
 talent.artifice_master=Artifice Master
 talent.artifice_master.desc=%s can use two more artefacts in the top left first two slots of this inventory. Not every artefact works from those slots (incl. the bag artefacts).
+talent.cook=Cook
+talent.cook.desc=%s is always ready to bake something delicious.
