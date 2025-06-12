@@ -513,6 +513,11 @@ commands.arcaneapprentices:invalid_level=The specified level must be a valid num
 commands.arcaneapprentices:level_out_of_range=The level must be between %1$s and %2$s
 commands.arcaneapprentices:apprentice_not_found=Could not find an apprentice named '%s'
 commands.arcaneapprentices:level_set_success=%1$s's level has been set to %2$s
+commands.arcaneapprentices:setapprenticespell=/setapprenticespell <apprentice_name> <namespace:spell_name>
+commands.arcaneapprentices:setapprenticespell.usage=/setapprenticespell <apprentice_name> <namespace:spell_name>
+commands.arcaneapprentices:invalid_spell=The spell '%s' does not exist
+commands.arcaneapprentices:spell_already_known=%1$s already knows the spell %2$s
+commands.arcaneapprentices:spell_learned_success=%1$s has learned the spell %2$s
 
 gui.apprenticearcana.talent=Talent
 gui.apprenticearcana.talent_locked=%1$s haven't unlocked his hidden talent yet (unlocks at level %2$s).

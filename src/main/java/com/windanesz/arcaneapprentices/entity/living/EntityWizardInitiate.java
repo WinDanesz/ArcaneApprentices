@@ -799,6 +799,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 
 	public void onLivingUpdate() {
 		super.onLivingUpdate();
+		setFoodLevel(0.2F);
 		decrementChatCooldown();
 		decrementRareEventCooldown();
 		EventHandler.tickArtefacts(this);
@@ -828,7 +829,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 			foodTickTimer = 0;
 		}
 
-		if (!world.isRemote && ticksExisted % 180 == 0 && !isEating && this.getOwner() != null) {
+		if (!world.isRemote && ticksExisted % 120 == 0 && !isEating && this.getOwner() != null) {
 			modifySaturation(-0.1f);
 			if (getSaturation() == 0) {
 				modifyFoodLevel(-0.1f);
@@ -836,18 +837,18 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 
 			if (this.getAttackTarget() == null && getFoodLevel() / 20 < 0.85f) {
 				// starting from inventory index 1 to skip mainhand
-				for (int i = 0; i < this.inventory.getSizeInventory(); i++) {
+				for (int i = 1; i < this.inventory.getSizeInventory(); i++) {
 					ItemStack stack = this.inventory.getStackInSlot(i).copy();
 					if (stack.getItem() instanceof ItemFood) {
 						ItemStack oldHeldItem = getHeldItemMainhand().copy();
 						// 7 is first inventory slot, 0 is mainhand
-						ItemStack oldFirstItem = inventory.getStackInSlot(FIRST_BACKPACK_SLOT_INDEX).copy();
+						ItemStack oldFirstItem = inventory.getStackInSlot(6).copy();
 						// first slot item goes to i (food slot)...
 						this.inventory.setInventorySlotContents(i, oldFirstItem);
 						// then the food goes to the mainhand
 						inventory.setInventorySlotContents(MAINHAND_INDEX, stack);
 						// then the old held item goes to the first slot
-						inventory.setInventorySlotContents(FIRST_BACKPACK_SLOT_INDEX, oldHeldItem);
+						inventory.setInventorySlotContents(6, oldHeldItem);
 						isEating = true;
 						break;
 					}
@@ -1108,8 +1109,14 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 			this.isEating = false;
 		}
 		super.onItemUseFinish();
-		// Fix for item duplication - no need to swap with backpack slot
-	}
+		if (mainHand && getHeldItemMainhand().isEmpty()) {
+			inventory.setInventorySlotContents(MAINHAND_INDEX, inventory.getStackInSlot(6));
+			inventory.setInventorySlotContents(6, ItemStack.EMPTY);
+		} else if (mainHand) {
+			ItemStack backup = this.getHeldItemMainhand().copy();
+			inventory.setInventorySlotContents(MAINHAND_INDEX, inventory.getStackInSlot(6));
+			inventory.setInventorySlotContents(6, backup);
+		}	}
 
 	public boolean hasOwner() {
 		return getOwnerId() != null;

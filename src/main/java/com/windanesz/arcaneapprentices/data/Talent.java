@@ -25,6 +25,9 @@ public enum Talent {
 	ARTIFICE_MASTER(true, "artifice_master"),
 	ANIMAL_WHISPERER(true, "animal_whisperer"),
 	COOK(true, "cook"), // Periodically creates food
+	// BLESSED_AURA // has a chance to removes negative effects and curses from himself and the player
+	// BLACKSMITH // periodically repairs worn items in the player's hotbar and armor slots
+	// MERCHANT_GUILDER // every 2 minecraft days, offers a new trade to the player
 
 
 	// TODO:

@@ -3,6 +3,7 @@ package com.windanesz.arcaneapprentices;
 import com.windanesz.arcaneapprentices.client.gui.AAGuiHandler;
 import com.windanesz.arcaneapprentices.command.CommandResetApprenticeData;
 import com.windanesz.arcaneapprentices.command.CommandSetApprenticeLevel;
+import com.windanesz.arcaneapprentices.command.CommandSetApprenticeSpell;
 import com.windanesz.arcaneapprentices.data.PlayerData;
 import com.windanesz.arcaneapprentices.data.Talent;
 import com.windanesz.arcaneapprentices.packet.AAPacketHandler;
@@ -53,9 +54,7 @@ public class ArcaneApprentices {
 		proxy.registerExtraHandbookContent();
 		LootRegistry.preInit();
 		AAAdvancementTriggers.register();
-	}
-
-	@EventHandler
+	}	@EventHandler
 	public void init(FMLInitializationEvent event) {
 
 		MinecraftForge.EVENT_BUS.register(instance);
@@ -64,6 +63,9 @@ public class ArcaneApprentices {
 		StructureWizardHouse.init();
 		AAPacketHandler.initPackets();
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, new AAGuiHandler());
+		
+		// Initialize the name generator
+		NameGenerator.getInstance().initialize();
 
 	}
 
@@ -73,12 +75,11 @@ public class ArcaneApprentices {
 		PlayerData.init();
 		proxy.postInit();
 		Talent.TalentSettings.init();
-	}
-
-	@EventHandler
+	}	@EventHandler
 	public void serverStarting(FMLServerStartingEvent event) {
 		event.registerServerCommand(new CommandResetApprenticeData());
-
+		event.registerServerCommand(new CommandSetApprenticeLevel());
+		event.registerServerCommand(new CommandSetApprenticeSpell());
 	}
 
 }
