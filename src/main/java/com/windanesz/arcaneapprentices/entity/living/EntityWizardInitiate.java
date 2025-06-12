@@ -1116,7 +1116,8 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 			ItemStack backup = this.getHeldItemMainhand().copy();
 			inventory.setInventorySlotContents(MAINHAND_INDEX, inventory.getStackInSlot(6));
 			inventory.setInventorySlotContents(6, backup);
-		}	}
+		}
+	}
 
 	public boolean hasOwner() {
 		return getOwnerId() != null;
