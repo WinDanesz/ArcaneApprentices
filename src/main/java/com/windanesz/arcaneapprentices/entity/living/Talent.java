@@ -1,4 +1,4 @@
-package com.windanesz.arcaneapprentices.data;
+package com.windanesz.arcaneapprentices.entity.living;
 
 import com.windanesz.arcaneapprentices.ArcaneApprentices;
 import com.windanesz.arcaneapprentices.Settings;
@@ -25,14 +25,13 @@ public enum Talent {
 	ARTIFICE_MASTER(true, "artifice_master"),
 	ANIMAL_WHISPERER(true, "animal_whisperer"),
 	COOK(true, "cook"), // Periodically creates food
-	// BLESSED_AURA // has a chance to removes negative effects and curses from himself and the player
-	// BLACKSMITH // periodically repairs worn items in the player's hotbar and armor slots
-	// MERCHANT_GUILDER // every 2 minecraft days, offers a new trade to the player
-
-
-	// TODO:
+	BLESSED_AURA(true, "blessed_aura"), // has a chance to removes negative effects and curses from himself and the player
+	BLACKSMITH(true, "blacksmith"), // periodically repairs the item held in offhand
+	WARDEN_OF_FLAME(true, "warden_of_flame"),
+	WARDEN_OF_FROST(true, "warden_of_frost"),
 	REMNANT_TAMER(false, "remnant_tamer"),
-	TREASURE_HUNTER(false, "treasure_hunter"),
+	MERCHANT(true, "merchant"), // every 2 minecraft days offers a trade to the player;
+	TREASURE_HUNTER(false, "treasure_hunter");
 	;
 
 	private final boolean implemented;

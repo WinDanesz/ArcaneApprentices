@@ -6,7 +6,7 @@ import com.windanesz.arcaneapprentices.Utils;
 import com.windanesz.arcaneapprentices.data.PlayerData;
 import com.windanesz.arcaneapprentices.data.Speech;
 import com.windanesz.arcaneapprentices.data.StoredEntity;
-import com.windanesz.arcaneapprentices.data.Talent;
+import com.windanesz.arcaneapprentices.entity.living.Talent;
 import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
 import com.windanesz.wizardryutils.capability.SummonedCreatureData;
 import electroblob.wizardry.block.BlockReceptacle;

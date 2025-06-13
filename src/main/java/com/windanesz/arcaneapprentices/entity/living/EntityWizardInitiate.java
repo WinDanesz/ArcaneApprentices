@@ -10,7 +10,6 @@ import com.windanesz.arcaneapprentices.client.gui.AAGuiHandler;
 import com.windanesz.arcaneapprentices.data.JourneyType;
 import com.windanesz.arcaneapprentices.data.PlayerData;
 import com.windanesz.arcaneapprentices.data.Speech;
-import com.windanesz.arcaneapprentices.data.Talent;
 import com.windanesz.arcaneapprentices.entity.MessageEntry;
 import com.windanesz.arcaneapprentices.entity.ai.*;
 import com.windanesz.arcaneapprentices.handler.EventHandler;
@@ -25,13 +24,15 @@ import com.windanesz.wizardryutils.tools.WizardryUtilsTools;
 import electroblob.wizardry.Wizardry;
 import electroblob.wizardry.constants.Element;
 import electroblob.wizardry.constants.Tier;
+import electroblob.wizardry.data.WizardData;
 import electroblob.wizardry.entity.living.ISpellCaster;
 import electroblob.wizardry.entity.living.ISummonedCreature;
+import electroblob.wizardry.event.DiscoverSpellEvent;
 import electroblob.wizardry.item.*;
 import electroblob.wizardry.misc.WildcardTradeList;
 import electroblob.wizardry.registry.Spells;
+import electroblob.wizardry.registry.WizardryAdvancementTriggers;
 import electroblob.wizardry.registry.WizardryItems;
-import electroblob.wizardry.registry.WizardryPotions;
 import electroblob.wizardry.registry.WizardrySounds;
 import electroblob.wizardry.spell.Banish;
 import electroblob.wizardry.spell.Spell;
@@ -40,7 +41,6 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.PlayerAdvancements;
 import net.minecraft.block.BlockBed;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.*;
@@ -61,7 +61,6 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.potion.PotionType;
 import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
@@ -69,6 +68,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.village.MerchantRecipe;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.EnumDifficulty;
@@ -76,17 +76,20 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.loot.LootContext;
 import net.minecraft.world.storage.loot.LootTable;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.oredict.OreDictionary;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class EntityWizardInitiate extends EntityCreature implements INpc, ISpellCaster, IEntityAdditionalSpawnData, IInventoryChangedListener, IEntityOwnable, IRangedAttackMob {
+public class EntityWizardInitiate extends EntityCreature implements INpc, ISpellCaster, IEntityAdditionalSpawnData, IInventoryChangedListener, IEntityOwnable, IRangedAttackMob, IMerchant {
 
 	public static final float RARE_EVENT_CHANCE = 0.05f;
 	public static final int ARTEFACT_SLOT = 21;
@@ -104,6 +107,12 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	 * The fraction of progression lost when all recently-cast spells are the same as the one being cast.
 	 */
 	private static final float MAX_PROGRESSION_REDUCTION = 0.75f;
+
+	private int talentCooldown = 0;
+
+	@Nullable
+	private EntityPlayer customer;
+
 	private static final DataParameter<Integer> HEAL_COOLDOWN = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.VARINT);
 	private static final DataParameter<Integer> ELEMENT = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.VARINT);
 	private static final DataParameter<String> CONTINUOUS_SPELL = EntityDataManager.createKey(EntityWizardInitiate.class, DataSerializers.STRING);
@@ -149,11 +158,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	// This variable is used when foodLevel either exceeds 17 or is at zero. Increases in each tick up to 80, then it either heals or deals a half heart damage (starving) then resets to 0
 	private int foodTickTimer = 0;
 	private Location home = new Location(BlockPos.ORIGIN, 0);
-	/**
-	 * The fraction of progression lost when all recently-cast spells are the same as the one being cast.
-	 */
-	@Nullable
-	private EntityPlayer customer;
+
 	private int timeUntilReset;
 	private boolean updateRecipes;
 	// FORGE
@@ -802,6 +807,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		setFoodLevel(0.2F);
 		decrementChatCooldown();
 		decrementRareEventCooldown();
+		decrementTalentCooldown();
 		EventHandler.tickArtefacts(this);
 
 		if (!world.isRemote) {
@@ -947,138 +953,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 			this.heal(0.5f);
 		}
 
-		tickTalent();
-	}
-
-	private void tickTalent() {
-		switch (this.getTalent()) {
-			case HEALER:
-				if (this.ticksExisted % 200 == 0) {
-					for (EntityLivingBase nearbyMob : EntityUtils.getEntitiesWithinRadius(10, this.posX, this.posY, this.posZ, world, EntityLivingBase.class)) {
-						if (AllyDesignationSystem.isAllied(this, nearbyMob) && nearbyMob.getMaxHealth() > nearbyMob.getHealth()) {
-							if (world.isRemote) {
-								Vec3d origin = nearbyMob.getPositionEyes(1);
-								for (int i = 0; i < 30; i++) {
-									double x = origin.x - 1 + world.rand.nextDouble() * 2;
-									double y = origin.y - 0.25 + world.rand.nextDouble() * 0.5;
-									double z = origin.z - 1 + world.rand.nextDouble() * 2;
-									if (world.rand.nextBoolean()) {
-										ParticleBuilder.create(ParticleBuilder.Type.SPARKLE).pos(x, y, z).vel(0, 0.1, 0).fade(0, 0, 0).spin(0.3f, 0.03f).clr(1f, 1f, 0.9f).spawn(world);
-									} else {
-										ParticleBuilder.create(ParticleBuilder.Type.SPARKLE).pos(x, y, z).vel(0, 0.1, 0).fade(0, 0, 0).spin(0.3f, 0.03f).clr(1.0F, 1.0F, 0.3F).spawn(world);
-									}
-								}
-							}
-							nearbyMob.heal(2f);
-						}
-					}
-				}
-				break;
-
-			case COOK:
-				// Every 60 seconds (1200 ticks), 50% chance to create food if there is an empty slot
-				if (!world.isRemote && this.ticksExisted % 1200 == 0) {
-					if (this.rand.nextFloat() < 0.5f) {
-						String[] foodList = com.windanesz.arcaneapprentices.Settings.generalSettings.APPRENTICE_COOK_FOOD_LIST;
-						if (foodList != null && foodList.length > 0) {
-							String foodString = foodList[this.rand.nextInt(foodList.length)];
-							net.minecraft.item.ItemStack food = com.windanesz.arcaneapprentices.Settings.getItemFromString(foodString, this.world);
-							if (!food.isEmpty()) {
-								// If the config entry doesn't randomize count, randomize 1-2
-								if (food.getCount() <= 1) {
-									food.setCount(1 + this.rand.nextInt(2));
-								}
-								for (int i = 6; i < inventory.getSizeInventory(); i++) {
-									if (inventory.getStackInSlot(i).isEmpty()) {
-										inventory.setInventorySlotContents(i, food.copy());
-										if (getOwner() instanceof EntityPlayer) {
-											String foodName = food.getDisplayName();
-											this.sayWithoutSpam((EntityPlayer) getOwner(), new net.minecraft.util.text.TextComponentTranslation("message.arcaneapprentices:apprentice_cook_food", this.getDisplayName(), food.getCount(), foodName));
-										}
-										break;
-									}
-								}
-							}
-						}
-					}
-				}
-				break;
-
-			case ALCHEMY_ADEPT:
-				if (!world.isRemote && rareEventReady() && rand.nextInt(600) == 0) {
-					{
-						PotionType potiontype = null;
-
-						if (this.rand.nextFloat() < 0.15F || this.isInsideOfMaterial(Material.WATER)) {
-							potiontype = PotionTypes.WATER_BREATHING;
-						} else if (this.rand.nextFloat() < 0.15F || ((this.getOwner() != null && this.getOwner().isBurning()) || this.isBurning() || this.getLastDamageSource() != null && this.getLastDamageSource().isFireDamage())) {
-							potiontype = PotionTypes.FIRE_RESISTANCE;
-						} else if (this.rand.nextFloat() < 0.05F) {
-							potiontype = PotionTypes.HEALING;
-						} else if (this.rand.nextFloat() < 0.5F) {
-							potiontype = PotionTypes.SWIFTNESS;
-						} else if (this.rand.nextFloat() < 0.3F) {
-							potiontype = PotionTypes.SWIFTNESS;
-						} else if (this.rand.nextFloat() < 0.04F) {
-							potiontype = PotionTypes.REGENERATION;
-						} else if (this.rand.nextFloat() < 0.04F) {
-							potiontype = PotionTypes.INVISIBILITY;
-						} else if (this.rand.nextFloat() < 0.04F) {
-							potiontype = PotionTypes.LEAPING;
-						}
-
-						if (potiontype != null) {
-							List<Integer> emptySlots = this.getEmptySlotsRandomized();
-							if (!emptySlots.isEmpty()) {
-								this.inventory.setInventorySlotContents(emptySlots.get(0), PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), potiontype));
-								resetRareEventCooldown(1.5f);
-							}
-						}
-					}
-				}
-				break;
-
-			case APPAREL_EXPERT:
-				if (this.ticksExisted % 100 == 0) {
-					for (ItemStack stack : this.getArmorInventoryList()) {
-						// IManaStoringItem is sufficient, since anything in the armour slots is probably armour
-						if (stack.getItem() instanceof IManaStoringItem) {
-							((IManaStoringItem) stack.getItem()).rechargeMana(stack, 1);
-						}
-					}
-				}
-				break;
-
-			case CONDUIT:
-				if (this.ticksExisted % 260 == 0) {
-					if (getHeldItemMainhand().getItem() instanceof IManaStoringItem) {
-						((IManaStoringItem) getHeldItemMainhand().getItem()).rechargeMana(getHeldItemMainhand(), 4);
-					}
-					if (getOwner() instanceof EntityPlayer && getOwner().getDistance(this) < 12) {
-						EntityPlayer player = (EntityPlayer) getOwner();
-						if (player.getHeldItemMainhand().getItem() instanceof ISpellCastingItem && player.getHeldItemMainhand().getItem() instanceof IManaStoringItem && ((IManaStoringItem) player.getHeldItemMainhand().getItem()).getFullness(player.getHeldItemMainhand()) < 0.15f) {
-							((IManaStoringItem) player.getHeldItemMainhand().getItem()).rechargeMana(player.getHeldItemMainhand(), 4);
-						}
-						if (player.getHeldItemOffhand().getItem() instanceof ISpellCastingItem && player.getHeldItemOffhand().getItem() instanceof IManaStoringItem && ((IManaStoringItem) player.getHeldItemOffhand().getItem()).getFullness(player.getHeldItemOffhand()) < 0.15f) {
-							((IManaStoringItem) player.getHeldItemOffhand().getItem()).rechargeMana(player.getHeldItemOffhand(), 4);
-						}
-					}
-				}
-				break;
-			case EMPOWERING_RESONANCE:
-				if (this.ticksExisted % 100 == 0) {
-					addPotionEffect(new PotionEffect(WizardryPotions.empowerment, 100));
-					if (this.getHeldItemMainhand().getItem() instanceof ItemWand) {
-						Element elm = ((ItemWand) this.getHeldItemMainhand().getItem()).element;
-						for (EntityLivingBase nearbyMob : EntityUtils.getEntitiesWithinRadius(12, this.posX, this.posY, this.posZ, world, EntityLivingBase.class)) {
-							if (AllyDesignationSystem.isAllied(this, nearbyMob) && nearbyMob.getHeldItemMainhand().getItem() instanceof ItemWand && ((ItemWand) nearbyMob.getHeldItemMainhand().getItem()).element == elm) {
-								addPotionEffect(new PotionEffect(WizardryPotions.empowerment, 100));
-							}
-						}
-					}
-				}
-				break;
-		}
+		TalentHelper.tickTalent(this);
 	}
 
 	public BlockPos findBed() {
@@ -1286,6 +1161,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		nbt.setString("JourneyType", journeyType.toString());
 		Talent talent = this.getTalent();
 		nbt.setInteger("Talent", talent == null ? 0 : talent.ordinal());
+		nbt.setInteger("TalentCooldown", this.talentCooldown);
 	}
 
 	public void readEntityFromNBT(NBTTagCompound nbt) {
@@ -1348,6 +1224,10 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 			}
 		} else {
 			this.setTalent(Talent.getRandom());
+		}
+
+		if (nbt.hasKey("TalentCooldown")) {
+			this.talentCooldown = nbt.getInteger("TalentCooldown");
 		}
 	}
 
@@ -1788,12 +1668,100 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 	}
 
 	@Override
+	public void setCustomer(EntityPlayer player) {
+		this.customer = player;
+	}
+
+	@Override
+	public EntityPlayer getCustomer() {
+		return this.customer;
+	}
+
+	@Override
+	public void setRecipes(@Nullable MerchantRecipeList recipeList) {
+		// Apparently nothing goes here, and nothing's here in EntityVillager either...
+	}
+
+	@Override
+	public void useRecipe(MerchantRecipe merchantrecipe) {
+
+		merchantrecipe.incrementToolUses();
+		this.livingSoundTime = -this.getTalkInterval();
+		this.playSound(WizardrySounds.ENTITY_WIZARD_YES, this.getSoundVolume(), this.getSoundPitch());
+
+		if (this.getCustomer() != null) {
+
+			// Achievements
+			WizardryAdvancementTriggers.wizard_trade.triggerFor(this.getCustomer());
+
+			if (merchantrecipe.getItemToSell().getItem() instanceof ItemSpellBook) {
+
+				Spell spell = Spell.byMetadata(merchantrecipe.getItemToSell().getItemDamage());
+
+				if (spell.getTier() == Tier.MASTER)
+					WizardryAdvancementTriggers.buy_master_spell.triggerFor(this.getCustomer());
+
+				// Spell discovery (a lot of this is the same as in the event handler)
+				WizardData data = WizardData.get(this.getCustomer());
+
+				if (data != null) {
+
+					if (!MinecraftForge.EVENT_BUS.post(new DiscoverSpellEvent(this.getCustomer(), spell, DiscoverSpellEvent.Source.PURCHASE)) && data.discoverSpell(spell)) {
+
+						data.sync();
+
+						if (!world.isRemote && !this.getCustomer().isCreative() && Wizardry.settings.discoveryMode) {
+							// Sound and text only happen server-side, in survival, with discovery mode on
+							EntityUtils.playSoundAtPlayer(this.getCustomer(), WizardrySounds.MISC_DISCOVER_SPELL, 1.25f, 1);
+							this.getCustomer().sendMessage(new TextComponentTranslation("spell.discover", spell.getNameForTranslationFormatted()));
+						}
+					}
+				}
+			}
+		}
+
+		// Changed to a 4 in 5 chance of unlocking a new recipe.
+		if (this.rand.nextInt(5) > 0 || ItemArtefact.isArtefactActive(customer, WizardryItems.charm_haggler)) {
+			this.timeUntilReset = 40;
+			this.updateRecipes = true;
+
+			if (this.getCustomer() != null) {
+				this.getCustomer().getName();
+			} else {
+			}
+		}
+	}
+
+
+	@Override
+	public void verifySellingItem(ItemStack stack) {
+		// Copied from EntityVillager
+		if (!this.world.isRemote && this.livingSoundTime > -this.getTalkInterval() + 20) {
+			this.livingSoundTime = -this.getTalkInterval();
+			SoundEvent yes = Wizardry.tisTheSeason ? WizardrySounds.ENTITY_WIZARD_HOHOHO : WizardrySounds.ENTITY_WIZARD_YES;
+			this.playSound(stack.isEmpty() ? WizardrySounds.ENTITY_WIZARD_NO : yes, this.getSoundVolume(), this.getSoundPitch());
+		}
+	}
+
+	@Override
 	public ITextComponent getDisplayName() {
 		if (getOwnerId() != null && getOwner() != null) {
 			return new TextComponentTranslation("entity.arcaneapprentices:owned_wizard.nameplate", getOwner().getName(), this.hasCustomName() ? super.getDisplayName() : this.getElement().getWizardName());
 		} else {
 			return super.getDisplayName();
 		}
+	}
+
+	public void trade(EntityPlayer player) {
+		if(!this.world.isRemote){
+			this.setCustomer(player);
+			player.displayVillagerTradeGui(this);
+		}
+	}
+
+	@Override
+	public World getWorld() {
+		return this.world;
 	}
 
 	public ITextComponent getDisplayNameWithoutOwner() {
@@ -1998,7 +1966,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		}
 	}
 
-	private List<Integer> getEmptySlotsRandomized() {
+	protected List<Integer> getEmptySlotsRandomized() {
 		List<Integer> list = Lists.<Integer>newArrayList();
 
 		for (int i = 0; i < inventory.getSizeInventory(); ++i) {
@@ -2087,7 +2055,7 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 
 	@Override
 	public void setSwingingArms(boolean swingingArms) {
-		this.dataManager.set(SWINGING_ARMS, Boolean.valueOf(swingingArms));
+
 	}
 
 	protected EntityArrow getArrow(float distanceFactor) {
@@ -2113,7 +2081,276 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		return this.getHeldItemMainhand().getItem() instanceof net.minecraft.item.ItemBow && EnchantmentHelper.getEnchantmentLevel(Enchantments.INFINITY, this.getHeldItemMainhand()) > 0;
 	}
 
+	public void decrementTalentCooldown() {
+		if (this.talentCooldown > 0) {
+			this.talentCooldown--;
+		}
+	}
+
+	public int getTalentCooldown() {
+		return talentCooldown;
+	}
+
+	public boolean isTalentReady() {
+		return talentCooldown == 0;
+	}
+
+	public void setTalentCooldown(int cooldown) {
+		this.talentCooldown = cooldown;
+	}
+
 	public enum Task {
 		FOLLOW, STAY, ADVENTURE, GO_HOME, STUDY, TRY_TO_SLEEP, IDENTIFY
+	}
+
+	// This is called from the gui in order to display the recipes (no surprise there), and this is actually where
+	// the initialisation is done, i.e. the trades don't actually exist until some player goes to trade with the
+	// villager, at which point the first is added.
+	@Override
+	public MerchantRecipeList getRecipes(EntityPlayer par1EntityPlayer) {
+//
+//		if (this.trades == null) {
+//
+//			this.trades = new WildcardTradeList();
+//
+//			this.addRandomRecipes(1);
+//		}
+
+		return this.trades;
+	}
+
+	/**
+	 * This is called once on initialisation and then once each time the wizard gains new trades (the particle thingy).
+	 */
+	void addRandomRecipes(int numberOfItemsToAdd) {
+
+		MerchantRecipeList merchantrecipelist;
+		merchantrecipelist = new MerchantRecipeList();
+
+		for (int i = 0; i < numberOfItemsToAdd; i++) {
+
+			ItemStack itemToSell = ItemStack.EMPTY;
+
+			boolean itemAlreadySold = true;
+
+			Tier tier = Tier.NOVICE;
+
+			while (itemAlreadySold) {
+
+				itemAlreadySold = false;
+
+				/* New way of getting random item, by giving a chance to increase the tier which depends on how much the
+				 * player has already traded with the wizard. The more the player has traded with the wizard, the more
+				 * likely they are to get items of a higher tier. The -4 is to ignore the original 4 trades. For
+				 * reference, the chances are as follows: Trades done Basic Apprentice Advanced Master 0 50% 25% 18% 8%
+				 * 1 46% 25% 20% 9% 2 42% 24% 22% 12% 3 38% 24% 24% 14% 4 34% 22% 26% 17% 5 30% 21% 28% 21% 6 26% 19%
+				 * 30% 24% 7 22% 17% 32% 28% 8 18% 15% 34% 33% */
+
+				double tierIncreaseChance = 0.5 + 0.04 * (Math.max(this.trades.size() - 4, 0));
+
+				tier = Tier.NOVICE;
+
+				if (rand.nextDouble() < tierIncreaseChance) {
+					tier = Tier.APPRENTICE;
+					if (rand.nextDouble() < tierIncreaseChance) {
+						tier = Tier.ADVANCED;
+						if (rand.nextDouble() < tierIncreaseChance * 0.6) {
+							tier = Tier.MASTER;
+						}
+					}
+				}
+
+				itemToSell = this.getRandomItemOfTier(tier);
+
+				for (Object recipe : merchantrecipelist) {
+					if (ItemStack.areItemStacksEqual(((MerchantRecipe) recipe).getItemToSell(), itemToSell))
+						itemAlreadySold = true;
+				}
+
+				if (this.trades != null) {
+					for (Object recipe : this.trades) {
+						if (ItemStack.areItemStacksEqual(((MerchantRecipe) recipe).getItemToSell(), itemToSell))
+							itemAlreadySold = true;
+					}
+				}
+			}
+
+			// Don't know how it can ever be empty here, but it's a failsafe.
+			if (itemToSell.isEmpty()) return;
+
+			ItemStack secondItemToBuy = tier == Tier.MASTER ? new ItemStack(WizardryItems.astral_diamond) : new ItemStack(WizardryItems.magic_crystal, tier.ordinal() * 3 + 1 + rand.nextInt(4));
+
+			merchantrecipelist.add(new MerchantRecipe(this.getRandomPrice(tier), secondItemToBuy, itemToSell));
+		}
+
+		Collections.shuffle(merchantrecipelist);
+
+		if (this.trades == null) {
+			this.trades = new WildcardTradeList();
+		}
+
+		this.trades.addAll(merchantrecipelist);
+	}
+
+	@SuppressWarnings("unchecked")
+	private ItemStack getRandomPrice(Tier tier) {
+
+		Map<Pair<ResourceLocation, Short>, Integer> map = Wizardry.settings.currencyItems;
+		// This isn't that efficient but it's not called very often really so it doesn't matter
+		Pair<ResourceLocation, Short> itemName = map.keySet().toArray(new Pair[0])[rand.nextInt(map.size())];
+		Item item = Item.REGISTRY.getObject(itemName.getLeft());
+		short meta = itemName.getRight();
+		int value;
+
+		if (item == null) {
+			Wizardry.logger.warn("Invalid item in currency items: {}", itemName);
+			item = Items.EMERALD; // Fallback item
+			value = 6;
+		} else {
+			value = map.get(itemName);
+		}
+
+		// ((tier.ordinal() + 1) * 16 + rand.nextInt(6)) gives a 'value' for the item being bought
+		// This is then divided by the value of the currency item to give a price
+		// The absolute maximum stack size that can result from this calculation (with value = 1) is 64.
+		return new ItemStack(item, MathHelper.clamp((8 + tier.ordinal() * 16 + rand.nextInt(9)) / value, 1, 64), meta);
+	}
+
+
+	public MerchantRecipeList getTrades() {
+		return this.trades;
+	}
+
+	public void setTrades(MerchantRecipeList trades) {
+		this.trades = trades;
+	}
+
+	private ItemStack getRandomItemOfTier(Tier tier) {
+
+		int randomiser;
+
+		// All enabled spells of the given tier
+		List<Spell> spells = Spell.getSpells(new Spell.TierElementFilter(tier, null, SpellProperties.Context.TRADES));
+		// All enabled spells of the given tier that match this wizard's element
+		List<Spell> specialismSpells = Spell.getSpells(new Spell.TierElementFilter(tier, this.getElement(), SpellProperties.Context.TRADES));
+
+		// Wizards don't sell scrolls
+		spells.removeIf(s -> !s.isEnabled(SpellProperties.Context.BOOK));
+		specialismSpells.removeIf(s -> !s.isEnabled(SpellProperties.Context.BOOK));
+
+		// This code is sooooooo much neater with the new filter system!
+		switch (tier) {
+
+			case NOVICE:
+				randomiser = rand.nextInt(5);
+				if (randomiser < 4 && !spells.isEmpty()) {
+					if (this.getElement() != Element.MAGIC && rand.nextInt(4) > 0 && !specialismSpells.isEmpty()) {
+						// This means it is more likely for spell books sold to be of the same element as the wizard if the
+						// wizard has an element.
+						return getBookStackForSpell(specialismSpells.get(rand.nextInt(specialismSpells.size())));
+					} else {
+						return getBookStackForSpell(spells.get(rand.nextInt(spells.size())));
+					}
+				} else {
+					if (this.getElement() != Element.MAGIC && rand.nextInt(4) > 0) {
+						// This means it is more likely for wands sold to be of the same element as the wizard if the wizard
+						// has an element.
+						return new ItemStack(WizardryItems.getWand(tier, this.getElement()));
+					} else {
+						return new ItemStack(WizardryItems.getWand(tier, Element.values()[rand.nextInt(Element.values().length)]));
+					}
+				}
+
+			case APPRENTICE:
+				randomiser = rand.nextInt(Wizardry.settings.discoveryMode ? 12 : 10);
+				if (randomiser < 5 && !spells.isEmpty()) {
+					if (this.getElement() != Element.MAGIC && rand.nextInt(4) > 0 && !specialismSpells.isEmpty()) {
+						// This means it is more likely for spell books sold to be of the same element as the wizard if the
+						// wizard has an element.
+						return getBookStackForSpell(specialismSpells.get(rand.nextInt(specialismSpells.size())));
+					} else {
+						return getBookStackForSpell(spells.get(rand.nextInt(spells.size())));
+					}
+				} else if (randomiser < 6) {
+					if (this.getElement() != Element.MAGIC && rand.nextInt(4) > 0) {
+						// This means it is more likely for wands sold to be of the same element as the wizard if the wizard
+						// has an element.
+						return new ItemStack(WizardryItems.getWand(tier, this.getElement()));
+					} else {
+						return new ItemStack(WizardryItems.getWand(tier, Element.values()[rand.nextInt(Element.values().length)]));
+					}
+				} else if (randomiser < 8) {
+					return new ItemStack(WizardryItems.arcane_tome, 1, 1);
+				} else if (randomiser < 10) {
+					EntityEquipmentSlot slot = InventoryUtils.ARMOUR_SLOTS[rand.nextInt(InventoryUtils.ARMOUR_SLOTS.length)];
+					if (this.getElement() != Element.MAGIC && rand.nextInt(4) > 0) {
+						// This means it is more likely for armour sold to be of the same element as the wizard if the
+						// wizard has an element.
+						return new ItemStack(WizardryItems.getArmour(this.getElement(), slot));
+					} else {
+						return new ItemStack(WizardryItems.getArmour(Element.values()[rand.nextInt(Element.values().length)], slot));
+					}
+				} else {
+					// Don't need to check for discovery mode here since it is done above
+					return new ItemStack(WizardryItems.identification_scroll);
+				}
+
+			case ADVANCED:
+				randomiser = rand.nextInt(12);
+				if (randomiser < 5 && !spells.isEmpty()) {
+					if (this.getElement() != Element.MAGIC && rand.nextInt(4) > 0 && !specialismSpells.isEmpty()) {
+						// This means it is more likely for spell books sold to be of the same element as the wizard if the
+						// wizard has an element.
+						return getBookStackForSpell(specialismSpells.get(rand.nextInt(specialismSpells.size())));
+					} else {
+						return getBookStackForSpell(spells.get(rand.nextInt(spells.size())));
+					}
+				} else if (randomiser < 6) {
+					if (this.getElement() != Element.MAGIC && rand.nextInt(4) > 0) {
+						// This means it is more likely for wands sold to be of the same element as the wizard if the wizard
+						// has an element.
+						return new ItemStack(WizardryItems.getWand(tier, this.getElement()));
+					} else {
+						return new ItemStack(WizardryItems.getWand(tier, Element.values()[rand.nextInt(Element.values().length)]));
+					}
+				} else if (randomiser < 8) {
+					return new ItemStack(WizardryItems.arcane_tome, 1, 2);
+				} else {
+					List<Item> upgrades = new ArrayList<Item>(WandHelper.getSpecialUpgrades());
+					randomiser = rand.nextInt(upgrades.size());
+					return new ItemStack(upgrades.get(randomiser));
+				}
+
+			case MASTER:
+				// If a regular wizard rolls a master trade, it can only be a simple master wand or a tome of arcana
+				randomiser = this.getElement() != Element.MAGIC ? rand.nextInt(8) : 5 + rand.nextInt(3);
+
+				if (randomiser < 5 && this.getElement() != Element.MAGIC && !specialismSpells.isEmpty()) {
+					// Master spells can only be sold by a specialist in that element.
+					return getBookStackForSpell(specialismSpells.get(rand.nextInt(specialismSpells.size())));
+
+				} else if (randomiser < 6) {
+					if (this.getElement() != Element.MAGIC && rand.nextInt(4) > 0) {
+						// Master elemental wands can only be sold by a specialist in that element.
+						return new ItemStack(WizardryItems.getWand(tier, this.getElement()));
+					} else {
+						return new ItemStack(WizardryItems.master_wand);
+					}
+				} else {
+					return new ItemStack(WizardryItems.arcane_tome, 1, 3);
+				}
+		}
+
+		return new ItemStack(Blocks.STONE);
+	}
+
+	public static ItemStack getBookStackForSpell(Spell spell) {
+		String modid = spell.getRegistryName().getNamespace();
+		if (modid.equals(Wizardry.MODID)) {
+			return new ItemStack(WizardryItems.spell_book, 1, spell.metadata());
+		}
+		java.util.Optional<Item> firstMatch = ForgeRegistries.ITEMS.getValuesCollection().stream().filter(v -> v instanceof ItemSpellBook && spell.applicableForItem(v) && v.getRegistryName().getNamespace().equals(modid)).findFirst();
+
+		return firstMatch.map(item -> new ItemStack(item, 1, spell.metadata())).orElseGet(() -> new ItemStack(WizardryItems.spell_book, 1, spell.metadata()));
 	}
 }
