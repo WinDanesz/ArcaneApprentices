@@ -1,6 +1,6 @@
 package com.windanesz.arcaneapprentices.entity.ai;
 
-import com.windanesz.arcaneapprentices.data.Talent;
+import com.windanesz.arcaneapprentices.entity.living.Talent;
 import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
 import electroblob.wizardry.block.BlockLectern;
 import net.minecraft.entity.ai.EntityAIBase;

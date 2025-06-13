@@ -3,6 +3,7 @@ package com.windanesz.arcaneapprentices.data;
 import com.windanesz.arcaneapprentices.ArcaneApprentices;
 import com.windanesz.arcaneapprentices.Settings;
 import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
+import com.windanesz.arcaneapprentices.entity.living.Talent;
 import com.windanesz.arcaneapprentices.registry.AAItems;
 import net.minecraft.util.ResourceLocation;
 

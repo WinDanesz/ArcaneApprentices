@@ -5,7 +5,7 @@ import com.windanesz.arcaneapprentices.command.CommandResetApprenticeData;
 import com.windanesz.arcaneapprentices.command.CommandSetApprenticeLevel;
 import com.windanesz.arcaneapprentices.command.CommandSetApprenticeSpell;
 import com.windanesz.arcaneapprentices.data.PlayerData;
-import com.windanesz.arcaneapprentices.data.Talent;
+import com.windanesz.arcaneapprentices.entity.living.Talent;
 import com.windanesz.arcaneapprentices.packet.AAPacketHandler;
 import com.windanesz.arcaneapprentices.registry.AAAdvancementTriggers;
 import com.windanesz.arcaneapprentices.registry.BlockRegistry;

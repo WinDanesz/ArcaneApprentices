@@ -2,6 +2,7 @@ package com.windanesz.arcaneapprentices.client.gui;
 
 import com.windanesz.arcaneapprentices.ArcaneApprentices;
 import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
+import com.windanesz.arcaneapprentices.entity.living.Talent;
 import com.windanesz.arcaneapprentices.inventory.ContainerWizardInitiateInventory;
 import com.windanesz.arcaneapprentices.packet.AAPacketHandler;
 import com.windanesz.arcaneapprentices.packet.PacketControlInput;
@@ -36,6 +37,7 @@ public class GuiScreenWizardInitiateInventory extends GuiContainer {
 	private GuiButton goHomeBtn;
 	private GuiButton identifyBtn;
 	private GuiButton journeyBtn;
+	private GuiButton tradeBtn;
 
 	public GuiScreenWizardInitiateInventory(IInventory playerInv, IInventory horseInv, EntityWizardInitiate wizard) {
 		super(new ContainerWizardInitiateInventory(playerInv, horseInv, wizard, Minecraft.getMinecraft().player));
@@ -90,6 +92,9 @@ public class GuiScreenWizardInitiateInventory extends GuiContainer {
 		// right side
 		this.identifyBtn = this.addButton(new GuiButton(5, this.width / 2 + 90, 50, 98, 20, I18n.format("gui.arcaneapprentices:identify_button")));
 		this.journeyBtn = this.addButton(new GuiButton(5, this.width / 2 + 90, 75, 98, 20, I18n.format("gui.arcaneapprentices:journey_button")));
+		if (wizard.getTalent() == Talent.MERCHANT) {
+			this.tradeBtn = this.addButton(new GuiButton(5, this.width / 2 + 90, 100, 98, 20, I18n.format("gui.arcaneapprentices:trade_button")));
+		}
 	}
 
 	@Override
@@ -127,6 +132,10 @@ public class GuiScreenWizardInitiateInventory extends GuiContainer {
 			} else if (button == journeyBtn) {
 				this.mc.displayGuiScreen(null);
 				IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.OPEN_JOURNEY_GUI_BUTTON);
+				AAPacketHandler.net.sendToServer(msg);
+			} else if (button == tradeBtn) {
+				this.mc.displayGuiScreen(null);
+				IMessage msg = new PacketControlInput.Message(PacketControlInput.ControlType.OPEN_TRADE_BUTTON);
 				AAPacketHandler.net.sendToServer(msg);
 			}
 		}

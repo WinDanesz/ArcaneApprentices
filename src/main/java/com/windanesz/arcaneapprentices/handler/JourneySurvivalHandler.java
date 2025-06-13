@@ -2,7 +2,7 @@ package com.windanesz.arcaneapprentices.handler;
 
 import com.windanesz.arcaneapprentices.Settings;
 import com.windanesz.arcaneapprentices.data.JourneyType;
-import com.windanesz.arcaneapprentices.data.Talent;
+import com.windanesz.arcaneapprentices.entity.living.Talent;
 import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
 import com.windanesz.arcaneapprentices.registry.AAItems;
 import net.minecraft.entity.SharedMonsterAttributes;

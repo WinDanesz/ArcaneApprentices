@@ -1,7 +1,7 @@
 package com.windanesz.arcaneapprentices.inventory;
 
 import com.windanesz.arcaneapprentices.ArcaneApprentices;
-import com.windanesz.arcaneapprentices.data.Talent;
+import com.windanesz.arcaneapprentices.entity.living.Talent;
 import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
 import com.windanesz.arcaneapprentices.handler.XpProgression;
 import com.windanesz.arcaneapprentices.registry.AAItems;
