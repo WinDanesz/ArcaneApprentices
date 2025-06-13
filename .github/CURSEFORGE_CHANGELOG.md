@@ -1,10 +1,18 @@
-<h2>Version v1.2.4 - 6/16/2024</h2>
+<h2>Version v1.2.5 - 6/13/2025</h2>
 <p>&nbsp;</p>
 <h3>What's Changed</h3>
 <p><span style="font-size: 1.2rem;">&nbsp;</span></p>
+<h4><strong>Bug Fixes</strong></h4>
+<p>- Fixed apprentice bounding box size only updating on world reload when the apprentice ages up to adult size</p>
+<p>- Fixed dupe issue with apprentice eating</p>
+
 <h4><strong>Features</strong></h4>
-<p>- Added a chat message when an apprentice goes on a journey with the return position info, the player now also receives a written paper note with the apprentice's home position to make it easier to remember what it was. Fixes #13</p>
-<p>- Minions summoned by apprentices now directly belong to the minion's owner player. This should solve most friendly fire issues and fights between npcs. Fixes #6</p>
+<p>- Added more procedurally generated apprentice names</p>
+<p>- New Talent</p>
+<p>- Added /setapprenticelevel <name> <level> command (use tab autocomplete)</p>
+<p>- Added /setapprenticespell <name> <spell> command (use tab autocomplete)</p>
+<p>- Lowered Seal of Fate tier to Rare</p>
+<p>- Added 5 new talents</p>
 <p>&nbsp;</p>
 <p>As always, the easiest way to get help or feedback is through the Discord server! Find the link on the CurseForge page.</p>
 <p>&nbsp;</p>

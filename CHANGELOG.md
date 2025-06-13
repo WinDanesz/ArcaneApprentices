@@ -5,6 +5,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [v1.2.5] - 2025-06-13
+### :sparkles: New Features
+- [`6fdbf71`](https://github.com/WinDanesz/ArcaneApprentices/commit/6fdbf7146b26b8a1f33ac8d4f08088b3c306e93e) - Added more procedurally generated apprentice names *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+- [`c4da962`](https://github.com/WinDanesz/ArcaneApprentices/commit/c4da9628d5497aae38fd7a869fadd2452d90d947) - new Talent *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+- [`253ea46`](https://github.com/WinDanesz/ArcaneApprentices/commit/253ea46a040b5df056a53445c5618e781ffb9a2f) - Added /setapprenticelevel <name> <level> command (use tab autocomplete) *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+- [`c11f47a`](https://github.com/WinDanesz/ArcaneApprentices/commit/c11f47a0c4527ad35c2ef2e7dad5f4fd47766e21) - Added /setapprenticespell <name> <spell> command (use tab autocomplete) *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+- [`0e15474`](https://github.com/WinDanesz/ArcaneApprentices/commit/0e154749f1f41c681f0ac094adc5167bc3c5e6c8) - Lowered Seal of Fate tier to Rare *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+- [`920d138`](https://github.com/WinDanesz/ArcaneApprentices/commit/920d138959aa10058b7b068c1c02477c5c598425) - Added 5 new talents *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+
+### :bug: Bug Fixes
+- [`de6e3c1`](https://github.com/WinDanesz/ArcaneApprentices/commit/de6e3c1fdfc26313d596145aa406b48f0b5c1518) - Fixed apprentice bounding box size only updating on world reload when the apprentice ages up to adult size *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+- [`f363731`](https://github.com/WinDanesz/ArcaneApprentices/commit/f363731f99bfe9263d1712839fdcff95a5cd6a20) - Fixed dupe issue with apprentice eating *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+
+
 ## [v1.2.4] - 2024-06-16
 ### :sparkles: New Features
 - [`725a27c`](https://github.com/WinDanesz/ArcaneApprentices/commit/725a27ce3b366f29dc2af29e17cf32e82e6d0c8c) - Added a chat message when an apprentice goes on a journey with the return position info, the player now also receives a written paper note with the apprentice's home position to make it easier to remember what it was. Fixes [#13](https://github.com/WinDanesz/ArcaneApprentices/pull/13) *(commit by [@WinDanesz](https://github.com/WinDanesz))*
@@ -103,3 +117,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.2.2]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.2.1...v1.2.2
 [v1.2.3]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.2.2...v1.2.3
 [v1.2.4]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.2.3...v1.2.4
+[v1.2.5]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.2.4...v1.2.5
