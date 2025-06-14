@@ -564,6 +564,7 @@ talent.blacksmith.desc=%s's arcane tinkering skills allow them to repair your it
 talent.warden_of_flame=Warden of Flame
 talent.warden_of_flame.desc=%s is immune to fire and can extinguish their master when they catch fire, this has a cooldown period.
 talent.warden_of_frost=Warden of Frost
+talent.warden_of_frost.desc=%s is immune to frosbite and can also cleanse their master when they are frozen, this has a cooldown period.
 message.arcaneapprentices:apprentice_item_repaired=%s has fully repaired your %s
 message.arcaneapprentices:warden_flame_extinguish=I have extinguished the flames around you, master.
 message.arcaneapprentices:warden_frost_warm=I have warmed you with my magic, master. The frost should no longer affect you.
