@@ -5,6 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [v1.2.6] - 2025-09-24
+### :sparkles: New Features
+- [`0df6d93`](https://github.com/WinDanesz/ArcaneApprentices/commit/0df6d934cdc08d4a9721c1c7afd68f0c951019e1) - Added 5 new talents *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+- [`93b91dd`](https://github.com/WinDanesz/ArcaneApprentices/commit/93b91dd64d4731209afc721f00b4ef597102731f) - Lowered Seal of Fate tier to Uncommon *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+
+### :bug: Bug Fixes
+- [`7fbeed6`](https://github.com/WinDanesz/ArcaneApprentices/commit/7fbeed6c353bd2ad44761fe3e2cc35497c86af82) - Added missing desc for Warden of Frost *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+- [`e12c77d`](https://github.com/WinDanesz/ArcaneApprentices/commit/e12c77dcdd89eb5b25b3b0d8ab03e8aed2dc7a3c) - Fixed Comforts mod's beds respawning a duplicate apprentice *(commit by [@WinDanesz](https://github.com/WinDanesz))*
+
+
 ## [v1.2.5] - 2025-06-13
 ### :sparkles: New Features
 - [`6fdbf71`](https://github.com/WinDanesz/ArcaneApprentices/commit/6fdbf7146b26b8a1f33ac8d4f08088b3c306e93e) - Added more procedurally generated apprentice names *(commit by [@WinDanesz](https://github.com/WinDanesz))*
@@ -118,3 +128,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.2.3]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.2.2...v1.2.3
 [v1.2.4]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.2.3...v1.2.4
 [v1.2.5]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.2.4...v1.2.5
+[v1.2.6]: https://github.com/WinDanesz/ArcaneApprentices/compare/v1.2.5...v1.2.6
