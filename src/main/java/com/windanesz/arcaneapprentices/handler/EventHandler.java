@@ -726,7 +726,7 @@ public final class EventHandler {
 	@SubscribeEvent
 	public static void onPlayerSleepInBedEvent(PlayerSleepInBedEvent event) {
 
-		if (Settings.generalSettings.APPRENTICES_RESPAWN_AT_PLAYER_SPAWNPOINT) {
+		if (Settings.generalSettings.APPRENTICES_RESPAWN_AT_PLAYER_SPAWNPOINT && event.getEntityPlayer() != null && !event.getEntityPlayer().world.isRemote) {
 			List<StoredEntity> list = PlayerData.getDeadApprentices(event.getEntityPlayer());
 			if (!list.isEmpty()) {
 
