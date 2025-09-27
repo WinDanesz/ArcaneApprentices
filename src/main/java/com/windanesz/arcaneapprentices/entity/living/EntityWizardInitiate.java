@@ -1307,10 +1307,10 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		var4 = EntityEquipmentSlot.values();
 		var5 = var4.length;
 
-		//		for (var6 = 0; var6 < var5; ++var6) {
-		//			slot = var4[var6];
-		//			this.setDropChance(slot, 0.0F);
-		//		}
+		for (var6 = 0; var6 < var5; ++var6) {
+			slot = var4[var6];
+			this.setDropChance(slot, !Settings.generalSettings.APPRENTICES_CAN_BE_RESURRECTED ? 0 : 100.0F);
+		}
 
 		//this.spells.add(Spells.magic_missile);
 		//		Tier maxTier = populateSpells(this, this.spells, element, false, 3, this.rand);
