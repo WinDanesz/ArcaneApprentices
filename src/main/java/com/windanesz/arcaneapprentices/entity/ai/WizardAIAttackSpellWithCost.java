@@ -261,10 +261,24 @@ public class WizardAIAttackSpellWithCost extends EntityAIBase {
 							int requiredMana = spell.getCost();
 							int currentMana = ((ItemWand) wandStack.getItem()).getMana(wandStack);
 							if (currentMana < requiredMana) {
-								// not enough mana to cast this
-								this.npc.sayWithoutSpam(new TextComponentTranslation(Speech.WIZARD_LOW_MANA.getRandom()));
-								spells.remove(spell);
-								spell = null;
+								// Try to consume a mana flask before giving up
+								ItemWand wand = (ItemWand) wandStack.getItem();
+								if (this.npc.consumeManaFlask(wand, wandStack)) {
+									// Mana flask was consumed, update current mana and retry
+									currentMana = wand.getMana(wandStack);
+									if (currentMana < requiredMana) {
+										// Still not enough mana even after flask
+										this.npc.sayWithoutSpam(new TextComponentTranslation(Speech.WIZARD_LOW_MANA.getRandom()));
+										spells.remove(spell);
+										spell = null;
+									}
+									// If we have enough mana now, continue with spell casting
+								} else {
+									// No mana flasks available
+									this.npc.sayWithoutSpam(new TextComponentTranslation(Speech.WIZARD_LOW_MANA.getRandom()));
+									spells.remove(spell);
+									spell = null;
+								}
 							}
 						} else {
 							return;

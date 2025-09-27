@@ -149,6 +149,8 @@ dependencies {
     implementation fg.deobf("curse.maven:baubles-${baubles_projectid}:${baubles_fileid}")
     implementation fg.deobf("mezz.jei:jei_${mc_version}:${jei_version}")
     implementation fg.deobf("curse.maven:PotionCore-${potioncore_projectid}:${potioncore_fileid}")
+    implementation fg.deobf("curse.maven:antique-atlas-${antiqueatlas_projectid}:${antiqueatlas_fileid}")
+
 }
 
 //// Project manifest data ////

@@ -429,6 +429,64 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 		}
 	}
 
+	/**
+	 * Attempts to consume a mana flask from the inventory to restore mana.
+	 * Prioritizes smaller flasks first (small -> medium -> large).
+	 * @param wand The wand to restore mana to
+	 * @param wandStack The wand ItemStack
+	 * @return true if a mana flask was consumed, false otherwise
+	 */
+	public boolean consumeManaFlask(ItemWand wand, ItemStack wandStack) {
+		if (!(this.getHeldItemMainhand().getItem() instanceof ItemWand)) {
+			return false;
+		}
+
+		int currentMana = wand.getMana(wandStack);
+		int maxMana = wand.getManaCapacity(wandStack);
+		
+		// Don't consume flasks if mana is already full
+		if (currentMana >= maxMana) {
+			return false;
+		}
+
+		// Check inventory for mana flasks in priority order (small -> medium -> large)
+		Item[] manaFlasks = {WizardryItems.small_mana_flask, WizardryItems.medium_mana_flask, WizardryItems.large_mana_flask};
+		int[] manaAmounts = {75, 350, 1400};
+
+		for (int i = 0; i < manaFlasks.length; i++) {
+			Item flaskItem = manaFlasks[i];
+			int manaRestore = manaAmounts[i];
+
+			// Search inventory for the flask
+			for (int slot = 1; slot < inventory.getSizeInventory(); slot++) { // Start from slot 1 to skip mainhand
+				ItemStack stack = inventory.getStackInSlot(slot);
+				if (!stack.isEmpty() && stack.getItem() == flaskItem) {
+					// Found a flask, consume it and restore mana
+					int newMana = Math.min(maxMana, currentMana + manaRestore);
+					wand.setMana(wandStack, newMana);
+					
+					// Consume the flask
+					stack.shrink(1);
+					if (stack.isEmpty()) {
+						inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
+					}
+
+					// Play sound effect
+					if (!world.isRemote) {
+						this.playSound(SoundEvents.ENTITY_GENERIC_DRINK, 0.8F, 1.0F + world.rand.nextFloat() * 0.2F);
+					}
+
+					// Say a random mana flask comment
+					Speech.WIZARD_USES_MANA_FLASK.sayWithoutSpam(this);
+
+					return true;
+				}
+			}
+		}
+
+		return false; // No mana flasks found
+	}
+
 	public Location getHome() {
 		return home;
 	}

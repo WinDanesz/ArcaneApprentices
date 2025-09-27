@@ -105,6 +105,13 @@ message.arcaneapprentices:wizard_low_mana_0=I'm running out of mana...
 message.arcaneapprentices:wizard_low_mana_1=I don't have enough mana
 message.arcaneapprentices:wizard_low_mana_2=My wand is depleted
 
+message.arcaneapprentices:wizard_uses_mana_flask_0=This mana flask is a lifesaver!
+message.arcaneapprentices:wizard_uses_mana_flask_1=Good thing we stocked up on mana flasks...
+message.arcaneapprentices:wizard_uses_mana_flask_2=Without mana flasks now I'd be in trouble
+message.arcaneapprentices:wizard_uses_mana_flask_3=Ah, refreshing mana! Much better now.
+message.arcaneapprentices:wizard_uses_mana_flask_4=These flasks really come in handy during battle
+message.arcaneapprentices:wizard_uses_mana_flask_5=I always keep a few mana flasks for emergencies like this
+
 message.arcaneapprentices:wizard_spell_cast_defense_0=Protect!
 message.arcaneapprentices:wizard_spell_cast_defense_1=Shield!
 message.arcaneapprentices:wizard_spell_cast_defense_2=Defend!
