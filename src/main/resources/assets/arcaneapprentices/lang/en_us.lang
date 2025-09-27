@@ -173,6 +173,29 @@ message.arcaneapprentices:owner_give_food_0=You seem to be very hungry, I have t
 message.arcaneapprentices:owner_give_food_1=I found this %s recently, you seem to be very hungry so maybe you should take it
 message.arcaneapprentices:owner_give_healing_potion_0=Your health is dangerously low, fortunately I found this %s, take it
 message.arcaneapprentices:owner_give_healing_potion_1=Your health is failing... take my spare %s
+
+message.arcaneapprentices:owner_give_mana_flask_0=Master I see you are in need of mana, take this flask that I prepared earlier
+message.arcaneapprentices:owner_give_mana_flask_1=Your wand seems low on mana, here's a flask I've been saving for you
+message.arcaneapprentices:owner_give_mana_flask_2=I noticed your mana reserves are dwindling, take this mana flask
+message.arcaneapprentices:owner_give_mana_flask_3=You appear to need more mana, here's a flask from my personal stash
+message.arcaneapprentices:owner_give_mana_flask_4=I've been brewing these mana flasks for situations like this, please take one
+
+message.arcaneapprentices:wizard_nether_remarks_0=The nether is very treacherous
+message.arcaneapprentices:wizard_nether_remarks_1=So this is what hell is like...
+message.arcaneapprentices:wizard_nether_remarks_2=The heat here is unbearable!
+message.arcaneapprentices:wizard_nether_remarks_3=These nether creatures are quite hostile
+message.arcaneapprentices:wizard_nether_remarks_4=The air here burns my lungs
+
+message.arcaneapprentices:wizard_end_remarks_0=So this is the End?
+message.arcaneapprentices:wizard_end_remarks_1=The void below us is... unsettling
+message.arcaneapprentices:wizard_end_remarks_2=This dimension feels so alien
+
+message.arcaneapprentices:wizard_biome_remarks_0=The %s is so cold!
+message.arcaneapprentices:wizard_biome_remarks_1=The %s feels quite chilly
+message.arcaneapprentices:wizard_biome_remarks_2=The %s is burning hot!
+message.arcaneapprentices:wizard_biome_remarks_3=The %s is so warm and pleasant
+message.arcaneapprentices:wizard_biome_remarks_4=The %s has such a mild temperature
+message.arcaneapprentices:wizard_biome_remarks_5=The %s feels temperate and comfortable
 message.arcaneapprentices:wizard_time_to_sleep_0=It's getting late. Shall we rest for the night?
 message.arcaneapprentices:wizard_time_to_sleep_1=It's been a long day of magic. Let's find a place to sleep, %s.
 message.arcaneapprentices:wizard_time_to_sleep_2=The night approaches, %s. We rest.
@@ -297,7 +320,7 @@ message.arcaneapprentices:wizard_combat_7=You are no match for me, %s!
 
 
 message.arcaneapprentices:wizard_owner_spell_cast_compliment_high_tier_0=What a powerful spell!
-message.arcaneapprentices:wizard_owner_spell_cast_compliment_high_tier_1=That %s was powerful!
+message.arcaneapprentices:wizard_owner_spell_cast_compliment_high_tier_1=That %s was powerful
 message.arcaneapprentices:wizard_owner_spell_cast_compliment_low_tier_0=Ah, the good ol' %s
 message.arcaneapprentices:wizard_owner_spell_cast_compliment_low_tier_1=%s, quite an useful spell
 message.arcaneapprentices:wizard_owner_spell_cast_compliment_low_tier_2=What a spell repertoire

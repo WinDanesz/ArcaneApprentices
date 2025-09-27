@@ -4,6 +4,7 @@ import com.windanesz.arcaneapprentices.Utils;
 import com.windanesz.arcaneapprentices.data.PlayerData;
 import com.windanesz.arcaneapprentices.data.Speech;
 import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
+import electroblob.wizardry.item.ItemWand;
 import electroblob.wizardry.registry.WizardryItems;
 import electroblob.wizardry.spell.Spell;
 import electroblob.wizardry.util.BlockUtils;
@@ -28,6 +29,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
@@ -91,6 +93,68 @@ public class WizardAIFollowOwner extends EntityAIBase {
 					this.wizard.resetRareEventCooldown();
 				} else {
 					Speech.OWNER_HAS_LOW_FOOD_LEVEL.say(this.wizard);
+				}
+			}
+
+			// Check for low mana and gift mana flasks
+			if (wizard.rareEventReady() && wizard.world.rand.nextInt(500) == 0) {
+				ItemStack heldItem = player.getHeldItemMainhand();
+				if (heldItem.getItem() instanceof ItemWand) {
+					ItemWand wand = (ItemWand) heldItem.getItem();
+					int currentMana = wand.getMana(heldItem);
+					if (currentMana < 150) {
+						// 80% chance for small flask, 20% chance for medium flask
+						ItemStack flaskToGive;
+						if (wizard.world.rand.nextFloat() < 0.8f) {
+							flaskToGive = new ItemStack(WizardryItems.small_mana_flask);
+						} else {
+							flaskToGive = new ItemStack(WizardryItems.medium_mana_flask);
+						}
+						
+						Utils.giveStackToPlayer(player, flaskToGive);
+						this.wizard.sayImmediately(new TextComponentTranslation(Speech.OWNER_GIVE_MANA_FLASK.getRandom(), flaskToGive.getDisplayName()));
+						this.wizard.resetRareEventCooldown(0.8f);
+					}
+				}
+			}
+
+			// Environment and biome remarks
+			if (wizard.world.rand.nextInt(800) == 0) {
+				int dimension = wizard.world.provider.getDimension();
+				
+				if (dimension == -1) { // Nether
+					Speech.WIZARD_NETHER_REMARKS.sayWithoutSpam(wizard);
+				} else if (dimension == 1) { // End
+					Speech.WIZARD_END_REMARKS.sayWithoutSpam(wizard);
+				} else if (dimension == 0) { // Overworld - check biome
+					BlockPos pos = wizard.getPosition();
+					Biome biome = wizard.world.getBiome(pos);
+					float temperature = biome.getTemperature(pos);
+					if (world.isRemote) {
+						String biomeName = biome.getBiomeName();
+
+						// Determine temperature category and say appropriate remark
+						if (temperature < 0.1f) {
+							// Cold biome
+							wizard.sayWithoutSpam(new TextComponentTranslation(Speech.WIZARD_BIOME_REMARKS.getString() + "_0", biomeName));
+						} else if (temperature < 0.3f) {
+							// Cool biome
+							wizard.sayWithoutSpam(new TextComponentTranslation(Speech.WIZARD_BIOME_REMARKS.getString() + "_1", biomeName));
+						} else if (temperature > 0.9f) {
+							// Hot biome
+							wizard.sayWithoutSpam(new TextComponentTranslation(Speech.WIZARD_BIOME_REMARKS.getString() + "_2", biomeName));
+						} else if (temperature > 0.7f) {
+							// Warm biome
+							wizard.sayWithoutSpam(new TextComponentTranslation(Speech.WIZARD_BIOME_REMARKS.getString() + "_3", biomeName));
+						} else if (temperature > 0.5f) {
+							// Mild biome
+							wizard.sayWithoutSpam(new TextComponentTranslation(Speech.WIZARD_BIOME_REMARKS.getString() + "_4", biomeName));
+						} else {
+							// Temperate biome
+							wizard.sayWithoutSpam(new TextComponentTranslation(Speech.WIZARD_BIOME_REMARKS.getString() + "_5", biomeName));
+						}
+					}
+
 				}
 			}
 
