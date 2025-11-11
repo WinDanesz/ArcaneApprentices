@@ -68,6 +68,7 @@ public class LootRegistry {
 		LootTableList.register(new ResourceLocation(ArcaneApprentices.MODID, "subsets/nether_mobs"));
 		LootTableList.register(new ResourceLocation(ArcaneApprentices.MODID, "subsets/ocean_mobs"));
 		LootTableList.register(new ResourceLocation(ArcaneApprentices.MODID, "subsets/ocean_monument"));
+		LootTableList.register(new ResourceLocation(ArcaneApprentices.MODID, "chests/school_shelf"));
 
 	}
 

@@ -1340,8 +1340,10 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 
 	public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, IEntityLivingData livingdata) {
 		livingdata = super.onInitialSpawn(difficulty, livingdata);
+		this.setLevel(0);
 		this.setCustomNameTag(Utils.generateWizardName(world));
 		this.textureIndex = this.rand.nextInt(2);
+		setTalent(Talent.getRandom());
 		if (this.rand.nextBoolean()) {
 			this.setElement(Element.values()[this.rand.nextInt(Element.values().length - 1) + 1]);
 		} else {
@@ -1370,13 +1372,6 @@ public class EntityWizardInitiate extends EntityCreature implements INpc, ISpell
 			this.setDropChance(slot, !Settings.generalSettings.APPRENTICES_CAN_BE_RESURRECTED ? 0 : 100.0F);
 		}
 
-		//this.spells.add(Spells.magic_missile);
-		//		Tier maxTier = populateSpells(this, this.spells, element, false, 3, this.rand);
-		//		ItemStack wand = new ItemStack(WizardryItems.getWand(maxTier, element));
-		//		ArrayList<Spell> list = new ArrayList(this.spells);
-		//		list.add(Spells.heal);
-		//		WandHelper.setSpells(wand, (Spell[])list.toArray(new Spell[5]));
-		//		this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, wand);
 		this.setHealCooldown(50);
 		this.setHome(new Location(this.getPos(), this.dimension));
 		return livingdata;

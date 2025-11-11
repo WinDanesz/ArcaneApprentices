@@ -26,4 +26,7 @@ public class CommonProxy {
 	}
 
 	public void registerExtraHandbookContent() {}
+
+	/** Called from the Antique Atlas integration to register marker icons. Does nothing on the server side. */
+	public void registerAtlasMarkers() {}
 }

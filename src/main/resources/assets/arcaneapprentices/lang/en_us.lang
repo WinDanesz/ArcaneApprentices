@@ -600,3 +600,4 @@ message.arcaneapprentices:warden_flame_extinguish=I have extinguished the flames
 message.arcaneapprentices:warden_frost_warm=I have warmed you with my magic, master. The frost should no longer affect you.
 talent.merchant=Merchant
 talent.merchant.desc=%s is a skilled merchant, able to trade with the player. Every two days he offers a new random item to sell.
+integration.antiqueatlas.marker.arcaneapprentices.school_marker=School of Magic

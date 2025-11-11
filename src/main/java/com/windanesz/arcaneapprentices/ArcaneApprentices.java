@@ -10,7 +10,7 @@ import com.windanesz.arcaneapprentices.packet.AAPacketHandler;
 import com.windanesz.arcaneapprentices.registry.AAAdvancementTriggers;
 import com.windanesz.arcaneapprentices.registry.BlockRegistry;
 import com.windanesz.arcaneapprentices.registry.LootRegistry;
-import com.windanesz.arcaneapprentices.village.StructureWizardHouse;
+import com.windanesz.arcaneapprentices.worldgen.WorldGenSchool;
 import com.windanesz.wizardryutils.registry.ItemModelRegistry;
 import electroblob.wizardry.api.WizardryEnumHelper;
 import net.minecraftforge.common.MinecraftForge;
@@ -54,16 +54,23 @@ public class ArcaneApprentices {
 		proxy.registerExtraHandbookContent();
 		LootRegistry.preInit();
 		AAAdvancementTriggers.register();
-	}	@EventHandler
+
+		// Initialize Antique Atlas integration
+		com.windanesz.arcaneapprentices.integration.antiqueatlas.AAAntiqueAtlasIntegration.init();
+
+		// Register worldgen structures
+		net.minecraftforge.fml.common.registry.GameRegistry.registerWorldGenerator(new WorldGenSchool(), 0);
+	}
+
+	@EventHandler
 	public void init(FMLInitializationEvent event) {
 
 		MinecraftForge.EVENT_BUS.register(instance);
 		proxy.registerParticles();
 		proxy.init();
-		StructureWizardHouse.init();
 		AAPacketHandler.initPackets();
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, new AAGuiHandler());
-		
+
 		// Initialize the name generator
 		NameGenerator.getInstance().initialize();
 
@@ -75,7 +82,9 @@ public class ArcaneApprentices {
 		PlayerData.init();
 		proxy.postInit();
 		Talent.TalentSettings.init();
-	}	@EventHandler
+	}
+
+	@EventHandler
 	public void serverStarting(FMLServerStartingEvent event) {
 		event.registerServerCommand(new CommandResetApprenticeData());
 		event.registerServerCommand(new CommandSetApprenticeLevel());

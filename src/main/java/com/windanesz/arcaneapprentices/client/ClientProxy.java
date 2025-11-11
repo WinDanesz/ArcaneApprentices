@@ -41,4 +41,9 @@ public class ClientProxy extends CommonProxy {
 	public void registerExtraHandbookContent() {
 		GuiWizardHandbook.registerAddonHandbookContent(ArcaneApprentices.MODID);
 	}
+
+	@Override
+	public void registerAtlasMarkers() {
+		com.windanesz.arcaneapprentices.integration.antiqueatlas.AAAntiqueAtlasIntegration.registerMarkers();
+	}
 }

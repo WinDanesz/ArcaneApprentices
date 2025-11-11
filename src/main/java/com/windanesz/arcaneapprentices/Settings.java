@@ -14,7 +14,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Config(modid = ArcaneApprentices.MODID, name = "arcaneapprentices") // No fancy configs here so we can use the annotation, hurrah!
 public class Settings {
@@ -32,6 +31,10 @@ public class Settings {
 	@Config.LangKey("settings.arcaneapprentices:journey_settings")
 	public static JourneySettings journeySettings = new JourneySettings();
 
+	@Config.Name("Worldgen Settings")
+	@Config.LangKey("settings.arcaneapprentices:worldgen_settings")
+	public static WorldgenSettings worldgenSettings = new WorldgenSettings();
+
 	@SuppressWarnings("unused")
 	@Mod.EventBusSubscriber(modid = ArcaneApprentices.MODID)
 	private static class EventHandler {
@@ -46,6 +49,20 @@ public class Settings {
 				ConfigManager.sync(ArcaneApprentices.MODID, Config.Type.INSTANCE);
 			}
 		}
+	}
+
+	public static class WorldgenSettings {
+
+		@Config.RequiresMcRestart
+		@Config.Name("School Rarity")
+		@Config.Comment("Rarity of wizard schools spawning in the world. Higher values make them rarer. Set to 0 to disable.")
+		@Config.RangeInt(min = 0)
+		public int schoolRarity = 1500;
+
+		@Config.RequiresMcRestart
+		@Config.Name("School Dimensions")
+		@Config.Comment("List of dimension IDs where wizard schools can spawn.")
+		public int[] schoolDimensions = {0};
 	}
 
 	public static class JourneySettings {
@@ -127,6 +144,33 @@ public class Settings {
 				+ " and if it is set to true, respawning apprentices will instantly die. When this 'PotionCore Compat Fix' setting is set to true, it will force the mentioned"
 				+ "PotionCore config to be false.")
 		public boolean POTIONCORE_COMPAT_FIX = true;
+
+		@Config.Name("Antique Atlas Integration")
+		@Config.Comment("Enables integration with Antique Atlas mod to mark wizard schools on the map")
+		public boolean antique_atlas_integration = true;
+
+		@Config.Name("School Map Markers")
+		@Config.Comment("Automatically add wizard school markers to Antique Atlas maps when they are generated")
+		public boolean school_map_markers = true;
+
+		@Config.Name("NPC Spell Forfeit Enabled")
+		@Config.Comment("If true, apprentice NPCs have a chance to fail spells based on their level")
+		public boolean NPC_SPELL_FORFEIT_ENABLED = true;
+
+		@Config.Name("NPC Spell Forfeit Min Level")
+		@Config.Comment("The minimum level at which apprentices have the highest chance to fail spells")
+		@Config.RangeInt(min = 0, max = 30)
+		public int NPC_SPELL_FORFEIT_MIN_LEVEL = 0;
+
+		@Config.Name("NPC Spell Forfeit Max Level")
+		@Config.Comment("The level at which apprentices no longer fail spells")
+		@Config.RangeInt(min = 0, max = 30)
+		public int NPC_SPELL_FORFEIT_MAX_LEVEL = 15;
+
+		@Config.Name("NPC Spell Forfeit Max Chance")
+		@Config.Comment("The maximum chance (0.0 - 1.0) for apprentices to fail a spell at the minimum level")
+		@Config.RangeDouble(min = 0.0, max = 1.0)
+		public double NPC_SPELL_FORFEIT_MAX_CHANCE = 0.08;
 
 		@Config.RequiresMcRestart
 		@Config.Name("List of Artefacts NPC Apprentices Can Use")
