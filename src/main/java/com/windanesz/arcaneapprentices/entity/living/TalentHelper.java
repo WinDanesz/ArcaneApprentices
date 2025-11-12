@@ -35,6 +35,10 @@ public class TalentHelper {
 	static void tickTalent(EntityWizardInitiate entityWizardInitiate) {
 		Random rand = entityWizardInitiate.world.rand;
 
+		if (!entityWizardInitiate.hasTalentUnlocked()) {
+			return;
+		}
+
 		switch (entityWizardInitiate.getTalent()) {
 			case HEALER:
 				if (entityWizardInitiate.ticksExisted % 200 == 0) {
