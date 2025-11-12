@@ -8,6 +8,8 @@ import com.windanesz.arcaneapprentices.data.Speech;
 import com.windanesz.arcaneapprentices.data.StoredEntity;
 import com.windanesz.arcaneapprentices.entity.living.Talent;
 import com.windanesz.arcaneapprentices.entity.living.EntityWizardInitiate;
+import com.windanesz.arcaneapprentices.misc.ForfeitAA;
+import com.windanesz.arcaneapprentices.registry.AAItems;
 import com.windanesz.wizardryutils.capability.SummonedCreatureData;
 import electroblob.wizardry.block.BlockReceptacle;
 import electroblob.wizardry.constants.Constants;
@@ -176,6 +178,55 @@ public final class EventHandler {
 		if (event.getCaster() instanceof EntityWizardInitiate) {
 
 			EntityWizardInitiate npc = (EntityWizardInitiate) event.getCaster();
+
+			// NPC Spell Forfeit System - chance to fail spells based on level
+			if (Settings.generalSettings.NPC_SPELL_FORFEIT_ENABLED && !event.isCanceled()) {
+				int level = npc.getLevel();
+				int minLevel = Settings.generalSettings.NPC_SPELL_FORFEIT_MIN_LEVEL;
+				int maxLevel = Settings.generalSettings.NPC_SPELL_FORFEIT_MAX_LEVEL;
+				double maxChance = Settings.generalSettings.NPC_SPELL_FORFEIT_MAX_CHANCE;
+
+				// Only apply forfeit if level is within the configured range
+				if (level >= minLevel && level < maxLevel) {
+					// Calculate forfeit chance: linearly decreases from maxChance to 0 as level increases
+					double forfeitChance = maxChance * (1.0 - ((double)(level - minLevel) / (maxLevel - minLevel)));
+
+					if (npc.world.rand.nextDouble() < forfeitChance && !npc.isArtefactActive(AAItems.charm_focus_of_clarity)) {
+						event.setCanceled(true);
+						
+						// Apply a random forfeit based on spell tier and element
+						ForfeitAA forfeit = ForfeitAA.getRandomForfeit(
+								npc.world.rand, event.getSpell().getTier(), event.getSpell().getElement()
+										== Element.MAGIC ?
+										Element.values()[1 + npc.world.rand.nextInt(Element.values().length - 1)]
+										: event.getSpell().getElement());
+
+						if (forfeit != null) {
+							// Say a forfeit/failure line
+
+							// Apply the forfeit effect to the world centered on the NPC
+							// We need to get the NPC's owner if they have one, otherwise use a fake player context
+							net.minecraft.entity.Entity ownerEntity = npc.getOwner();
+							EntityLivingBase target = npc.world.rand.nextFloat() < 0.3 ? npc : null;
+							if (target == null && ownerEntity instanceof EntityPlayer) {
+								target = (EntityPlayer) ownerEntity;
+								Speech.WIZARD_SPELL_FORFEIT_MASTER.say(npc);
+							} else {
+								Speech.WIZARD_SPELL_FORFEIT_SELF.say(npc);
+							}
+							forfeit.apply(npc.world, target);
+
+							if (!npc.world.isRemote) {
+								// Play the forfeit sound effect at NPC's position
+								npc.world.playSound(null, npc.posX, npc.posY, npc.posZ, forfeit.getSound(), 
+										electroblob.wizardry.registry.WizardrySounds.SPELLS, 1.0f, 1.0f);
+							}
+						}
+						return;
+					}
+				}
+			}
+
 			SpellModifiers modifiers = event.getModifiers();
 
 			if (npc.getTalent() == Talent.SPELL_TINKERER && npc.hasTalentUnlocked() && AllyDesignationSystem.isAllied(event.getCaster(), npc)) {

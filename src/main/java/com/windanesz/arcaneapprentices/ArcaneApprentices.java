@@ -6,6 +6,7 @@ import com.windanesz.arcaneapprentices.command.CommandSetApprenticeLevel;
 import com.windanesz.arcaneapprentices.command.CommandSetApprenticeSpell;
 import com.windanesz.arcaneapprentices.data.PlayerData;
 import com.windanesz.arcaneapprentices.entity.living.Talent;
+import com.windanesz.arcaneapprentices.misc.ForfeitAA;
 import com.windanesz.arcaneapprentices.packet.AAPacketHandler;
 import com.windanesz.arcaneapprentices.registry.AAAdvancementTriggers;
 import com.windanesz.arcaneapprentices.registry.BlockRegistry;
@@ -58,6 +59,9 @@ public class ArcaneApprentices {
 		// Initialize Antique Atlas integration
 		com.windanesz.arcaneapprentices.integration.antiqueatlas.AAAntiqueAtlasIntegration.init();
 
+		if (Settings.generalSettings.NPC_SPELL_FORFEIT_ENABLED) {
+			ForfeitAA.register();
+		}
 		// Register worldgen structures
 		net.minecraftforge.fml.common.registry.GameRegistry.registerWorldGenerator(new WorldGenSchool(), 0);
 	}

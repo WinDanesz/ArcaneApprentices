@@ -170,7 +170,7 @@ public class Settings {
 		@Config.Name("NPC Spell Forfeit Max Chance")
 		@Config.Comment("The maximum chance (0.0 - 1.0) for apprentices to fail a spell at the minimum level")
 		@Config.RangeDouble(min = 0.0, max = 1.0)
-		public double NPC_SPELL_FORFEIT_MAX_CHANCE = 0.08;
+		public double NPC_SPELL_FORFEIT_MAX_CHANCE = 0.16;
 
 		@Config.RequiresMcRestart
 		@Config.Name("List of Artefacts NPC Apprentices Can Use")
@@ -243,7 +243,8 @@ public class Settings {
 		@Config.Name("Apprentice XP Gain on identified spells. Each tier multiplies it")
 		public int XP_GAIN_ON_IDENTIFICATION = 100;
 
-		@Config.Name("Apprentice XP Gain on observing player spell casts. Each tier multiplies it. This depends on the chance of SPELL_REMARK_MESSAGE_CHANCE setting.")
+		@Config.Name("Apprentice XP Gain on observing player spell casts")
+		@Config.Comment("Each tier multiplies it. This depends on the chance of SPELL_REMARK_MESSAGE_CHANCE setting.")
 		public int XP_GAIN_ON_WATCHING_PLAYER_USING_MAGIC = 30;
 
 		@Config.Name("Identifying Spell Duration Multiplier Compared to Learning")

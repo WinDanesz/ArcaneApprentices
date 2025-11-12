@@ -1,4 +1,3 @@
-
 # Generic
 settings.arcaneapprentices:general_settings=General Settings
 entity.arcaneapprentices:owned_wizard.nameplate=%2$s, %1$s's apprentice
@@ -511,6 +510,8 @@ item.arcaneapprentices:amulet_survival_chance.name=Zandar's Amulet of Warding
 item.arcaneapprentices:amulet_survival_chance.desc=Increases survival chance of apprentices during journeys by 15%%
 item.arcaneapprentices:head_knowledge.name=Circlet of Knowledge
 item.arcaneapprentices:head_knowledge.desc=Reduces the spell learning and identification time by 33%% for apprentices
+item.arcaneapprentices:charm_focus_of_clarity.name=Focus of Clarity
+item.arcaneapprentices:charm_focus_of_clarity.desc=Negates the spell failure chance for apprentices
 
 advancement.arcaneapprentices:root=Apprentice Arcana
 advancement.arcaneapprentices:root.desc=A wizard's journey to becoming a master
@@ -601,3 +602,15 @@ message.arcaneapprentices:warden_frost_warm=I have warmed you with my magic, mas
 talent.merchant=Merchant
 talent.merchant.desc=%s is a skilled merchant, able to trade with the player. Every two days he offers a new random item to sell.
 integration.antiqueatlas.marker.arcaneapprentices.school_marker=School of Magic
+
+message.arcaneapprentices:wizard_spell_forfeit_self_0=Oops... I think I messed up that spell.
+message.arcaneapprentices:wizard_spell_forfeit_self_1=I think I need more practice...
+message.arcaneapprentices:wizard_spell_forfeit_self_2=Oh no, the magic slipped away from me!
+message.arcaneapprentices:wizard_spell_forfeit_self_3=Sorry, I didn't mean to do that!
+message.arcaneapprentices:wizard_spell_forfeit_self_4=Oh no, I lost control of the spell!
+message.arcaneapprentices:wizard_spell_forfeit_self_5=Flick of the wrist gone wrong, master! Sorry about that!
+message.arcaneapprentices:wizard_spell_forfeit_self_6=Nooo
+message.arcaneapprentices:wizard_spell_forfeit_master_0=I'm so sorry!
+message.arcaneapprentices:wizard_spell_forfeit_master_1=That didn't go as planned... Sorry!
+message.arcaneapprentices:wizard_spell_forfeit_master_2=Watch out, master! I lost control of the spell!
+message.arcaneapprentices:wizard_spell_forfeit_master_3=I'm sorry, master! I lost control of the spell!
